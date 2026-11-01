@@ -1,0 +1,4 @@
+[tool.pyright]
+include = ["src", "migrations"]
+extraPaths = ["src"]
+pythonVersion = "3.13"
