@@ -1,25 +1,27 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
+
 from sqlalchemy import (
-    Index,
     BigInteger,
     DateTime,
     Enum,
     ForeignKey,
+    Index,
     Text,
     text,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:
     from app.infrastructure.database.models.identity.client_device import ClientDevice
     from app.infrastructure.database.models.identity.user import User
 
-from app.infrastructure.database.enums.synchronization import SyncStatus
 from app.infrastructure.database.enums.common import EntityType
+from app.infrastructure.database.enums.synchronization import SyncStatus
 
 
 class SyncState(Base):

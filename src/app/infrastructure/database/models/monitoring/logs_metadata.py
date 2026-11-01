@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     BigInteger,
     DateTime,
@@ -11,14 +12,15 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:
+    from app.infrastructure.database.models.identity.user import User
     from app.infrastructure.database.models.infrastructure.container import Container
     from app.infrastructure.database.models.infrastructure.device import Device
-    from app.infrastructure.database.models.projects.project import Project
     from app.infrastructure.database.models.infrastructure.service import Service
-    from app.infrastructure.database.models.identity.user import User
+    from app.infrastructure.database.models.projects.project import Project
 
 
 class LogsMetadata(Base):

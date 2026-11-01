@@ -1,26 +1,27 @@
 import uuid
-from typing import Any
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
 from sqlalchemy import (
-    Index,
     BigInteger,
     DateTime,
-    Identity,
     Enum,
     ForeignKey,
+    Identity,
+    Index,
     text,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:
     from app.infrastructure.database.models.identity.client_device import ClientDevice
     from app.infrastructure.database.models.identity.user import User
 
-from app.infrastructure.database.enums.synchronization import ChangeOperation
 from app.infrastructure.database.enums.common import EntityType
+from app.infrastructure.database.enums.synchronization import ChangeOperation
 
 
 class ChangeLog(Base):

@@ -9,17 +9,17 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:
-    from app.infrastructure.database.models.synchronization.change_log import ChangeLog
     from app.infrastructure.database.models.identity.client_device import ClientDevice
+    from app.infrastructure.database.models.identity.session import Session
     from app.infrastructure.database.models.infrastructure.device import Device
     from app.infrastructure.database.models.infrastructure.device_group import (
         DeviceGroup,
     )
     from app.infrastructure.database.models.monitoring.event import Event
     from app.infrastructure.database.models.monitoring.logs_metadata import LogsMetadata
-    from app.infrastructure.database.models.projects.project import Project
-    from app.infrastructure.database.models.identity.session import Session
     from app.infrastructure.database.models.preferences.setting import Setting
+    from app.infrastructure.database.models.projects.project import Project
+    from app.infrastructure.database.models.synchronization.change_log import ChangeLog
     from app.infrastructure.database.models.synchronization.sync_state import SyncState
 
 if TYPE_CHECKING:

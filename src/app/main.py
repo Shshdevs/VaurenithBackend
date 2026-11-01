@@ -55,9 +55,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @application.exception_handler(Exception)
     async def handle_unexpected_exception(
-        _request: Request, exception: Exception
+        request: Request, exception: Exception
     ) -> JSONResponse:
-        logger.exception("Unhandled application error")
+        logger.exception(
+            "Unhandled application error request_id=%s",
+            getattr(request.state, "request_id", None),
+        )
         return _error(500, "Internal server error")
 
     return application

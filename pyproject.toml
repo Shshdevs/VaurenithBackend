@@ -2,3 +2,27 @@
 include = ["src", "migrations"]
 extraPaths = ["src"]
 pythonVersion = "3.13"
+
+[tool.ruff]
+line-length = 88
+target-version = "py313"
+src = ["src"]
+extend-exclude = [".venv", "build", "dist"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["B008"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+pythonpath = ["src"]
+addopts = "-ra"
+
+[tool.bandit]
+targets = ["src", "migrations"]
+exclude_dirs = [".venv", "tests"]

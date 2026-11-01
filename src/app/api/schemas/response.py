@@ -1,10 +1,6 @@
-from typing import Generic, TypeVar
-
-from pydantic import BaseModel
-
-T = TypeVar("T")
+from app.api.schemas.common import Schema
 
 
-class ApiResponse(BaseModel, Generic[T]):
+class ApiResponse[T](Schema):
     message: str
     data: T | None = None

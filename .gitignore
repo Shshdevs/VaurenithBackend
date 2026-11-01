@@ -5,9 +5,23 @@ __pycache__/
 .env
 .env.*
 !.env.example
+.aws/
+.ssh/
+secrets*.yml
+secrets*.yaml
 
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.pyright/
+
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+build/
+dist/
+*.egg-info/
+*.log
 
 .DS_Store

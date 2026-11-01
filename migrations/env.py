@@ -1,4 +1,3 @@
-from importlib import import_module
 from logging.config import fileConfig
 
 from alembic import context
@@ -6,10 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 
 from app.core.config import get_settings
-from app.infrastructure.database.base import Base
-
-import_module("app.infrastructure.database.models")
-
+from app.infrastructure.database.models import Base
 
 config = context.config
 

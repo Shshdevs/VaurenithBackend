@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, String, text, ForeignKey
+from sqlalchemy import DateTime, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -13,8 +13,8 @@ if TYPE_CHECKING:
     from app.infrastructure.database.models.identity.user import User
 
 if TYPE_CHECKING:
-    from app.infrastructure.database.models.identity.user import User
     from app.infrastructure.database.models.identity.client_device import ClientDevice
+    from app.infrastructure.database.models.identity.user import User
 
 
 class Session(Base):

@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     ARRAY,
     BigInteger,
@@ -13,25 +14,26 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:
+    from app.infrastructure.database.models.automation.script_execution import (
+        ScriptExecution,
+    )
+    from app.infrastructure.database.models.automation.script_target import ScriptTarget
+    from app.infrastructure.database.models.identity.user import User
     from app.infrastructure.database.models.infrastructure.connection import Connection
     from app.infrastructure.database.models.infrastructure.container import Container
     from app.infrastructure.database.models.infrastructure.database import Database
     from app.infrastructure.database.models.infrastructure.device_group_member import (
         DeviceGroupMember,
     )
+    from app.infrastructure.database.models.infrastructure.service import Service
     from app.infrastructure.database.models.monitoring.event import Event
     from app.infrastructure.database.models.monitoring.logs_metadata import LogsMetadata
     from app.infrastructure.database.models.monitoring.metric import Metric
     from app.infrastructure.database.models.projects.project_device import ProjectDevice
-    from app.infrastructure.database.models.automation.script_execution import (
-        ScriptExecution,
-    )
-    from app.infrastructure.database.models.automation.script_target import ScriptTarget
-    from app.infrastructure.database.models.infrastructure.service import Service
-    from app.infrastructure.database.models.identity.user import User
 
 from app.infrastructure.database.enums.infrastructure import DeviceType
 

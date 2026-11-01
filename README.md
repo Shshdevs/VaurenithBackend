@@ -35,10 +35,10 @@ Backend-модуль проекта Vaurenith предоставляет HTTP AP
    source .venv/bin/activate
    ```
 
-2. Установите зависимости и создайте конфигурацию:
+2. Установите зависимости для разработки и создайте конфигурацию:
 
    ```bash
-   pip install -r requirements.txt
+   pip install -r requirements-dev.txt
    cp .env.example .env
    ```
 
@@ -51,6 +51,32 @@ Backend-модуль проекта Vaurenith предоставляет HTTP AP
    ```
 
 API будет доступно на `http://localhost:8000`, интерактивная документация — на `http://localhost:8000/docs`.
+
+## Проверки качества
+
+`requirements.txt` содержит только зависимости, необходимые для запуска сервиса. Docker-образ устанавливает этот список. `requirements-dev.txt` включает runtime-зависимости и инструменты для разработки, анализа кода и тестов. Semgrep подключён как pre-commit hook и устанавливается в отдельное окружение, поэтому его зависимости не конфликтуют с FastAPI.
+
+Для локальной разработки установите dev-зависимости:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Основные команды:
+
+```bash
+make lint
+make lint-fix
+make format
+make format-check
+make typecheck
+make semgrep
+make security
+make test
+make check
+```
+
+`make check` запускает линтер, проверку форматирования, Pyright, Bandit, Semgrep и тесты. При первом запуске pre-commit создаёт изолированное окружение Semgrep. Новые тесты размещаются в каталоге `tests` и запускаются командой `make test`.
 
 ## Настройки окружения
 

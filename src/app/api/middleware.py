@@ -17,17 +17,7 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
         request.state.request_id = request_id
         started = time.perf_counter()
 
-        try:
-            response = await call_next(request)
-        except Exception:
-            logger.exception(
-                "request failed request_id=%s method=%s path=%s",
-                request_id,
-                request.method,
-                request.url.path,
-            )
-            raise
-
+        response = await call_next(request)
         elapsed_ms = (time.perf_counter() - started) * 1000
         response.headers["X-Request-ID"] = request_id
         response.headers["X-Process-Time-Ms"] = f"{elapsed_ms:.2f}"

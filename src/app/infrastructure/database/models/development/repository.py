@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
+
 from sqlalchemy import (
     BigInteger,
     DateTime,
@@ -12,6 +13,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:

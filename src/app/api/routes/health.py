@@ -3,9 +3,9 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from app.api.dependencies.database import get_db
 from app.api.schemas.health import DependencyHealth, LivenessData, ReadinessData
 from app.api.schemas.response import ApiResponse
-from app.api.dependencies.database import get_db
 
 router = APIRouter(tags=["health"])
 

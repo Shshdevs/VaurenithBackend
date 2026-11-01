@@ -2,27 +2,28 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, String, text, ForeignKey, Enum as SQLAlchemyEnum
+from sqlalchemy import DateTime, ForeignKey, String, text
+from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:
-    from app.infrastructure.database.models.synchronization.change_log import ChangeLog
-    from app.infrastructure.database.models.monitoring.event import Event
     from app.infrastructure.database.models.automation.script_execution import (
         ScriptExecution,
     )
     from app.infrastructure.database.models.identity.session import Session
-    from app.infrastructure.database.models.preferences.setting import Setting
-    from app.infrastructure.database.models.synchronization.sync_state import SyncState
     from app.infrastructure.database.models.identity.user import User
-from app.infrastructure.database.enums.identity import PlatformType, ClientDeviceStatus
+    from app.infrastructure.database.models.monitoring.event import Event
+    from app.infrastructure.database.models.preferences.setting import Setting
+    from app.infrastructure.database.models.synchronization.change_log import ChangeLog
+    from app.infrastructure.database.models.synchronization.sync_state import SyncState
+from app.infrastructure.database.enums.identity import ClientDeviceStatus, PlatformType
 
 if TYPE_CHECKING:
-    from app.infrastructure.database.models.identity.user import User
     from app.infrastructure.database.models.identity.session import Session
+    from app.infrastructure.database.models.identity.user import User
 
 
 class ClientDevice(Base):

@@ -1,0 +1,19 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.14.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+  - repo: https://github.com/semgrep/pre-commit
+    rev: v1.181.1
+    hooks:
+      - id: semgrep
+        args: [--config, p/python, --error, --skip-unknown-extensions]
+  - repo: local
+    hooks:
+      - id: pyright
+        name: pyright
+        entry: pyright
+        language: system
+        pass_filenames: false

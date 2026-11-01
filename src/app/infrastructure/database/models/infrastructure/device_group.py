@@ -1,23 +1,25 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
+
 from sqlalchemy import (
-    ForeignKey,
-    UniqueConstraint,
     DateTime,
+    ForeignKey,
     String,
     Text,
+    UniqueConstraint,
     text,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:
+    from app.infrastructure.database.models.identity.user import User
     from app.infrastructure.database.models.infrastructure.device_group_member import (
         DeviceGroupMember,
     )
-    from app.infrastructure.database.models.identity.user import User
 
 
 class DeviceGroup(Base):

@@ -1,20 +1,22 @@
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
+
 from sqlalchemy import (
-    Index,
     DateTime,
     ForeignKey,
+    Index,
     text,
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:
+    from app.infrastructure.database.models.automation.script import Script
     from app.infrastructure.database.models.infrastructure.device import Device
     from app.infrastructure.database.models.projects.environment import Environment
-    from app.infrastructure.database.models.automation.script import Script
 
 
 class ScriptTarget(Base):

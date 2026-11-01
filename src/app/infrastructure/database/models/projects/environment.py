@@ -1,7 +1,7 @@
 import uuid
-from typing import Any
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
 from sqlalchemy import (
     BigInteger,
     DateTime,
@@ -13,14 +13,15 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.infrastructure.database.base import Base
 
 if TYPE_CHECKING:
+    from app.infrastructure.database.models.automation.script_target import ScriptTarget
     from app.infrastructure.database.models.infrastructure.container import Container
     from app.infrastructure.database.models.infrastructure.database import Database
-    from app.infrastructure.database.models.projects.project import Project
-    from app.infrastructure.database.models.automation.script_target import ScriptTarget
     from app.infrastructure.database.models.infrastructure.service import Service
+    from app.infrastructure.database.models.projects.project import Project
 
 from app.infrastructure.database.enums.projects import EnvironmentType
 
