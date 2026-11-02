@@ -70,7 +70,7 @@ async def test_readiness_reports_database_available() -> None:
     body = response.json()
     assert body["message"] == "Service is ready"
     assert body["data"]["status"] == "OK"
-    assert body["data"]["database"] == {"status": "OK", "message": None}
+    assert body["data"]["database"] == {"status": "OK", "message": "Database is ready"}
     assert set(body["data"]) == {"status", "timestamp", "database"}
     assert_utc_timestamp(body["data"])
     assert session.executed

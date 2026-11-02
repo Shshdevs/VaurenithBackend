@@ -46,8 +46,6 @@ def readiness(
         data=ReadinessData(
             status="OK",
             timestamp=datetime.now(UTC),
-            database=DependencyHealth(
-                status="OK",
-            ),
+            database=DependencyHealth(status="OK", message="Database is ready"),
         ),
     )
