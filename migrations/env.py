@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.pool import NullPool
 
 from app.core.config import get_settings
-from app.infrastructure.database.models import Base
+from app.infrastructure.persistence.models import Base
 
 config = context.config
 

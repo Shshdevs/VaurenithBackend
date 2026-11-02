@@ -1,4 +1,4 @@
-from app.api.schemas.common import Schema
+from .common import Schema
 
 
 class ApiResponse[T](Schema):
