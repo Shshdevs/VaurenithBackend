@@ -1,3 +1,5 @@
+from datetime import UTC, datetime
+
 from fastapi import APIRouter, Depends, Response, status
 
 from ....application.monitoring.use_cases.check_database_health import (
@@ -13,8 +15,8 @@ router = APIRouter(tags=["health"])
 @router.get("/health", response_model=ApiResponse[LivenessData])
 def liveness() -> ApiResponse[LivenessData]:
     return ApiResponse[LivenessData](
-        message="OK",
-        data=LivenessData(status="OK"),
+        message="Service is healthy",
+        data=LivenessData(status="OK", timestamp=datetime.now(UTC)),
     )
 
 
@@ -34,14 +36,16 @@ def readiness(
             message="Service unavailable",
             data=ReadinessData(
                 status="UNAVAILABLE",
+                timestamp=datetime.now(UTC),
                 database=database,
             ),
         )
 
     return ApiResponse[ReadinessData](
-        message="OK",
+        message="Service is ready",
         data=ReadinessData(
             status="OK",
+            timestamp=datetime.now(UTC),
             database=DependencyHealth(
                 status="OK",
             ),

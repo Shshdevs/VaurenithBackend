@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 import httpx
 import pytest
 from fastapi import FastAPI
@@ -40,12 +42,23 @@ async def request_health(
         return await client.get(path)
 
 
+def assert_utc_timestamp(data: dict[str, object]) -> None:
+    timestamp = data.get("timestamp")
+    assert isinstance(timestamp, str)
+    parsed_timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+    assert parsed_timestamp.utcoffset() == timedelta(0)
+
+
 @pytest.mark.anyio
 async def test_liveness_reports_service_available() -> None:
     response = await request_health("/api/v1/health")
 
     assert response.status_code == 200
-    assert response.json() == {"message": "OK", "data": {"status": "OK"}}
+    body = response.json()
+    assert body["message"] == "Service is healthy"
+    assert body["data"]["status"] == "OK"
+    assert set(body["data"]) == {"status", "timestamp"}
+    assert_utc_timestamp(body["data"])
 
 
 @pytest.mark.anyio
@@ -54,10 +67,12 @@ async def test_readiness_reports_database_available() -> None:
     response = await request_health("/api/v1/health/ready", session)
 
     assert response.status_code == 200
-    assert response.json() == {
-        "message": "OK",
-        "data": {"status": "OK", "database": {"status": "OK", "message": None}},
-    }
+    body = response.json()
+    assert body["message"] == "Service is ready"
+    assert body["data"]["status"] == "OK"
+    assert body["data"]["database"] == {"status": "OK", "message": None}
+    assert set(body["data"]) == {"status", "timestamp", "database"}
+    assert_utc_timestamp(body["data"])
     assert session.executed
 
 
@@ -67,14 +82,13 @@ async def test_readiness_reports_database_unavailable() -> None:
     response = await request_health("/api/v1/health/ready", session)
 
     assert response.status_code == 503
-    assert response.json() == {
-        "message": "Service unavailable",
-        "data": {
-            "status": "UNAVAILABLE",
-            "database": {
-                "status": "UNAVAILABLE",
-                "message": "Database connection failed",
-            },
-        },
+    body = response.json()
+    assert body["message"] == "Service unavailable"
+    assert body["data"]["status"] == "UNAVAILABLE"
+    assert body["data"]["database"] == {
+        "status": "UNAVAILABLE",
+        "message": "Database connection failed",
     }
+    assert set(body["data"]) == {"status", "timestamp", "database"}
+    assert_utc_timestamp(body["data"])
     assert session.executed
