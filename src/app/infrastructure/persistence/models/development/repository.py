@@ -24,7 +24,7 @@ if TYPE_CHECKING:
     )
     from .commit import Commit
 
-from ...enums.development import RepositoryType
+from .....domain.development.enums import RepositoryType
 
 
 class Repository(Base):

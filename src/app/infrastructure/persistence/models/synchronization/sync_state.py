@@ -22,8 +22,8 @@ if TYPE_CHECKING:
     )
     from ..identity.user import User
 
-from ...enums.common import EntityType
-from ...enums.synchronization import SyncStatus
+from .....domain.common.enums import EntityType
+from .....domain.synchronization.enums import SyncStatus
 
 
 class SyncState(Base):

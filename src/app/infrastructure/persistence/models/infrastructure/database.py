@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from .device import Device
     from .service import Service
 
-from ...enums.infrastructure import DbmsType, ResourceStatus
+from .....domain.infrastructure.enums import DbmsType, ResourceStatus
 
 
 class Database(Base):

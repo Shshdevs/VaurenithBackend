@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     )
     from .service import Service
 
-from ...enums.infrastructure import DeviceType
+from .....domain.infrastructure.enums import DeviceType
 
 
 class Device(Base):

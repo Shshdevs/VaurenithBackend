@@ -26,7 +26,7 @@ if TYPE_CHECKING:
         ScriptTarget,
     )
 
-from ...enums.automation import (
+from .....domain.automation.enums import (
     ScriptExecutionType,
     ScriptRiskLevel,
 )

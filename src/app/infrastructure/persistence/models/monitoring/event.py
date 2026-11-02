@@ -23,8 +23,8 @@ if TYPE_CHECKING:
     from ..infrastructure.device import Device
     from ..projects.project import Project
 
-from ...enums.common import EntityType
-from ...enums.monitoring import EventResult, EventType
+from .....domain.common.enums import EntityType
+from .....domain.monitoring.enums import EventResult, EventType
 
 
 class Event(Base):

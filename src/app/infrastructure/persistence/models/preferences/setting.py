@@ -22,7 +22,7 @@ if TYPE_CHECKING:
     )
     from ..identity.user import User
 
-from ...enums.preferences import SettingScope
+from .....domain.preferences.enums import SettingScope
 
 
 class Setting(Base):

@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from .device import Device
     from .service import Service
 
-from ...enums.infrastructure import ContainerStatus
+from .....domain.infrastructure.enums import ContainerStatus
 
 
 class Container(Base):

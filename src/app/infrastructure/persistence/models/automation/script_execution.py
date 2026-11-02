@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from ..infrastructure.device import Device
     from .script import Script
 
-from ...enums.automation import ExecutionStatus
+from .....domain.automation.enums import ExecutionStatus
 
 
 class ScriptExecution(Base):

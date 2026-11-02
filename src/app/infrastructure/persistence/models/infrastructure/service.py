@@ -26,7 +26,7 @@ if TYPE_CHECKING:
     from .database import Database
     from .device import Device
 
-from ...enums.infrastructure import (
+from .....domain.infrastructure.enums import (
     ResourceStatus,
     ServiceType,
 )

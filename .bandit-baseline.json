@@ -1022,7 +1022,7 @@
       "code": "12 class AuthenticationType(str, Enum):\n13     PASSWORD = \"password\"\n14     SSH_KEY = \"ssh_key\"\n",
       "col_offset": 15,
       "end_col_offset": 25,
-      "filename": "src/app/infrastructure/persistence/enums/infrastructure.py",
+      "filename": "src/app/domain/infrastructure/enums.py",
       "issue_confidence": "MEDIUM",
       "issue_cwe": {
         "id": 259,

@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from ..infrastructure.service import Service
     from .project import Project
 
-from ...enums.projects import EnvironmentType
+from .....domain.projects.enums import EnvironmentType
 
 
 class Environment(Base):

@@ -32,7 +32,7 @@ if TYPE_CHECKING:
         ProjectDevice,
     )
 
-from ...enums.projects import ProjectStatus, ProjectType
+from .....domain.projects.enums import ProjectStatus, ProjectType
 
 
 class Project(Base):

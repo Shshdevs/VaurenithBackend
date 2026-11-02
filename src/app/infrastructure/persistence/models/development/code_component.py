@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from .dependency import Dependency
     from .repository import Repository
 
-from ...enums.development import ComponentType
+from .....domain.development.enums import ComponentType
 
 
 class CodeComponent(Base):

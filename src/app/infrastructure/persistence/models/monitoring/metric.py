@@ -21,7 +21,7 @@ from ...base import Base
 if TYPE_CHECKING:
     from ..infrastructure.device import Device
 
-from ...enums.monitoring import MetricType, MetricUnit
+from .....domain.monitoring.enums import MetricType, MetricUnit
 
 
 class Metric(Base):

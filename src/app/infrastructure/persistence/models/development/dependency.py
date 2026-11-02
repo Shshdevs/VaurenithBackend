@@ -24,8 +24,8 @@ if TYPE_CHECKING:
         CodeComponent,
     )
 
-from ...enums.common import RelationOrigin
-from ...enums.development import DependencyType
+from .....domain.common.enums import RelationOrigin
+from .....domain.development.enums import DependencyType
 
 
 class Dependency(Base):

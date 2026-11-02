@@ -23,7 +23,7 @@ from ...base import Base
 if TYPE_CHECKING:
     from .device import Device
 
-from ...enums.infrastructure import (
+from .....domain.infrastructure.enums import (
     AuthenticationType,
     ConnectionStatus,
 )

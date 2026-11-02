@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     )
     from .session import Session
     from .user import User
-from ...enums.identity import (
+from .....domain.identity.enums import (
     ClientDeviceStatus,
     PlatformType,
 )
