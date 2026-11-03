@@ -7,12 +7,13 @@ from ...common.entity import Entity
 from ...common.types import EntityId
 from ..enums import ProjectStatus, ProjectType
 from ..exceptions import InvalidProject
+from ..value_objects import ProjectName
 
 
 class Project(Entity):
     """Central domain entity connecting development and infrastructure"""
 
-    MAX_NAME_LENGTH = 255
+    MAX_NAME_LENGTH = ProjectName.MAX_LENGTH
 
     def __init__(
         self,
@@ -30,11 +31,7 @@ class Project(Entity):
     ) -> None:
         if not isinstance(entity_id, UUID) or not isinstance(user_id, UUID):
             raise InvalidProject("Project and owner identifiers must be UUIDs")
-        if not isinstance(name, str):
-            raise InvalidProject("Project name must be a string")
-        normalized_name = name.strip()
-        if not normalized_name or len(normalized_name) > self.MAX_NAME_LENGTH:
-            raise InvalidProject("Project name is invalid")
+        normalized_name = ProjectName(name)
         if description is not None and not isinstance(description, str):
             raise InvalidProject("Project description must be a string")
         if not isinstance(project_type, ProjectType):
@@ -80,6 +77,10 @@ class Project(Entity):
 
     @property
     def name(self) -> str:
+        return self._name.value
+
+    @property
+    def name_value(self) -> ProjectName:
         return self._name
 
     @property

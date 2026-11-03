@@ -1,3 +1,11 @@
 from .enums import EnvironmentType, ProjectStatus, ProjectType
+from .value_objects import EnvironmentName, ProjectDeviceRole, ProjectName
 
-__all__ = ["EnvironmentType", "ProjectStatus", "ProjectType"]
+__all__ = [
+    "EnvironmentName",
+    "EnvironmentType",
+    "ProjectDeviceRole",
+    "ProjectName",
+    "ProjectStatus",
+    "ProjectType",
+]

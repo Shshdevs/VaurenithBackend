@@ -4,12 +4,13 @@ from uuid import UUID
 from ...common.entity import Entity
 from ...common.types import EntityId
 from ..exceptions import InvalidProjectDeviceRelation
+from ..value_objects import ProjectDeviceRole
 
 
 class ProjectDevice(Entity):
     """Many-to-many association between projects and infrastructure devices"""
 
-    MAX_ROLE_LENGTH = 100
+    MAX_ROLE_LENGTH = ProjectDeviceRole.MAX_LENGTH
 
     def __init__(
         self,
@@ -25,11 +26,11 @@ class ProjectDevice(Entity):
         ):
             raise InvalidProjectDeviceRelation("Project and device IDs must be UUIDs")
 
-        normalized_role = role.strip() if role is not None else None
-        if normalized_role == "":
-            normalized_role = None
-        if normalized_role is not None and len(normalized_role) > self.MAX_ROLE_LENGTH:
-            raise InvalidProjectDeviceRelation("Relation role is too long")
+        normalized_role = (
+            None
+            if role is None or (isinstance(role, str) and not role.strip())
+            else ProjectDeviceRole(role)
+        )
         if not isinstance(created_at, datetime) or created_at.utcoffset() is None:
             raise InvalidProjectDeviceRelation(
                 "Relation creation time must include a timezone"
@@ -55,4 +56,8 @@ class ProjectDevice(Entity):
 
     @property
     def role(self) -> str | None:
+        return self._role.value if self._role is not None else None
+
+    @property
+    def role_value(self) -> ProjectDeviceRole | None:
         return self._role

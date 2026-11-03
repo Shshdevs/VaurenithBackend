@@ -7,10 +7,11 @@ from ...common.entity import Entity
 from ...common.types import EntityId
 from ..enums import EnvironmentType
 from ..exceptions import InvalidEnvironment
+from ..value_objects import EnvironmentName
 
 
 class Environment(Entity):
-    MAX_NAME_LENGTH = 255
+    MAX_NAME_LENGTH = EnvironmentName.MAX_LENGTH
 
     def __init__(
         self,
@@ -29,11 +30,7 @@ class Environment(Entity):
             raise InvalidEnvironment(
                 "Environment and project identifiers must be UUIDs"
             )
-        if not isinstance(name, str):
-            raise InvalidEnvironment("Environment name must be a string")
-        normalized_name = name.strip()
-        if not normalized_name or len(normalized_name) > self.MAX_NAME_LENGTH:
-            raise InvalidEnvironment("Environment name is invalid")
+        normalized_name = EnvironmentName(name)
 
         if not isinstance(environment_type, EnvironmentType):
             raise InvalidEnvironment("Environment type is invalid")
@@ -84,6 +81,10 @@ class Environment(Entity):
 
     @property
     def name(self) -> str:
+        return self._name.value
+
+    @property
+    def name_value(self) -> EnvironmentName:
         return self._name
 
     @property
