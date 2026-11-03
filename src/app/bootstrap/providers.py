@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..application.monitoring.use_cases.check_database_health import (
     CheckDatabaseHealth,
@@ -8,5 +8,5 @@ from ..infrastructure.integrations.database.health_checker import (
 )
 
 
-def provide_database_health_check(session: Session) -> CheckDatabaseHealth:
+def provide_database_health_check(session: AsyncSession) -> CheckDatabaseHealth:
     return CheckDatabaseHealth(SqlAlchemyDatabaseHealthChecker(session))

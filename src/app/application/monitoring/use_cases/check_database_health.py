@@ -5,5 +5,5 @@ class CheckDatabaseHealth:
     def __init__(self, database_health_checker: DatabaseHealthChecker) -> None:
         self._database_health_checker = database_health_checker
 
-    def execute(self) -> bool:
-        return self._database_health_checker.is_available()
+    async def execute(self) -> bool:
+        return await self._database_health_checker.is_available()

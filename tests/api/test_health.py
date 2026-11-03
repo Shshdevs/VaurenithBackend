@@ -15,7 +15,7 @@ class FakeSession:
         self.error = error
         self.executed = False
 
-    def execute(self, statement: object) -> None:
+    async def execute(self, statement: object) -> None:
         self.executed = True
         assert str(statement) == str(text("SELECT 1"))
         if self.error:

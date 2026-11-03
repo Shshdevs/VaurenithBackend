@@ -1,15 +1,15 @@
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class SqlAlchemyDatabaseHealthChecker:
-    def __init__(self, session: Session) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
-    def is_available(self) -> bool:
+    async def is_available(self) -> bool:
         try:
-            self._session.execute(text("SELECT 1"))
+            await self._session.execute(text("SELECT 1"))
         except SQLAlchemyError:
             return False
         return True

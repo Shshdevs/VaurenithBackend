@@ -1,5 +1,5 @@
 from fastapi import Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...application.monitoring.use_cases.check_database_health import (
     CheckDatabaseHealth,
@@ -9,6 +9,6 @@ from .database import get_db
 
 
 def get_database_health_check(
-    session: Session = Depends(get_db),
+    session: AsyncSession = Depends(get_db),
 ) -> CheckDatabaseHealth:
     return provide_database_health_check(session)

@@ -21,11 +21,11 @@ def liveness() -> ApiResponse[LivenessData]:
 
 
 @router.get("/health/ready", response_model=ApiResponse[ReadinessData])
-def readiness(
+async def readiness(
     response: Response,
     health_check: CheckDatabaseHealth = Depends(get_database_health_check),
 ) -> ApiResponse[ReadinessData]:
-    database_available = health_check.execute()
+    database_available = await health_check.execute()
     if not database_available:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
         database = DependencyHealth(
