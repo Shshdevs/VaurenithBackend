@@ -34,12 +34,16 @@ class Environment(Entity):
         normalized_name = name.strip()
         if not normalized_name or len(normalized_name) > self.MAX_NAME_LENGTH:
             raise InvalidEnvironment("Environment name is invalid")
+
         if not isinstance(environment_type, EnvironmentType):
             raise InvalidEnvironment("Environment type is invalid")
+
         if description is not None and not isinstance(description, str):
             raise InvalidEnvironment("Environment description must be a string")
+
         if configuration is not None and not isinstance(configuration, dict):
             raise InvalidEnvironment("Environment configuration must be a JSON object")
+
         if not isinstance(version, int) or isinstance(version, bool) or version < 1:
             raise InvalidEnvironment("Environment version must be a positive integer")
 
