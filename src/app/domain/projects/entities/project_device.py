@@ -7,6 +7,8 @@ from ..exceptions import InvalidProjectDeviceRelation
 
 
 class ProjectDevice(Entity):
+    """Many-to-many association between projects and infrastructure devices"""
+
     MAX_ROLE_LENGTH = 100
 
     def __init__(

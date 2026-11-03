@@ -10,6 +10,8 @@ from ..exceptions import InvalidProject
 
 
 class Project(Entity):
+    """Central domain entity connecting development and infrastructure"""
+
     MAX_NAME_LENGTH = 255
 
     def __init__(
