@@ -6,6 +6,8 @@ from ..value_objects.email import EmailAddress
 
 
 class User(Entity):
+    """Registered cloud users"""
+
     def __init__(
         self,
         entity_id: EntityId,

@@ -7,6 +7,8 @@ from ..exceptions import InvalidClientDevice
 
 
 class ClientDevice(Entity):
+    """Devices running Vaurenith client applications"""
+
     MAX_NAME_LENGTH = 255
     MAX_APP_VERSION_LENGTH = 50
 

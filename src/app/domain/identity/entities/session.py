@@ -7,6 +7,8 @@ from ..value_objects.token_hash import TokenHash
 
 
 class Session(Entity):
+    """Cloud authentication sessions. Never store raw access tokens."""
+
     def __init__(
         self,
         entity_id: EntityId,
