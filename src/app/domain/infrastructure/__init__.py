@@ -8,14 +8,38 @@ from .enums import (
     ResourceStatus,
     ServiceType,
 )
+from .value_objects import (
+    ConnectionEndpoint,
+    ContainerImage,
+    ContainerName,
+    ContainerRuntimeId,
+    DatabaseCatalogName,
+    DatabaseEndpoint,
+    DatabaseResourceName,
+    DeviceName,
+    OperatingSystem,
+    ServiceName,
+    SystemIdentifier,
+)
 
 __all__ = [
     "AvailabilityStatus",
     "AuthenticationType",
+    "ConnectionEndpoint",
+    "ContainerImage",
+    "ContainerName",
+    "ContainerRuntimeId",
     "ContainerStatus",
     "ConnectionStatus",
+    "DatabaseCatalogName",
+    "DatabaseEndpoint",
+    "DatabaseResourceName",
     "DbmsType",
     "DeviceType",
+    "DeviceName",
+    "OperatingSystem",
     "ResourceStatus",
+    "ServiceName",
     "ServiceType",
+    "SystemIdentifier",
 ]
