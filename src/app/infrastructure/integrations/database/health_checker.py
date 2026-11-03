@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class SqlAlchemyDatabaseHealthChecker:
+class SqlAlchemyHealthChecker:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
