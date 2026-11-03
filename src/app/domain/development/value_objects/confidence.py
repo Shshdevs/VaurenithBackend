@@ -1,0 +1,25 @@
+from dataclasses import dataclass
+from decimal import Decimal
+from typing import ClassVar
+
+from ...common.value_object import ValueObject
+from ..exceptions import InvalidDependency
+
+
+@dataclass(frozen=True, slots=True, eq=False)
+class Confidence(ValueObject):
+    SCALE: ClassVar[Decimal] = Decimal("0.0001")
+    value: Decimal
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.value, Decimal):
+            raise InvalidDependency("Confidence must be a Decimal")
+        if not self.value.is_finite() or not Decimal("0") <= self.value <= Decimal("1"):
+            raise InvalidDependency("Confidence must be between 0 and 1")
+        normalized_value = self.value.quantize(self.SCALE)
+        if normalized_value != self.value:
+            raise InvalidDependency("Confidence can have at most 4 decimal places")
+        object.__setattr__(self, "value", normalized_value)
+
+    def equality_components(self) -> tuple[Decimal, ...]:
+        return (self.value,)
