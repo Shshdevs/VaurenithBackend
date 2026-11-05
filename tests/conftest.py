@@ -1,6 +1,9 @@
 import os
 
 import pytest
+from dotenv import load_dotenv
+
+load_dotenv(override=False)
 
 os.environ.setdefault(
     "DATABASE_URL",
