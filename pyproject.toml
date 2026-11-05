@@ -26,3 +26,13 @@ addopts = "-ra"
 [tool.bandit]
 targets = ["src", "migrations"]
 exclude_dirs = [".venv", "tests"]
+
+[tool.commitizen]
+name = "cz_customize"
+allowed_prefixes = ["Merge", "Revert"]
+
+[tool.commitizen.customize]
+example = "chore(dev): automate local development workflows"
+schema = "<type>(<scope>): <imperative summary>"
+schema_pattern = "^(feat|fix|refactor|test|docs|chore|build|ci|perf|style|revert)\\([a-z][a-z0-9-]*\\): .+$"
+info = "Use a lowercase type and scope. Write a concise English imperative summary without a final period."

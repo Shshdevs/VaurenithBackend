@@ -52,9 +52,11 @@ setup:
 	.venv/bin/python -m pip install -r requirements-dev.txt
 	@if [ ! -f .env ]; then cp .env.example .env; fi
 	.venv/bin/pre-commit install
+	.venv/bin/pre-commit install --hook-type commit-msg
 
 install-hooks:
 	pre-commit install
+	pre-commit install --hook-type commit-msg
 
 docker: docker-up
 
