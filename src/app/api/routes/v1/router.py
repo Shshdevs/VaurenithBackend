@@ -2,12 +2,9 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import APIRouter
 
-from ....application.health.use_cases.check_database_health import (
-    CheckDatabaseHealth,
-)
-from ....application.identity.dto.verified_identity import VerifiedIdentity
-from ....application.identity.use_cases.create_user import CreateUser
-from ....application.identity.use_cases.get_current_user import GetCurrentUser
+from ....application.health.use_cases import CheckDatabaseHealth
+from ....application.identity.dto import VerifiedIdentity
+from ....application.identity.use_cases import CreateUser, GetCurrentUser
 from .health import build_health_router
 from .user import build_user_router
 

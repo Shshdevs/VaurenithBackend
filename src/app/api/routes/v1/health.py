@@ -3,9 +3,7 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Response, status
 
-from ....application.health.use_cases.check_database_health import (
-    CheckDatabaseHealth,
-)
+from ....application.health.use_cases import CheckDatabaseHealth
 from ...schemas import ApiResponse, format_http_status
 from ...schemas.v1.health import DependencyHealth, LivenessData, ReadinessData
 

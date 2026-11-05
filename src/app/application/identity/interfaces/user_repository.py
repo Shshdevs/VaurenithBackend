@@ -1,8 +1,7 @@
 from typing import Protocol
 from uuid import UUID
 
-from ....domain.identity.entities.session import Session
-from ....domain.identity.entities.user import User
+from ....domain.identity import Session, User
 
 
 class UserRepository(Protocol):

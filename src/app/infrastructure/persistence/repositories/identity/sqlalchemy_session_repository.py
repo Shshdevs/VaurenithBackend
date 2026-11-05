@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .....application.identity.interfaces.session_repository import SessionRepository
+from .....application.identity.interfaces import SessionRepository
 from .....domain.identity.value_objects.token_hash import TokenHash
 from ...models.identity.session import Session
 

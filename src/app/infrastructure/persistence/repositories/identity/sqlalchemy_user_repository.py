@@ -5,10 +5,10 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .....application.identity.exceptions import UserAlreadyExists
-from .....application.identity.interfaces.user_repository import UserRepository
+from .....application.identity.interfaces import UserRepository
+from .....domain.identity import EmailAddress
 from .....domain.identity.entities.session import Session as SessionEntity
 from .....domain.identity.entities.user import User as UserEntity
-from .....domain.identity.value_objects.email import EmailAddress
 from ...models.identity.session import Session
 from ...models.identity.user import User
 

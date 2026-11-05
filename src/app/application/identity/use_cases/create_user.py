@@ -1,14 +1,10 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from ....domain.identity.entities.session import Session
-from ....domain.identity.entities.user import User
-from ....domain.identity.exceptions import InvalidEmail
-from ....domain.identity.value_objects.email import EmailAddress
-from ..dto.user_data import UserData
-from ..dto.verified_identity import VerifiedIdentity
+from ....domain.identity import EmailAddress, InvalidEmail, Session, User
+from ..dto import UserData, VerifiedIdentity
 from ..exceptions import InvalidIdentity
-from ..interfaces.user_repository import UserRepository
+from ..interfaces import UserRepository
 
 
 class CreateUser:

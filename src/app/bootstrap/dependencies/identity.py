@@ -1,43 +1,24 @@
-from collections.abc import AsyncGenerator
-
 from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..application.health.use_cases.check_database_health import (
-    CheckDatabaseHealth,
-)
-from ..application.identity.dto.verified_identity import VerifiedIdentity
-from ..application.identity.exceptions import InvalidIdentity
-from ..application.identity.use_cases.authenticate_identity import (
+from ...application.identity import InvalidIdentity
+from ...application.identity.dto import VerifiedIdentity
+from ...application.identity.use_cases import (
     AuthenticateIdentity,
-)
-from ..application.identity.use_cases.create_user import CreateUser
-from ..application.identity.use_cases.get_current_user import GetCurrentUser
-from ..application.identity.use_cases.verify_identity_token import (
+    CreateUser,
+    GetCurrentUser,
     VerifyIdentityToken,
 )
-from ..infrastructure.persistence.database import SessionLocal
-from .providers import (
+from ..providers import (
     provide_authenticate_identity,
     provide_create_user,
     provide_current_user,
-    provide_database_health_check,
     provide_verify_identity_token,
 )
+from .database import get_database_session
 
 _bearer_scheme = HTTPBearer(auto_error=False)
-
-
-async def get_database_session() -> AsyncGenerator[AsyncSession]:
-    async with SessionLocal() as session:
-        yield session
-
-
-def get_database_health_check(
-    session: AsyncSession = Depends(get_database_session),
-) -> CheckDatabaseHealth:
-    return provide_database_health_check(session)
 
 
 def get_current_user(

@@ -1,8 +1,8 @@
 from uuid import UUID
 
-from ..dto.user_data import UserData
+from ..dto import UserData
 from ..exceptions import UserNotFound
-from ..interfaces.user_repository import UserRepository
+from ..interfaces import UserRepository
 
 
 class GetCurrentUser:

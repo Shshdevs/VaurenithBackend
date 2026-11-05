@@ -2,9 +2,8 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import APIRouter, Depends, status
 
-from ....application.identity.dto.verified_identity import VerifiedIdentity
-from ....application.identity.use_cases.create_user import CreateUser
-from ....application.identity.use_cases.get_current_user import GetCurrentUser
+from ....application.identity.dto import VerifiedIdentity
+from ....application.identity.use_cases import CreateUser, GetCurrentUser
 from ...schemas import ApiResponse, format_http_status
 from ...schemas.v1.user import UserData
 from ...schemas.v1.user_create import UserCreateRequest

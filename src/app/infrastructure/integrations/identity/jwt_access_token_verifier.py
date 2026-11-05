@@ -4,10 +4,8 @@ from uuid import UUID
 import jwt
 from jwt import InvalidTokenError
 
-from ....application.identity.dto.identity_token_claims import IdentityTokenClaims
-from ....application.identity.interfaces.access_token_verifier import (
-    AccessTokenVerifier,
-)
+from ....application.identity.dto import IdentityTokenClaims
+from ....application.identity.interfaces import AccessTokenVerifier
 
 
 class JwtAccessTokenVerifier(AccessTokenVerifier):

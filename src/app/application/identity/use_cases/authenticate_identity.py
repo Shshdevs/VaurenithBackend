@@ -1,8 +1,8 @@
 from datetime import UTC, datetime
 
-from ..dto.verified_identity import VerifiedIdentity
+from ..dto import VerifiedIdentity
 from ..exceptions import InvalidIdentity
-from ..interfaces.session_repository import SessionRepository
+from ..interfaces import SessionRepository
 from .verify_identity_token import VerifyIdentityToken
 
 

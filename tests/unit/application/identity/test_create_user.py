@@ -3,9 +3,9 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from app.application.identity.dto.verified_identity import VerifiedIdentity
+from app.application.identity.dto import VerifiedIdentity
 from app.application.identity.exceptions import InvalidIdentity
-from app.application.identity.use_cases.create_user import CreateUser
+from app.application.identity.use_cases import CreateUser
 from app.domain.identity.entities.session import Session
 from app.domain.identity.entities.user import User
 from app.domain.identity.value_objects.email import EmailAddress
