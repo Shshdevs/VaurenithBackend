@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.dependencies.database import get_db
+from app.bootstrap.dependencies import get_database_session
 from app.main import create_app
 
 
@@ -25,7 +25,7 @@ class FakeSession:
 def make_app(session: FakeSession | None = None) -> FastAPI:
     application = create_app()
     if session is not None:
-        application.dependency_overrides[get_db] = lambda: session
+        application.dependency_overrides[get_database_session] = lambda: session
     return application
 
 

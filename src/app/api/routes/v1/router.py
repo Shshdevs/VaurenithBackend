@@ -1,9 +1,20 @@
+from collections.abc import Callable
+
 from fastapi import APIRouter
 
-from .health import router as health_router
+from ....application.monitoring.use_cases.check_database_health import (
+    CheckDatabaseHealth,
+)
+from .health import build_health_router
 
 
-def build_router(prefix: str) -> APIRouter:
+def build_router(
+    prefix: str,
+    health_check_dependency: Callable[..., CheckDatabaseHealth],
+) -> APIRouter:
     router = APIRouter()
-    router.include_router(health_router, prefix=prefix)
+    router.include_router(
+        build_health_router(health_check_dependency),
+        prefix=prefix,
+    )
     return router

@@ -7,6 +7,7 @@ from .api.middleware.request_context import (
     SecurityHeadersMiddleware,
 )
 from .api.routes.v1.router import build_router
+from .bootstrap.dependencies import get_database_health_check
 from .core.config import Settings, get_settings
 from .core.logging import configure_logging
 
@@ -26,7 +27,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    application.include_router(build_router(prefix=app_settings.api_prefix))
+    application.include_router(
+        build_router(
+            prefix=app_settings.api_prefix,
+            health_check_dependency=get_database_health_check,
+        )
+    )
     register_error_handlers(application)
 
     return application
