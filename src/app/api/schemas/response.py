@@ -12,6 +12,6 @@ def format_http_status(status_code: int) -> str:
 
 
 class ApiResponse[T](Schema):
-    message: str
     status: str
+    message: str | None = None
     data: T | None = None

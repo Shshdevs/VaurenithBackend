@@ -6,6 +6,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from ...application.common.exceptions import Conflict, NotFound, Unauthorized
 from ..schemas import ApiResponse, format_http_status
 
 logger = logging.getLogger(__name__)
@@ -45,3 +46,26 @@ def register_error_handlers(application: FastAPI) -> None:
             getattr(request.state, "request_id", None),
         )
         return _error(500, "Internal server error")
+
+    @application.exception_handler(NotFound)
+    async def handle_not_found(
+        _request: Request,
+        exception: NotFound,
+    ) -> JSONResponse:
+        return _error(404, str(exception))
+
+    @application.exception_handler(Conflict)
+    async def handle_conflict(
+        _request: Request,
+        exception: Conflict,
+    ) -> JSONResponse:
+        return _error(409, str(exception))
+
+    @application.exception_handler(Unauthorized)
+    async def handle_unauthorized(
+        _request: Request,
+        exception: Unauthorized,
+    ) -> JSONResponse:
+        response = _error(401, str(exception))
+        response.headers["WWW-Authenticate"] = "Bearer"
+        return response

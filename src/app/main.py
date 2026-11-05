@@ -7,7 +7,13 @@ from .api.middleware.request_context import (
     SecurityHeadersMiddleware,
 )
 from .api.routes.v1.router import build_router
-from .bootstrap.dependencies import get_database_health_check
+from .bootstrap.dependencies import (
+    get_authenticated_identity,
+    get_create_user,
+    get_current_user,
+    get_database_health_check,
+    get_verified_identity,
+)
 from .core.config import Settings, get_settings
 from .core.logging import configure_logging
 
@@ -31,6 +37,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         build_router(
             prefix=app_settings.api_prefix,
             health_check_dependency=get_database_health_check,
+            get_current_user_dependency=get_current_user,
+            create_user_dependency=get_create_user,
+            authenticated_identity_dependency=get_authenticated_identity,
+            verified_identity_dependency=get_verified_identity,
         )
     )
     register_error_handlers(application)
