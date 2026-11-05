@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, Response, status
 from ....application.monitoring.use_cases.check_database_health import (
     CheckDatabaseHealth,
 )
-from ...schemas.response import ApiResponse
+from ...schemas import ApiResponse, format_http_status
 from ...schemas.v1.health import DependencyHealth, LivenessData, ReadinessData
 
 
@@ -19,6 +19,7 @@ def build_health_router(
     def liveness() -> ApiResponse[LivenessData]:
         return ApiResponse[LivenessData](
             message="Service is healthy",
+            status=format_http_status(status.HTTP_200_OK),
             data=LivenessData(status="OK", timestamp=datetime.now(UTC)),
         )
 
@@ -36,6 +37,7 @@ def build_health_router(
             )
             return ApiResponse[ReadinessData](
                 message="Service unavailable",
+                status=format_http_status(response.status_code),
                 data=ReadinessData(
                     status="UNAVAILABLE",
                     timestamp=datetime.now(UTC),
@@ -45,6 +47,7 @@ def build_health_router(
 
         return ApiResponse[ReadinessData](
             message="Service is ready",
+            status=format_http_status(status.HTTP_200_OK),
             data=ReadinessData(
                 status="OK",
                 timestamp=datetime.now(UTC),

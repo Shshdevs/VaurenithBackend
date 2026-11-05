@@ -6,13 +6,17 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from ..schemas.response import ApiResponse
+from ..schemas import ApiResponse, format_http_status
 
 logger = logging.getLogger(__name__)
 
 
 def _error(status: int, message: str, data: object | None = None) -> JSONResponse:
-    body = ApiResponse[object](message=message, data=data)
+    body = ApiResponse[object](
+        message=message,
+        status=format_http_status(status),
+        data=data,
+    )
     return JSONResponse(status_code=status, content=jsonable_encoder(body))
 
 

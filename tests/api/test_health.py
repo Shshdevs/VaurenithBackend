@@ -56,6 +56,7 @@ async def test_liveness_reports_service_available() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["message"] == "Service is healthy"
+    assert body["status"] == "200 OK"
     assert body["data"]["status"] == "OK"
     assert set(body["data"]) == {"status", "timestamp"}
     assert_utc_timestamp(body["data"])
@@ -69,6 +70,7 @@ async def test_readiness_reports_database_available() -> None:
     assert response.status_code == 200
     body = response.json()
     assert body["message"] == "Service is ready"
+    assert body["status"] == "200 OK"
     assert body["data"]["status"] == "OK"
     assert body["data"]["database"] == {"status": "OK", "message": "Database is ready"}
     assert set(body["data"]) == {"status", "timestamp", "database"}
@@ -84,6 +86,7 @@ async def test_readiness_reports_database_unavailable() -> None:
     assert response.status_code == 503
     body = response.json()
     assert body["message"] == "Service unavailable"
+    assert body["status"] == "503 Service Unavailable"
     assert body["data"]["status"] == "UNAVAILABLE"
     assert body["data"]["database"] == {
         "status": "UNAVAILABLE",
