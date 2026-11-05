@@ -2,7 +2,7 @@ from collections.abc import Callable
 
 from fastapi import APIRouter
 
-from ....application.monitoring.use_cases.check_database_health import (
+from ....application.health.use_cases.check_database_health import (
     CheckDatabaseHealth,
 )
 from .health import build_health_router

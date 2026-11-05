@@ -1,8 +1,8 @@
-from ...common.interfaces.database_health import HealthChecker
+from ..interfaces.health_repository import HealthRepository
 
 
 class CheckDatabaseHealth:
-    def __init__(self, health_checker: HealthChecker) -> None:
+    def __init__(self, health_checker: HealthRepository) -> None:
         self._health_checker = health_checker
 
     async def execute(self) -> bool:

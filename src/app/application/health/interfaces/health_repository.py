@@ -1,5 +1,5 @@
 from typing import Protocol
 
 
-class HealthChecker(Protocol):
+class HealthRepository(Protocol):
     async def is_available(self) -> bool: ...
