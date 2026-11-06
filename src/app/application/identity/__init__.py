@@ -1,7 +1,37 @@
+from app.application.identity.dto import (
+    IdentityTokenClaims,
+    UserData,
+    VerifiedIdentity,
+)
 from app.application.identity.exceptions import (
     InvalidIdentity,
     UserAlreadyExists,
     UserNotFound,
 )
+from app.application.identity.interfaces import (
+    AccessTokenVerifier,
+    SessionRepository,
+    UserRepository,
+)
+from app.application.identity.use_cases import (
+    AuthenticateIdentity,
+    CreateUser,
+    GetCurrentUser,
+    VerifyIdentityToken,
+)
 
-__all__ = ["InvalidIdentity", "UserAlreadyExists", "UserNotFound"]
+__all__ = [
+    "AccessTokenVerifier",
+    "AuthenticateIdentity",
+    "CreateUser",
+    "GetCurrentUser",
+    "IdentityTokenClaims",
+    "InvalidIdentity",
+    "SessionRepository",
+    "UserAlreadyExists",
+    "UserData",
+    "UserNotFound",
+    "UserRepository",
+    "VerifiedIdentity",
+    "VerifyIdentityToken",
+]
