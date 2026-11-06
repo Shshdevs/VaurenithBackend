@@ -1,8 +1,8 @@
-from .entity import Entity
-from .enums import EntityType, RelationOrigin, RelationType
-from .exceptions import DomainError
-from .types import EntityId
-from .value_object import ValueObject
+from app.domain.common.entity import Entity
+from app.domain.common.enums import EntityType, RelationOrigin, RelationType
+from app.domain.common.exceptions import DomainError
+from app.domain.common.types import EntityId
+from app.domain.common.value_object import ValueObject
 
 __all__ = [
     "DomainError",

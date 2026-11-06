@@ -14,17 +14,17 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..projects.project import Project
-    from .branch import Branch
-    from .code_component import (
+    from app.infrastructure.persistence.models.development.branch import Branch
+    from app.infrastructure.persistence.models.development.code_component import (
         CodeComponent,
     )
-    from .commit import Commit
+    from app.infrastructure.persistence.models.development.commit import Commit
+    from app.infrastructure.persistence.models.projects.project import Project
 
-from .....domain.development.enums import RepositoryType
+from app.domain.development.enums import RepositoryType
 
 
 class Repository(Base):

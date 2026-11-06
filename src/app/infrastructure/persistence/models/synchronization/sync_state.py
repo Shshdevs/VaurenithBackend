@@ -14,16 +14,16 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..identity.client_device import (
+    from app.infrastructure.persistence.models.identity.client_device import (
         ClientDevice,
     )
-    from ..identity.user import User
+    from app.infrastructure.persistence.models.identity.user import User
 
-from .....domain.common.enums import EntityType
-from .....domain.synchronization.enums import SyncStatus
+from app.domain.common.enums import EntityType
+from app.domain.synchronization.enums import SyncStatus
 
 
 class SyncState(Base):

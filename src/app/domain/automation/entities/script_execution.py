@@ -3,10 +3,10 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import ExecutionStatus
-from ..exceptions import InvalidScriptExecution
+from app.domain.automation.enums import ExecutionStatus
+from app.domain.automation.exceptions import InvalidScriptExecution
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
 
 
 class ScriptExecution(Entity):
@@ -28,48 +28,20 @@ class ScriptExecution(Entity):
         sanitized_output_summary: str | None = None,
         idempotency_key: EntityId | None = None,
     ) -> None:
-        if not isinstance(entity_id, UUID):
-            raise InvalidScriptExecution("Execution identifier must be a UUID")
-        if not isinstance(script_id, UUID) or not isinstance(client_device_id, UUID):
-            raise InvalidScriptExecution(
-                "Script and client device identifiers must be UUIDs"
-            )
-        if device_id is not None and not isinstance(device_id, UUID):
-            raise InvalidScriptExecution("Device identifier must be a UUID")
-        if idempotency_key is not None and not isinstance(idempotency_key, UUID):
-            raise InvalidScriptExecution("Idempotency key must be a UUID")
-        if not isinstance(status, ExecutionStatus):
-            raise InvalidScriptExecution("Execution status is invalid")
-        if exit_code is not None and (
-            not isinstance(exit_code, int) or isinstance(exit_code, bool)
-        ):
-            raise InvalidScriptExecution("Exit code must be an integer")
-        if error_message is not None and not isinstance(error_message, str):
-            raise InvalidScriptExecution("Error message must be a string")
-        if sanitized_output_summary is not None and not isinstance(
-            sanitized_output_summary, str
-        ):
-            raise InvalidScriptExecution("Output summary must be a string")
-
-        self._validate_timestamp(created_at, "created_at")
-        if started_at is not None:
-            self._validate_timestamp(started_at, "started_at")
-            if started_at < created_at:
-                raise InvalidScriptExecution(
-                    "Start time cannot precede execution creation"
-                )
-        if finished_at is not None:
-            self._validate_timestamp(finished_at, "finished_at")
-            if finished_at < created_at:
-                raise InvalidScriptExecution(
-                    "Finish time cannot precede execution creation"
-                )
-        if (
-            started_at is not None
-            and finished_at is not None
-            and finished_at < started_at
-        ):
-            raise InvalidScriptExecution("Finish time cannot precede start time")
+        self._validate_identifiers(
+            entity_id,
+            script_id,
+            client_device_id,
+            device_id,
+            idempotency_key,
+        )
+        self._validate_result_fields(
+            status,
+            exit_code,
+            error_message,
+            sanitized_output_summary,
+        )
+        self._validate_initial_timestamps(created_at, started_at, finished_at)
         self._validate_status_consistency(
             status,
             started_at,
@@ -92,6 +64,72 @@ class ScriptExecution(Entity):
         self._sanitized_output_summary = sanitized_output_summary
         self._idempotency_key = idempotency_key
         self._created_at = created_at
+
+    @staticmethod
+    def _validate_identifiers(
+        entity_id: EntityId,
+        script_id: EntityId,
+        client_device_id: EntityId,
+        device_id: EntityId | None,
+        idempotency_key: EntityId | None,
+    ) -> None:
+        if not isinstance(entity_id, UUID):
+            raise InvalidScriptExecution("Execution identifier must be a UUID")
+        if not isinstance(script_id, UUID) or not isinstance(client_device_id, UUID):
+            raise InvalidScriptExecution(
+                "Script and client device identifiers must be UUIDs"
+            )
+        if device_id is not None and not isinstance(device_id, UUID):
+            raise InvalidScriptExecution("Device identifier must be a UUID")
+        if idempotency_key is not None and not isinstance(idempotency_key, UUID):
+            raise InvalidScriptExecution("Idempotency key must be a UUID")
+
+    @staticmethod
+    def _validate_result_fields(
+        status: ExecutionStatus,
+        exit_code: int | None,
+        error_message: str | None,
+        sanitized_output_summary: str | None,
+    ) -> None:
+        if not isinstance(status, ExecutionStatus):
+            raise InvalidScriptExecution("Execution status is invalid")
+        if exit_code is not None and (
+            not isinstance(exit_code, int) or isinstance(exit_code, bool)
+        ):
+            raise InvalidScriptExecution("Exit code must be an integer")
+        if error_message is not None and not isinstance(error_message, str):
+            raise InvalidScriptExecution("Error message must be a string")
+        if sanitized_output_summary is not None and not isinstance(
+            sanitized_output_summary, str
+        ):
+            raise InvalidScriptExecution("Output summary must be a string")
+
+    @classmethod
+    def _validate_initial_timestamps(
+        cls,
+        created_at: datetime,
+        started_at: datetime | None,
+        finished_at: datetime | None,
+    ) -> None:
+        cls._validate_timestamp(created_at, "created_at")
+        if started_at is not None:
+            cls._validate_timestamp(started_at, "started_at")
+            if started_at < created_at:
+                raise InvalidScriptExecution(
+                    "Start time cannot precede execution creation"
+                )
+        if finished_at is not None:
+            cls._validate_timestamp(finished_at, "finished_at")
+            if finished_at < created_at:
+                raise InvalidScriptExecution(
+                    "Finish time cannot precede execution creation"
+                )
+        if (
+            started_at is not None
+            and finished_at is not None
+            and finished_at < started_at
+        ):
+            raise InvalidScriptExecution("Finish time cannot precede start time")
 
     @staticmethod
     def _validate_timestamp(value: datetime, name: str) -> None:

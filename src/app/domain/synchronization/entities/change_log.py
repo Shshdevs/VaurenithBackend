@@ -3,11 +3,11 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.enums import EntityType
-from ...common.types import EntityId
-from ..enums import ChangeOperation
-from ..exceptions import InvalidChangeLog
+from app.domain.common.entity import Entity
+from app.domain.common.enums import EntityType
+from app.domain.common.types import EntityId
+from app.domain.synchronization.enums import ChangeOperation
+from app.domain.synchronization.exceptions import InvalidChangeLog
 
 
 class ChangeLog(Entity):

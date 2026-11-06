@@ -15,35 +15,33 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..automation.script_execution import (
+    from app.infrastructure.persistence.models import DeviceGroupMember
+    from app.infrastructure.persistence.models.automation.script_execution import (
         ScriptExecution,
     )
-    from ..automation.script_target import (
+    from app.infrastructure.persistence.models.automation.script_target import (
         ScriptTarget,
     )
-    from ..identity.user import User
-    from ..monitoring.event import Event
-    from ..monitoring.logs_metadata import (
-        LogsMetadata,
-    )
-    from ..monitoring.metric import Metric
-    from ..projects.project_device import (
-        ProjectDevice,
-    )
-    from .connection import (
+    from app.infrastructure.persistence.models.identity.user import User
+    from app.infrastructure.persistence.models.infrastructure.connection import (
         Connection,
     )
-    from .container import Container
-    from .database import Database
-    from .device_group_member import (
-        DeviceGroupMember,
+    from app.infrastructure.persistence.models.infrastructure.container import Container
+    from app.infrastructure.persistence.models.infrastructure.database import Database
+    from app.infrastructure.persistence.models.infrastructure.service import Service
+    from app.infrastructure.persistence.models.monitoring.event import Event
+    from app.infrastructure.persistence.models.monitoring.logs_metadata import (
+        LogsMetadata,
     )
-    from .service import Service
+    from app.infrastructure.persistence.models.monitoring.metric import Metric
+    from app.infrastructure.persistence.models.projects.project_device import (
+        ProjectDevice,
+    )
 
-from .....domain.infrastructure.enums import DeviceType
+from app.domain.infrastructure.enums import DeviceType
 
 
 class Device(Base):

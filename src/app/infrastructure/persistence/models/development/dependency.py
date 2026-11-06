@@ -17,15 +17,15 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from .code_component import (
+    from app.infrastructure.persistence.models.development.code_component import (
         CodeComponent,
     )
 
-from .....domain.common.enums import RelationOrigin
-from .....domain.development.enums import DependencyType
+from app.domain.common.enums import RelationOrigin
+from app.domain.development.enums import DependencyType
 
 
 class Dependency(Base):

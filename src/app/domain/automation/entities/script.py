@@ -3,11 +3,11 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import ScriptExecutionType, ScriptRiskLevel
-from ..exceptions import InvalidScript
-from ..value_objects import ScriptInterpreter, ScriptName
+from app.domain.automation.enums import ScriptExecutionType, ScriptRiskLevel
+from app.domain.automation.exceptions import InvalidScript
+from app.domain.automation.value_objects import ScriptInterpreter, ScriptName
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
 
 
 class Script(Entity):

@@ -15,18 +15,18 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..projects.project import Project
-    from .script_execution import (
+    from app.infrastructure.persistence.models.automation.script_execution import (
         ScriptExecution,
     )
-    from .script_target import (
+    from app.infrastructure.persistence.models.automation.script_target import (
         ScriptTarget,
     )
+    from app.infrastructure.persistence.models.projects.project import Project
 
-from .....domain.automation.enums import (
+from app.domain.automation.enums import (
     ScriptExecutionType,
     ScriptRiskLevel,
 )

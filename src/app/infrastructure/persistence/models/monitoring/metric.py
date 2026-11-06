@@ -16,12 +16,12 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..infrastructure.device import Device
+    from app.infrastructure.persistence.models.infrastructure.device import Device
 
-from .....domain.monitoring.enums import MetricType, MetricUnit
+from app.domain.monitoring.enums import MetricType, MetricUnit
 
 
 class Metric(Base):

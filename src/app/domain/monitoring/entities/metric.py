@@ -2,11 +2,11 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import MetricType, MetricUnit
-from ..exceptions import InvalidMetric
-from ..value_objects import MetricValue
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.monitoring.enums import MetricType, MetricUnit
+from app.domain.monitoring.exceptions import InvalidMetric
+from app.domain.monitoring.value_objects import MetricValue
 
 
 class Metric(Entity):

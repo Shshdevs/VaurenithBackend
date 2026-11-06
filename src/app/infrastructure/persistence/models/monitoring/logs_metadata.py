@@ -13,14 +13,14 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..identity.user import User
-    from ..infrastructure.container import Container
-    from ..infrastructure.device import Device
-    from ..infrastructure.service import Service
-    from ..projects.project import Project
+    from app.infrastructure.persistence.models.identity.user import User
+    from app.infrastructure.persistence.models.infrastructure.container import Container
+    from app.infrastructure.persistence.models.infrastructure.device import Device
+    from app.infrastructure.persistence.models.infrastructure.service import Service
+    from app.infrastructure.persistence.models.projects.project import Project
 
 
 class LogsMetadata(Base):

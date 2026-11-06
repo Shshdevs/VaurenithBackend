@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from ...common.enums import EntityType
-from ...common.types import EntityId
-from ...common.value_object import ValueObject
-from ..exceptions import InvalidRelation
+from app.domain.common.enums import EntityType
+from app.domain.common.types import EntityId
+from app.domain.common.value_object import ValueObject
+from app.domain.relations.exceptions import InvalidRelation
 
 
 @dataclass(frozen=True, slots=True, eq=False)

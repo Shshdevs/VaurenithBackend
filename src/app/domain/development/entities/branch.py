@@ -1,10 +1,10 @@
 from datetime import datetime
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..exceptions import InvalidBranch
-from ..value_objects import BranchName, CommitHash
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.development.exceptions import InvalidBranch
+from app.domain.development.value_objects import BranchName, CommitHash
 
 
 class Branch(Entity):

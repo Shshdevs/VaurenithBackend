@@ -4,11 +4,11 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.enums import EntityType, RelationOrigin, RelationType
-from ...common.types import EntityId
-from ..exceptions import InvalidRelation
-from ..value_objects import EntityReference, RelationConfidence
+from app.domain.common.entity import Entity
+from app.domain.common.enums import EntityType, RelationOrigin, RelationType
+from app.domain.common.types import EntityId
+from app.domain.relations.exceptions import InvalidRelation
+from app.domain.relations.value_objects import EntityReference, RelationConfidence
 
 
 class Relation(Entity):

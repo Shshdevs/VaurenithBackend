@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from ...common.value_object import ValueObject
-from ..exceptions import InvalidScript
+from app.domain.automation.exceptions import InvalidScript
+from app.domain.common.value_object import ValueObject
 
 
 @dataclass(frozen=True, slots=True, eq=False)

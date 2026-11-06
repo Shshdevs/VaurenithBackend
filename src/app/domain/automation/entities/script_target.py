@@ -1,9 +1,9 @@
 from datetime import datetime
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..exceptions import InvalidScriptTarget
+from app.domain.automation.exceptions import InvalidScriptTarget
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
 
 
 class ScriptTarget(Entity):

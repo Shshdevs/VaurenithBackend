@@ -14,19 +14,19 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..monitoring.logs_metadata import (
+    from app.infrastructure.persistence.models.infrastructure.container import Container
+    from app.infrastructure.persistence.models.infrastructure.database import Database
+    from app.infrastructure.persistence.models.infrastructure.device import Device
+    from app.infrastructure.persistence.models.monitoring.logs_metadata import (
         LogsMetadata,
     )
-    from ..projects.environment import Environment
-    from ..projects.project import Project
-    from .container import Container
-    from .database import Database
-    from .device import Device
+    from app.infrastructure.persistence.models.projects.environment import Environment
+    from app.infrastructure.persistence.models.projects.project import Project
 
-from .....domain.infrastructure.enums import (
+from app.domain.infrastructure.enums import (
     ResourceStatus,
     ServiceType,
 )

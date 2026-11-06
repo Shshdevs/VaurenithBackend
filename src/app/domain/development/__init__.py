@@ -1,5 +1,10 @@
-from .enums import ComponentType, DependencyType, RepositoryStatus, RepositoryType
-from .value_objects import (
+from app.domain.development.enums import (
+    ComponentType,
+    DependencyType,
+    RepositoryStatus,
+    RepositoryType,
+)
+from app.domain.development.value_objects import (
     BranchName,
     CommitHash,
     ComponentName,

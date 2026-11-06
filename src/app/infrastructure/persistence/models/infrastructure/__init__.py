@@ -1,14 +1,14 @@
-from .connection import Connection
-from .container import Container
-from .database import Database
-from .device import Device
-from .device_group import (
+from app.infrastructure.persistence.models.infrastructure.connection import Connection
+from app.infrastructure.persistence.models.infrastructure.container import Container
+from app.infrastructure.persistence.models.infrastructure.database import Database
+from app.infrastructure.persistence.models.infrastructure.device import Device
+from app.infrastructure.persistence.models.infrastructure.device_group import (
     DeviceGroup,
 )
-from .device_group_member import (
+from app.infrastructure.persistence.models.infrastructure.device_group_member import (
     DeviceGroupMember,
 )
-from .service import Service
+from app.infrastructure.persistence.models.infrastructure.service import Service
 
 __all__ = [
     "Device",

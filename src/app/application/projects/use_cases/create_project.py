@@ -4,7 +4,8 @@ from uuid import uuid4
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
-from app.application.projects import ProjectData, ProjectRepository
+from app.application.projects.dto.project_data import ProjectData
+from app.application.projects.interfaces.project_repository import ProjectRepository
 from app.domain.projects import (
     InvalidProject,
     Project,

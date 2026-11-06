@@ -1,4 +1,4 @@
-from .types import EntityId
+from app.domain.common.types import EntityId
 
 
 class Entity:

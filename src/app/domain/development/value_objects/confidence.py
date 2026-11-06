@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from decimal import Decimal
 from typing import ClassVar
 
-from ...common.value_object import ValueObject
-from ..exceptions import InvalidDependency
+from app.domain.common.value_object import ValueObject
+from app.domain.development.exceptions import InvalidDependency
 
 
 @dataclass(frozen=True, slots=True, eq=False)

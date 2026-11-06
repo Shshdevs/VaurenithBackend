@@ -1,6 +1,6 @@
 from http import HTTPStatus
 
-from .common import Schema
+from app.api.schemas.common import Schema
 
 
 def format_http_status(status_code: int) -> str:

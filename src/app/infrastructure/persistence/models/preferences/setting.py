@@ -14,15 +14,15 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..identity.client_device import (
+    from app.infrastructure.persistence.models.identity.client_device import (
         ClientDevice,
     )
-    from ..identity.user import User
+    from app.infrastructure.persistence.models.identity.user import User
 
-from .....domain.preferences.enums import SettingScope
+from app.domain.preferences.enums import SettingScope
 
 
 class Setting(Base):

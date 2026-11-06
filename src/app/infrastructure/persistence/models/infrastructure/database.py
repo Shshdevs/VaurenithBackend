@@ -14,16 +14,16 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..projects.environment import Environment
-    from ..projects.project import Project
-    from .container import Container
-    from .device import Device
-    from .service import Service
+    from app.infrastructure.persistence.models.infrastructure.container import Container
+    from app.infrastructure.persistence.models.infrastructure.device import Device
+    from app.infrastructure.persistence.models.infrastructure.service import Service
+    from app.infrastructure.persistence.models.projects.environment import Environment
+    from app.infrastructure.persistence.models.projects.project import Project
 
-from .....domain.infrastructure.enums import DbmsType, ResourceStatus
+from app.domain.infrastructure.enums import DbmsType, ResourceStatus
 
 
 class Database(Base):

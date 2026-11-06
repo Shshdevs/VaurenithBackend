@@ -4,12 +4,12 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.enums import RelationOrigin
-from ...common.types import EntityId
-from ..enums import DependencyType
-from ..exceptions import InvalidDependency
-from ..value_objects import Confidence
+from app.domain.common.entity import Entity
+from app.domain.common.enums import RelationOrigin
+from app.domain.common.types import EntityId
+from app.domain.development.enums import DependencyType
+from app.domain.development.exceptions import InvalidDependency
+from app.domain.development.value_objects import Confidence
 
 
 class Dependency(Entity):

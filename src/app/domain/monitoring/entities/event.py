@@ -3,11 +3,11 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.enums import EntityType
-from ...common.types import EntityId
-from ..enums import EventResult, EventType
-from ..exceptions import InvalidEvent
+from app.domain.common.entity import Entity
+from app.domain.common.enums import EntityType
+from app.domain.common.types import EntityId
+from app.domain.monitoring.enums import EventResult, EventType
+from app.domain.monitoring.exceptions import InvalidEvent
 
 
 class Event(Entity):

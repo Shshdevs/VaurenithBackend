@@ -1,11 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.enums import EntityType
-from ...common.types import EntityId
-from ..enums import SyncStatus
-from ..exceptions import InvalidSyncState
+from app.domain.common.entity import Entity
+from app.domain.common.enums import EntityType
+from app.domain.common.types import EntityId
+from app.domain.synchronization.enums import SyncStatus
+from app.domain.synchronization.exceptions import InvalidSyncState
 
 
 class SyncState(Entity):

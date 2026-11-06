@@ -1,7 +1,7 @@
-from .script import Script
-from .script_execution import (
+from app.infrastructure.persistence.models.automation.script import Script
+from app.infrastructure.persistence.models.automation.script_execution import (
     ScriptExecution,
 )
-from .script_target import ScriptTarget
+from app.infrastructure.persistence.models.automation.script_target import ScriptTarget
 
 __all__ = ["Script", "ScriptTarget", "ScriptExecution"]

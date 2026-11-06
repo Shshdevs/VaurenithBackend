@@ -3,11 +3,11 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import ResourceStatus, ServiceType
-from ..exceptions import InvalidService
-from ..value_objects import ServiceName, SystemIdentifier
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.infrastructure.enums import ResourceStatus, ServiceType
+from app.domain.infrastructure.exceptions import InvalidService
+from app.domain.infrastructure.value_objects import ServiceName, SystemIdentifier
 
 
 class Service(Entity):

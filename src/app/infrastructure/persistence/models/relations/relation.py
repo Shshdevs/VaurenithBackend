@@ -14,12 +14,12 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .....domain.common.enums import (
+from app.domain.common.enums import (
     EntityType,
     RelationOrigin,
     RelationType,
 )
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 
 class Relation(Base):

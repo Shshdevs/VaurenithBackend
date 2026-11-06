@@ -1,11 +1,15 @@
 from datetime import datetime
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import ComponentType
-from ..exceptions import InvalidCodeComponent
-from ..value_objects import CommitHash, ComponentName, ComponentPath
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.development.enums import ComponentType
+from app.domain.development.exceptions import InvalidCodeComponent
+from app.domain.development.value_objects import (
+    CommitHash,
+    ComponentName,
+    ComponentPath,
+)
 
 
 class CodeComponent(Entity):

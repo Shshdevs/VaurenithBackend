@@ -13,11 +13,11 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..identity.user import User
-    from .device_group_member import DeviceGroupMember
+    from app.infrastructure.persistence.models import DeviceGroupMember
+    from app.infrastructure.persistence.models.identity.user import User
 
 
 class DeviceGroup(Base):

@@ -13,10 +13,10 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from .repository import Repository
+    from app.infrastructure.persistence.models.development.repository import Repository
 
 
 class Commit(Base):

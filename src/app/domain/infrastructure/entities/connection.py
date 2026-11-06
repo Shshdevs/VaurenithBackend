@@ -1,11 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import AuthenticationType, ConnectionStatus
-from ..exceptions import InvalidConnection
-from ..value_objects import ConnectionEndpoint
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.infrastructure.enums import AuthenticationType, ConnectionStatus
+from app.domain.infrastructure.exceptions import InvalidConnection
+from app.domain.infrastructure.value_objects import ConnectionEndpoint
 
 
 class Connection(Entity):

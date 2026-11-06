@@ -11,12 +11,12 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..infrastructure.device import Device
-    from ..projects.environment import Environment
-    from .script import Script
+    from app.infrastructure.persistence.models.automation.script import Script
+    from app.infrastructure.persistence.models.infrastructure.device import Device
+    from app.infrastructure.persistence.models.projects.environment import Environment
 
 
 class ScriptTarget(Base):

@@ -1,11 +1,11 @@
 from datetime import datetime
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import DeviceType
-from ..exceptions import InvalidDevice
-from ..value_objects import DeviceName, OperatingSystem
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.infrastructure.enums import DeviceType
+from app.domain.infrastructure.exceptions import InvalidDevice
+from app.domain.infrastructure.value_objects import DeviceName, OperatingSystem
 
 
 class Device(Entity):

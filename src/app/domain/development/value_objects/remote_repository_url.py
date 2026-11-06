@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from ...common.value_object import ValueObject
-from ..exceptions import InvalidRepository
+from app.domain.common.value_object import ValueObject
+from app.domain.development.exceptions import InvalidRepository
 
 
 @dataclass(frozen=True, slots=True, eq=False)

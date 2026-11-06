@@ -3,10 +3,10 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..exceptions import InvalidCommit
-from ..value_objects import CommitHash
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.development.exceptions import InvalidCommit
+from app.domain.development.value_objects import CommitHash
 
 
 class Commit(Entity):

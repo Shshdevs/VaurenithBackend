@@ -1,4 +1,5 @@
 import logging
+from typing import cast
 
 from fastapi import FastAPI, Request
 from fastapi.encoders import jsonable_encoder
@@ -6,14 +7,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from app.api.schemas import ApiResponse, format_http_status
 from app.application.common.exceptions import (
     Conflict,
     InvalidInput,
     NotFound,
     Unauthorized,
 )
-
-from ..schemas import ApiResponse, format_http_status
 
 logger = logging.getLogger(__name__)
 
@@ -27,58 +27,76 @@ def _error(status: int, message: str, data: object | None = None) -> JSONRespons
     return JSONResponse(status_code=status, content=jsonable_encoder(body))
 
 
+async def handle_http_exception(
+    _request: Request,
+    exception: Exception,
+) -> JSONResponse:
+    http_exception = cast(StarletteHTTPException, exception)
+    message = (
+        http_exception.detail
+        if isinstance(http_exception.detail, str)
+        else "HTTP error"
+    )
+    return _error(http_exception.status_code, message)
+
+
+async def handle_validation_exception(
+    _request: Request,
+    exception: Exception,
+) -> JSONResponse:
+    validation_error = cast(RequestValidationError, exception)
+    return _error(422, "Request validation failed", validation_error.errors())
+
+
+async def handle_unexpected_exception(
+    request: Request,
+    exception: Exception,
+) -> JSONResponse:
+    logger.exception(
+        "Unhandled application error request_id=%s",
+        getattr(request.state, "request_id", None),
+    )
+    return _error(500, "Internal server error")
+
+
+async def handle_not_found(
+    _request: Request,
+    exception: Exception,
+) -> JSONResponse:
+    return _error(404, str(exception))
+
+
+async def handle_invalid_input(
+    _request: Request,
+    exception: Exception,
+) -> JSONResponse:
+    return _error(422, str(exception))
+
+
+async def handle_conflict(
+    _request: Request,
+    exception: Exception,
+) -> JSONResponse:
+    return _error(409, str(exception))
+
+
+async def handle_unauthorized(
+    _request: Request,
+    exception: Exception,
+) -> JSONResponse:
+    response = _error(401, str(exception))
+    response.headers["WWW-Authenticate"] = "Bearer"
+    return response
+
+
 def register_error_handlers(application: FastAPI) -> None:
-    @application.exception_handler(StarletteHTTPException)
-    async def handle_http_exception(
-        _request: Request, exception: StarletteHTTPException
-    ) -> JSONResponse:
-        message = (
-            exception.detail if isinstance(exception.detail, str) else "HTTP error"
-        )
-        return _error(exception.status_code, message)
-
-    @application.exception_handler(RequestValidationError)
-    async def handle_validation_exception(
-        _request: Request, exception: RequestValidationError
-    ) -> JSONResponse:
-        return _error(422, "Request validation failed", exception.errors())
-
-    @application.exception_handler(Exception)
-    async def handle_unexpected_exception(
-        request: Request, exception: Exception
-    ) -> JSONResponse:
-        logger.exception(
-            "Unhandled application error request_id=%s",
-            getattr(request.state, "request_id", None),
-        )
-        return _error(500, "Internal server error")
-
-    @application.exception_handler(NotFound)
-    async def handle_not_found(
-        _request: Request,
-        exception: NotFound,
-    ) -> JSONResponse:
-        return _error(404, str(exception))
-
-    @application.exception_handler(InvalidInput)
-    async def handle_invalid_input(
-        _request: Request,
-        exception: InvalidInput,
-    ) -> JSONResponse:
-        return _error(422, str(exception))
-
-    @application.exception_handler(Conflict)
-    async def handle_conflict(
-        _request: Request,
-        exception: Conflict,
-    ) -> JSONResponse:
-        return _error(409, str(exception))
-
-    @application.exception_handler(Unauthorized)
-    async def handle_unauthorized(
-        _request: Request,
-        exception: Unauthorized,
-    ) -> JSONResponse:
-        response = _error(401, str(exception))
-        response.headers["WWW-Authenticate"] = "Bearer"
-        return response
+    application.add_exception_handler(StarletteHTTPException, handle_http_exception)
+    application.add_exception_handler(
+        RequestValidationError,
+        handle_validation_exception,
+    )
+    application.add_exception_handler(Exception, handle_unexpected_exception)
+    application.add_exception_handler(NotFound, handle_not_found)
+    application.add_exception_handler(InvalidInput, handle_invalid_input)
+    application.add_exception_handler(Conflict, handle_conflict)
+    application.add_exception_handler(Unauthorized, handle_unauthorized)

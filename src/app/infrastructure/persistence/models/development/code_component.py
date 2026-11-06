@@ -15,13 +15,13 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from .dependency import Dependency
-    from .repository import Repository
+    from app.infrastructure.persistence.models.development.dependency import Dependency
+    from app.infrastructure.persistence.models.development.repository import Repository
 
-from .....domain.development.enums import ComponentType
+from app.domain.development.enums import ComponentType
 
 
 class CodeComponent(Base):

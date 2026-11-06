@@ -1,7 +1,15 @@
-from .entities import Script, ScriptExecution, ScriptTarget
-from .enums import ExecutionStatus, ScriptExecutionType, ScriptRiskLevel
-from .exceptions import InvalidScript, InvalidScriptExecution, InvalidScriptTarget
-from .value_objects import ScriptInterpreter, ScriptName
+from app.domain.automation.entities import Script, ScriptExecution, ScriptTarget
+from app.domain.automation.enums import (
+    ExecutionStatus,
+    ScriptExecutionType,
+    ScriptRiskLevel,
+)
+from app.domain.automation.exceptions import (
+    InvalidScript,
+    InvalidScriptExecution,
+    InvalidScriptTarget,
+)
+from app.domain.automation.value_objects import ScriptInterpreter, ScriptName
 
 __all__ = [
     "ExecutionStatus",

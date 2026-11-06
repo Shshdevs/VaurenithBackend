@@ -3,10 +3,10 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import SettingScope
-from ..exceptions import InvalidSetting
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.preferences.enums import SettingScope
+from app.domain.preferences.exceptions import InvalidSetting
 
 
 class Setting(Entity):
