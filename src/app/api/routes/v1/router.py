@@ -5,8 +5,8 @@ from fastapi import APIRouter
 from ....application.health.use_cases import CheckDatabaseHealth
 from ....application.identity.dto import VerifiedIdentity
 from ....application.identity.use_cases import CreateUser, GetCurrentUser
-from .health import build_health_router
-from .user import build_user_router
+from .health.health import build_health_router
+from .identity.user import build_user_router
 
 
 def build_router(
