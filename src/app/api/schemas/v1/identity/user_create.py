@@ -1,9 +1,9 @@
 from pydantic import Field, field_validator
 
-from ....domain.identity.enums import PlatformType
-from ....domain.identity.exceptions import InvalidEmail
-from ....domain.identity.value_objects.email import EmailAddress
-from ..common import Schema
+from .....domain.identity.enums import PlatformType
+from .....domain.identity.exceptions import InvalidEmail
+from .....domain.identity.value_objects.email import EmailAddress
+from ...common import Schema
 
 
 class UserCreateRequest(Schema):

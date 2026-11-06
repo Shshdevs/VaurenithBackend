@@ -3,9 +3,9 @@ from uuid import UUID
 
 from pydantic import field_validator
 
-from ....domain.identity.exceptions import InvalidEmail
-from ....domain.identity.value_objects.email import EmailAddress
-from ..common import Schema
+from .....domain.identity.exceptions import InvalidEmail
+from .....domain.identity.value_objects.email import EmailAddress
+from ...common import Schema
 
 
 class UserData(Schema):

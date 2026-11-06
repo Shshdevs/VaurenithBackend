@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Response, status
 
 from .....application.health.use_cases import CheckDatabaseHealth
 from ....schemas import ApiResponse, format_http_status
-from ....schemas.v1.health import DependencyHealth, LivenessData, ReadinessData
+from ....schemas.v1 import DependencyHealth, LivenessData, ReadinessData
 
 
 def build_health_router(

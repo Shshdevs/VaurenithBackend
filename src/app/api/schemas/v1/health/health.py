@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
-from ..common import Schema
+from ...common import Schema
 
 
 class DependencyHealth(Schema):

@@ -5,8 +5,7 @@ from fastapi import APIRouter, Depends, status
 from .....application.identity.dto import VerifiedIdentity
 from .....application.identity.use_cases import CreateUser, GetCurrentUser
 from ....schemas import ApiResponse, format_http_status
-from ....schemas.v1.user import UserData
-from ....schemas.v1.user_create import UserCreateRequest
+from ....schemas.v1 import UserCreateRequest, UserData
 
 
 def build_user_router(
