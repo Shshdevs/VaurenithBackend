@@ -6,9 +6,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .....application.identity.exceptions import UserAlreadyExists
 from .....application.identity.interfaces import UserRepository
+from .....domain.identity import ClientDevice as ClientDeviceEntity
 from .....domain.identity import EmailAddress
 from .....domain.identity.entities.session import Session as SessionEntity
 from .....domain.identity.entities.user import User as UserEntity
+from ...models.identity.client_device import ClientDevice
 from ...models.identity.session import Session
 from ...models.identity.user import User
 
@@ -25,6 +27,7 @@ class SqlAlchemyUserRepository(UserRepository):
     async def register(
         self,
         user: UserEntity,
+        client_device: ClientDeviceEntity,
         session: SessionEntity,
     ) -> None:
         user_model = User(
@@ -44,7 +47,21 @@ class SqlAlchemyUserRepository(UserRepository):
             created_at=session.created_at,
             revoked_at=session.revoked_at,
         )
-        self._session.add_all([user_model, session_model])
+        client_device_model = ClientDevice(
+            id=client_device.id,
+            user_id=client_device.user_id,
+            name=client_device.name,
+            platform=client_device.platform,
+            app_version=client_device.app_version,
+            status=client_device.status,
+            registered_at=client_device.registered_at,
+            last_seen_at=client_device.last_seen_at,
+            revoked_at=client_device.revoked_at,
+        )
+        client_device_model.user = user_model
+        session_model.user = user_model
+        session_model.client_device = client_device_model
+        self._session.add_all([user_model, client_device_model, session_model])
         try:
             await self._session.commit()
         except IntegrityError as error:

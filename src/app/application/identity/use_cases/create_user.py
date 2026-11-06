@@ -1,7 +1,14 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from ....domain.identity import EmailAddress, InvalidEmail, Session, User
+from ....domain.identity import (
+    ClientDevice,
+    EmailAddress,
+    InvalidEmail,
+    PlatformType,
+    Session,
+    User,
+)
 from ..dto import UserData, VerifiedIdentity
 from ..exceptions import InvalidIdentity
 from ..interfaces import UserRepository
@@ -16,6 +23,9 @@ class CreateUser:
         identity: VerifiedIdentity,
         email: str,
         display_name: str | None,
+        device_name: str,
+        platform: PlatformType,
+        app_version: str | None,
     ) -> UserData:
         try:
             email_address = EmailAddress(email)
@@ -33,14 +43,24 @@ class CreateUser:
             created_at=now,
             updated_at=now,
         )
+        client_device = ClientDevice(
+            entity_id=uuid4(),
+            user_id=identity.user_id,
+            name=device_name,
+            platform=platform,
+            app_version=app_version,
+            registered_at=now,
+            last_seen_at=now,
+        )
         session = Session(
             entity_id=uuid4(),
             user_id=identity.user_id,
             token_hash=identity.token_hash,
             expires_at=identity.expires_at,
             created_at=now,
+            client_device_id=client_device.id,
         )
-        await self._user_repository.register(user, session)
+        await self._user_repository.register(user, client_device, session)
 
         return UserData(
             id=user.id,

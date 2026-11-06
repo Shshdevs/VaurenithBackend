@@ -8,8 +8,10 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app.core.config import get_settings
+from app.domain.identity.entities.client_device import ClientDevice
 from app.domain.identity.entities.session import Session
 from app.domain.identity.entities.user import User
+from app.domain.identity.enums import PlatformType
 from app.domain.identity.value_objects.email import EmailAddress
 from app.domain.identity.value_objects.token_hash import TokenHash
 from app.infrastructure.persistence.repositories.identity import (
@@ -55,12 +57,20 @@ async def test_register_persists_user_and_session_then_rolls_back() -> None:
         created_at=now,
         updated_at=now,
     )
+    client_device = ClientDevice(
+        entity_id=uuid4(),
+        user_id=user_id,
+        name="Repository Integration Test Device",
+        platform=PlatformType.OTHER,
+        registered_at=now,
+    )
     session = Session(
         entity_id=uuid4(),
         user_id=user_id,
         token_hash=token_hash,
         expires_at=now + timedelta(hours=1),
         created_at=now,
+        client_device_id=client_device.id,
     )
 
     try:
@@ -74,13 +84,14 @@ async def test_register_persists_user_and_session_then_rolls_back() -> None:
                 user_repository = SqlAlchemyUserRepository(database_session)
                 session_repository = SqlAlchemySessionRepository(database_session)
 
-                await user_repository.register(user, session)
+                await user_repository.register(user, client_device, session)
 
                 stored_user = await user_repository.get_by_id(user_id)
                 assert stored_user is not None
                 assert stored_user.email == user.email
                 assert stored_user.display_name == user.display_name
                 assert await session_repository.has_active_session(token_hash, now)
+                assert session.client_device_id == client_device.id
 
             await transaction.rollback()
 

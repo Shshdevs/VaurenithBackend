@@ -47,6 +47,9 @@ def build_user_router(
             identity=identity,
             email=request.email,
             display_name=request.display_name,
+            device_name=request.device_name,
+            platform=request.platform,
+            app_version=request.app_version,
         )
         return ApiResponse[UserData](
             message="User created successfully",
