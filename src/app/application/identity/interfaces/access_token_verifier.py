@@ -1,6 +1,6 @@
 from typing import Protocol
 
-from ..dto.identity_token_claims import IdentityTokenClaims
+from app.application.identity.dto.identity_token_claims import IdentityTokenClaims
 
 
 class AccessTokenVerifier(Protocol):

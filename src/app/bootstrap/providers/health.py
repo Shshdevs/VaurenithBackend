@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...application.health.use_cases import CheckDatabaseHealth
-from ...infrastructure.integrations.database import SqlAlchemyHealthChecker
+from app.application.health.use_cases import CheckDatabaseHealth
+from app.infrastructure.integrations.database import SqlAlchemyHealthChecker
 
 
 def provide_database_health_check(session: AsyncSession) -> CheckDatabaseHealth:

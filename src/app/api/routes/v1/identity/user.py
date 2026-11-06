@@ -2,10 +2,10 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import APIRouter, Depends, status
 
-from .....application.identity.dto import VerifiedIdentity
-from .....application.identity.use_cases import CreateUser, GetCurrentUser
-from ....schemas import ApiResponse, format_http_status
-from ....schemas.v1 import UserCreateRequest, UserData
+from app.api.schemas import ApiResponse, format_http_status
+from app.api.schemas.v1 import UserCreateRequest, UserData
+from app.application.identity.dto import VerifiedIdentity
+from app.application.identity.use_cases import CreateUser, GetCurrentUser
 
 
 def build_user_router(

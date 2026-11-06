@@ -3,9 +3,9 @@ from datetime import datetime
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .....application.identity.interfaces import SessionRepository
-from .....domain.identity.value_objects.token_hash import TokenHash
-from ...models.identity.session import Session
+from app.application.identity.interfaces import SessionRepository
+from app.domain.identity.value_objects.token_hash import TokenHash
+from app.infrastructure.persistence.models.identity.session import Session
 
 
 class SqlAlchemySessionRepository(SessionRepository):

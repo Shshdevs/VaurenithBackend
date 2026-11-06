@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..exceptions import InvalidSession
-from ..value_objects.token_hash import TokenHash
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.identity.exceptions import InvalidSession
+from app.domain.identity.value_objects.token_hash import TokenHash
 
 
 class Session(Entity):

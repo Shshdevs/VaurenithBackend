@@ -7,30 +7,30 @@ from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..automation.script_execution import (
+    from app.infrastructure.persistence.models.automation.script_execution import (
         ScriptExecution,
     )
-    from ..monitoring.event import Event
-    from ..preferences.setting import Setting
-    from ..synchronization.change_log import (
+    from app.infrastructure.persistence.models.identity.session import Session
+    from app.infrastructure.persistence.models.identity.user import User
+    from app.infrastructure.persistence.models.monitoring.event import Event
+    from app.infrastructure.persistence.models.preferences.setting import Setting
+    from app.infrastructure.persistence.models.synchronization.change_log import (
         ChangeLog,
     )
-    from ..synchronization.sync_state import (
+    from app.infrastructure.persistence.models.synchronization.sync_state import (
         SyncState,
     )
-    from .session import Session
-    from .user import User
-from .....domain.identity.enums import (
+from app.domain.identity.enums import (
     ClientDeviceStatus,
     PlatformType,
 )
 
 if TYPE_CHECKING:
-    from .session import Session
-    from .user import User
+    from app.infrastructure.persistence.models.identity.session import Session
+    from app.infrastructure.persistence.models.identity.user import User
 
 
 class ClientDevice(Base):

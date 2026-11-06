@@ -1,7 +1,10 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
-from ....domain.identity import (
+from app.application.identity.dto import UserData, VerifiedIdentity
+from app.application.identity.exceptions import InvalidIdentity
+from app.application.identity.interfaces import UserRepository
+from app.domain.identity import (
     ClientDevice,
     EmailAddress,
     InvalidEmail,
@@ -9,9 +12,6 @@ from ....domain.identity import (
     Session,
     User,
 )
-from ..dto import UserData, VerifiedIdentity
-from ..exceptions import InvalidIdentity
-from ..interfaces import UserRepository
 
 
 class CreateUser:

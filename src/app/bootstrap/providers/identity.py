@@ -1,14 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...application.identity.use_cases import (
+from app.application.identity.use_cases import (
     AuthenticateIdentity,
     CreateUser,
     GetCurrentUser,
     VerifyIdentityToken,
 )
-from ...core.config import get_settings
-from ...infrastructure.integrations.identity import JwtAccessTokenVerifier
-from ...infrastructure.persistence.repositories.identity import (
+from app.core.config import get_settings
+from app.infrastructure.integrations.identity import JwtAccessTokenVerifier
+from app.infrastructure.persistence.repositories.identity import (
     SqlAlchemySessionRepository,
     SqlAlchemyUserRepository,
 )

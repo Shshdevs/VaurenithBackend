@@ -1,7 +1,7 @@
 from typing import Protocol
 from uuid import UUID
 
-from ....domain.identity import ClientDevice, Session, User
+from app.domain.identity import ClientDevice, Session, User
 
 
 class UserRepository(Protocol):

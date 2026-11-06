@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Protocol
 
-from ....domain.identity import TokenHash
+from app.domain.identity import TokenHash
 
 
 class SessionRepository(Protocol):

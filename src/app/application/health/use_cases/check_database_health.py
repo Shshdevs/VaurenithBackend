@@ -1,4 +1,4 @@
-from ..interfaces.health_repository import HealthRepository
+from app.application.health.interfaces.health_repository import HealthRepository
 
 
 class CheckDatabaseHealth:

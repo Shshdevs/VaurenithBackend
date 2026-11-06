@@ -2,11 +2,11 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import APIRouter
 
-from ....application.health.use_cases import CheckDatabaseHealth
-from ....application.identity.dto import VerifiedIdentity
-from ....application.identity.use_cases import CreateUser, GetCurrentUser
-from .health.health import build_health_router
-from .identity.user import build_user_router
+from app.api.routes.v1.health.health import build_health_router
+from app.api.routes.v1.identity.user import build_user_router
+from app.application.health.use_cases import CheckDatabaseHealth
+from app.application.identity.dto import VerifiedIdentity
+from app.application.identity.use_cases import CreateUser, GetCurrentUser
 
 
 def build_router(

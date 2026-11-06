@@ -1,9 +1,9 @@
 from hashlib import sha256
 
-from ....domain.identity import EmailAddress, InvalidEmail, TokenHash
-from ..dto import VerifiedIdentity
-from ..exceptions import InvalidIdentity
-from ..interfaces import AccessTokenVerifier
+from app.application.identity.dto import VerifiedIdentity
+from app.application.identity.exceptions import InvalidIdentity
+from app.application.identity.interfaces import AccessTokenVerifier
+from app.domain.identity import EmailAddress, InvalidEmail, TokenHash
 
 
 class VerifyIdentityToken:

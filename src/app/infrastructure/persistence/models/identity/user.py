@@ -6,35 +6,35 @@ from sqlalchemy import DateTime, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..infrastructure.device import Device
-    from ..infrastructure.device_group import (
+    from app.infrastructure.persistence.models.identity.client_device import (
+        ClientDevice,
+    )
+    from app.infrastructure.persistence.models.identity.session import Session
+    from app.infrastructure.persistence.models.infrastructure.device import Device
+    from app.infrastructure.persistence.models.infrastructure.device_group import (
         DeviceGroup,
     )
-    from ..monitoring.event import Event
-    from ..monitoring.logs_metadata import (
+    from app.infrastructure.persistence.models.monitoring.event import Event
+    from app.infrastructure.persistence.models.monitoring.logs_metadata import (
         LogsMetadata,
     )
-    from ..preferences.setting import Setting
-    from ..projects.project import Project
-    from ..synchronization.change_log import (
+    from app.infrastructure.persistence.models.preferences.setting import Setting
+    from app.infrastructure.persistence.models.projects.project import Project
+    from app.infrastructure.persistence.models.synchronization.change_log import (
         ChangeLog,
     )
-    from ..synchronization.sync_state import (
+    from app.infrastructure.persistence.models.synchronization.sync_state import (
         SyncState,
     )
-    from .client_device import (
-        ClientDevice,
-    )
-    from .session import Session
 
 if TYPE_CHECKING:
-    from .client_device import (
+    from app.infrastructure.persistence.models.identity.client_device import (
         ClientDevice,
     )
-    from .session import Session
+    from app.infrastructure.persistence.models.identity.session import Session
 
 
 class User(Base):

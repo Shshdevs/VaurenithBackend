@@ -1,6 +1,6 @@
-from .database import get_database_session
-from .health import get_database_health_check
-from .identity import (
+from app.bootstrap.dependencies.database import get_database_session
+from app.bootstrap.dependencies.health import get_database_health_check
+from app.bootstrap.dependencies.identity import (
     get_authenticated_identity,
     get_create_user,
     get_current_user,

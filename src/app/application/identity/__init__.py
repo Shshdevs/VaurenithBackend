@@ -1,3 +1,7 @@
-from .exceptions import InvalidIdentity, UserAlreadyExists, UserNotFound
+from app.application.identity.exceptions import (
+    InvalidIdentity,
+    UserAlreadyExists,
+    UserNotFound,
+)
 
 __all__ = ["InvalidIdentity", "UserAlreadyExists", "UserNotFound"]

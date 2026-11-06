@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from ..common.exceptions import Conflict, NotFound, Unauthorized
+from app.application.common.exceptions import Conflict, NotFound, Unauthorized
 
 
 class UserNotFound(NotFound):

@@ -1,9 +1,9 @@
 from datetime import UTC, datetime
 
-from ..dto import VerifiedIdentity
-from ..exceptions import InvalidIdentity
-from ..interfaces import SessionRepository
-from .verify_identity_token import VerifyIdentityToken
+from app.application.identity.dto import VerifiedIdentity
+from app.application.identity.exceptions import InvalidIdentity
+from app.application.identity.interfaces import SessionRepository
+from app.application.identity.use_cases.verify_identity_token import VerifyIdentityToken
 
 
 class AuthenticateIdentity:

@@ -1,5 +1,5 @@
-from .health import provide_database_health_check
-from .identity import (
+from app.bootstrap.providers.health import provide_database_health_check
+from app.bootstrap.providers.identity import (
     provide_authenticate_identity,
     provide_create_user,
     provide_current_user,

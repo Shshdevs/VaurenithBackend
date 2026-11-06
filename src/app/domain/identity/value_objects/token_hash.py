@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from ...common.value_object import ValueObject
-from ..exceptions import InvalidTokenHash
+from app.domain.common.value_object import ValueObject
+from app.domain.identity.exceptions import InvalidTokenHash
 
 
 @dataclass(frozen=True, slots=True, eq=False)

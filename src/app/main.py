@@ -1,21 +1,21 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from .api.middleware.error_handler import register_error_handlers
-from .api.middleware.request_context import (
+from app.api.middleware.error_handler import register_error_handlers
+from app.api.middleware.request_context import (
     RequestContextMiddleware,
     SecurityHeadersMiddleware,
 )
-from .api.routes.v1.router import build_router
-from .bootstrap.dependencies import (
+from app.api.routes.v1.router import build_router
+from app.bootstrap.dependencies import (
     get_authenticated_identity,
     get_create_user,
     get_current_user,
     get_database_health_check,
     get_verified_identity,
 )
-from .core.config import Settings, get_settings
-from .core.logging import configure_logging
+from app.core.config import Settings, get_settings
+from app.core.logging import configure_logging
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:

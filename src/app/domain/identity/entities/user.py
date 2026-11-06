@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..value_objects.email import EmailAddress
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.identity.value_objects.email import EmailAddress
 
 
 class User(Entity):

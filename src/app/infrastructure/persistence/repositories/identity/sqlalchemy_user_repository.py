@@ -4,15 +4,15 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .....application.identity.exceptions import UserAlreadyExists
-from .....application.identity.interfaces import UserRepository
-from .....domain.identity import ClientDevice as ClientDeviceEntity
-from .....domain.identity import EmailAddress
-from .....domain.identity.entities.session import Session as SessionEntity
-from .....domain.identity.entities.user import User as UserEntity
-from ...models.identity.client_device import ClientDevice
-from ...models.identity.session import Session
-from ...models.identity.user import User
+from app.application.identity.exceptions import UserAlreadyExists
+from app.application.identity.interfaces import UserRepository
+from app.domain.identity import ClientDevice as ClientDeviceEntity
+from app.domain.identity import EmailAddress
+from app.domain.identity.entities.session import Session as SessionEntity
+from app.domain.identity.entities.user import User as UserEntity
+from app.infrastructure.persistence.models.identity.client_device import ClientDevice
+from app.infrastructure.persistence.models.identity.session import Session
+from app.infrastructure.persistence.models.identity.user import User
 
 
 class SqlAlchemyUserRepository(UserRepository):

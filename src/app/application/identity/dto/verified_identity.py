@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from uuid import UUID
 
-from ....domain.identity import EmailAddress, TokenHash
+from app.domain.identity import EmailAddress, TokenHash
 
 
 @dataclass(frozen=True, slots=True)

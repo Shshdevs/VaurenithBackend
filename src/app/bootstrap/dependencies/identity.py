@@ -2,21 +2,21 @@ from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...application.identity import InvalidIdentity
-from ...application.identity.dto import VerifiedIdentity
-from ...application.identity.use_cases import (
+from app.application.identity import InvalidIdentity
+from app.application.identity.dto import VerifiedIdentity
+from app.application.identity.use_cases import (
     AuthenticateIdentity,
     CreateUser,
     GetCurrentUser,
     VerifyIdentityToken,
 )
-from ..providers import (
+from app.bootstrap.dependencies.database import get_database_session
+from app.bootstrap.providers import (
     provide_authenticate_identity,
     provide_create_user,
     provide_current_user,
     provide_verify_identity_token,
 )
-from .database import get_database_session
 
 _bearer_scheme = HTTPBearer(auto_error=False)
 

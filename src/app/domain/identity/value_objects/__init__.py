@@ -1,4 +1,4 @@
-from .email import EmailAddress
-from .token_hash import TokenHash
+from app.domain.identity.value_objects.email import EmailAddress
+from app.domain.identity.value_objects.token_hash import TokenHash
 
 __all__ = ["EmailAddress", "TokenHash"]

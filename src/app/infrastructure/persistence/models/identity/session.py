@@ -6,19 +6,19 @@ from sqlalchemy import DateTime, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from .client_device import (
+    from app.infrastructure.persistence.models.identity.client_device import (
         ClientDevice,
     )
-    from .user import User
+    from app.infrastructure.persistence.models.identity.user import User
 
 if TYPE_CHECKING:
-    from .client_device import (
+    from app.infrastructure.persistence.models.identity.client_device import (
         ClientDevice,
     )
-    from .user import User
+    from app.infrastructure.persistence.models.identity.user import User
 
 
 class Session(Base):

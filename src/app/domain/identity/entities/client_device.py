@@ -1,9 +1,9 @@
 from datetime import datetime
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import ClientDeviceStatus, PlatformType
-from ..exceptions import InvalidClientDevice
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.identity.enums import ClientDeviceStatus, PlatformType
+from app.domain.identity.exceptions import InvalidClientDevice
 
 
 class ClientDevice(Entity):
