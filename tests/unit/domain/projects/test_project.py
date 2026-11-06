@@ -7,6 +7,7 @@ import pytest
 from app.domain.projects.entities.project import Project
 from app.domain.projects.enums import ProjectStatus, ProjectType
 from app.domain.projects.exceptions import InvalidProject
+from app.domain.projects.value_objects import ProjectName
 
 
 def make_project(**overrides: Any) -> Project:
@@ -14,11 +15,13 @@ def make_project(**overrides: Any) -> Project:
     values: dict[str, Any] = {
         "entity_id": uuid4(),
         "user_id": uuid4(),
-        "name": "  Project alpha  ",
+        "name": ProjectName("  Project alpha  "),
         "created_at": created_at,
         "updated_at": created_at,
     }
     values.update(overrides)
+    if isinstance(values["name"], str):
+        values["name"] = ProjectName(values["name"])
     return Project(**values)
 
 
