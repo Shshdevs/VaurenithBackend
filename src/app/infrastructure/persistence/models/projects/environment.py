@@ -14,18 +14,18 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..automation.script_target import (
+    from app.infrastructure.persistence.models.automation.script_target import (
         ScriptTarget,
     )
-    from ..infrastructure.container import Container
-    from ..infrastructure.database import Database
-    from ..infrastructure.service import Service
-    from .project import Project
+    from app.infrastructure.persistence.models.infrastructure.container import Container
+    from app.infrastructure.persistence.models.infrastructure.database import Database
+    from app.infrastructure.persistence.models.infrastructure.service import Service
+    from app.infrastructure.persistence.models.projects.project import Project
 
-from .....domain.projects.enums import EnvironmentType
+from app.domain.projects.enums import EnvironmentType
 
 
 class Environment(Base):

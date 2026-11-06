@@ -8,3 +8,7 @@ class Unauthorized(Exception):
 
 class Conflict(Exception):
     pass
+
+
+class InvalidInput(Exception):
+    pass

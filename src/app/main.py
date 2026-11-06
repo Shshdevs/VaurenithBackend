@@ -9,6 +9,7 @@ from app.api.middleware.request_context import (
 from app.api.routes.v1.router import build_router
 from app.bootstrap.dependencies import (
     get_authenticated_identity,
+    get_create_project_dependency,
     get_create_user,
     get_current_user,
     get_database_health_check,
@@ -41,6 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             create_user_dependency=get_create_user,
             authenticated_identity_dependency=get_authenticated_identity,
             verified_identity_dependency=get_verified_identity,
+            get_create_project=get_create_project_dependency,
         )
     )
     register_error_handlers(application)

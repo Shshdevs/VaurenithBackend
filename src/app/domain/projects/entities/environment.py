@@ -3,11 +3,11 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import EnvironmentType
-from ..exceptions import InvalidEnvironment
-from ..value_objects import EnvironmentName
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.projects.enums import EnvironmentType
+from app.domain.projects.exceptions import InvalidEnvironment
+from app.domain.projects.value_objects import EnvironmentName
 
 
 class Environment(Entity):

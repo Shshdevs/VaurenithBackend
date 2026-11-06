@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from ...common.value_object import ValueObject
-from ..exceptions import InvalidEnvironment
+from app.domain.common.value_object import ValueObject
+from app.domain.projects.exceptions import InvalidEnvironment
 
 
 @dataclass(frozen=True, slots=True, eq=False)

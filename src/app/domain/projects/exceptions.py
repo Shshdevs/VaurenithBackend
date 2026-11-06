@@ -1,4 +1,4 @@
-from ..common.exceptions import DomainError
+from app.domain.common.exceptions import DomainError
 
 
 class InvalidEnvironment(DomainError):

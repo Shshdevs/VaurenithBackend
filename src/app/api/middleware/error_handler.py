@@ -6,7 +6,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from ...application.common.exceptions import Conflict, NotFound, Unauthorized
+from app.application.common.exceptions import (
+    Conflict,
+    InvalidInput,
+    NotFound,
+    Unauthorized,
+)
+
 from ..schemas import ApiResponse, format_http_status
 
 logger = logging.getLogger(__name__)
@@ -53,6 +59,13 @@ def register_error_handlers(application: FastAPI) -> None:
         exception: NotFound,
     ) -> JSONResponse:
         return _error(404, str(exception))
+
+    @application.exception_handler(InvalidInput)
+    async def handle_invalid_input(
+        _request: Request,
+        exception: InvalidInput,
+    ) -> JSONResponse:
+        return _error(422, str(exception))
 
     @application.exception_handler(Conflict)
     async def handle_conflict(

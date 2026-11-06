@@ -3,11 +3,11 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from ...common.entity import Entity
-from ...common.types import EntityId
-from ..enums import ProjectStatus, ProjectType
-from ..exceptions import InvalidProject
-from ..value_objects import ProjectName
+from app.domain.common.entity import Entity
+from app.domain.common.types import EntityId
+from app.domain.projects.enums import ProjectStatus, ProjectType
+from app.domain.projects.exceptions import InvalidProject
+from app.domain.projects.value_objects import ProjectName
 
 
 class Project(Entity):
@@ -19,7 +19,7 @@ class Project(Entity):
         self,
         entity_id: EntityId,
         user_id: EntityId,
-        name: str,
+        name: ProjectName,
         created_at: datetime,
         updated_at: datetime,
         description: str | None = None,
@@ -31,7 +31,6 @@ class Project(Entity):
     ) -> None:
         if not isinstance(entity_id, UUID) or not isinstance(user_id, UUID):
             raise InvalidProject("Project and owner identifiers must be UUIDs")
-        normalized_name = ProjectName(name)
         if description is not None and not isinstance(description, str):
             raise InvalidProject("Project description must be a string")
         if not isinstance(project_type, ProjectType):
@@ -56,7 +55,7 @@ class Project(Entity):
 
         super().__init__(entity_id)
         self._user_id = user_id
-        self._name = normalized_name
+        self._name = name
         self._description = description
         self._created_at = created_at
         self._updated_at = updated_at

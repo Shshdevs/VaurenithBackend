@@ -14,25 +14,25 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from ...base import Base
+from app.infrastructure.persistence.base import Base
 
 if TYPE_CHECKING:
-    from ..automation.script import Script
-    from ..development.repository import Repository
-    from ..identity.user import User
-    from ..infrastructure.container import Container
-    from ..infrastructure.database import Database
-    from ..infrastructure.service import Service
-    from ..monitoring.event import Event
-    from ..monitoring.logs_metadata import (
+    from app.infrastructure.persistence.models.automation.script import Script
+    from app.infrastructure.persistence.models.development.repository import Repository
+    from app.infrastructure.persistence.models.identity.user import User
+    from app.infrastructure.persistence.models.infrastructure.container import Container
+    from app.infrastructure.persistence.models.infrastructure.database import Database
+    from app.infrastructure.persistence.models.infrastructure.service import Service
+    from app.infrastructure.persistence.models.monitoring.event import Event
+    from app.infrastructure.persistence.models.monitoring.logs_metadata import (
         LogsMetadata,
     )
-    from .environment import Environment
-    from .project_device import (
+    from app.infrastructure.persistence.models.projects.environment import Environment
+    from app.infrastructure.persistence.models.projects.project_device import (
         ProjectDevice,
     )
 
-from .....domain.projects.enums import ProjectStatus, ProjectType
+from app.domain.projects.enums import ProjectStatus, ProjectType
 
 
 class Project(Base):
