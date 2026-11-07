@@ -1,15 +1,30 @@
 from collections.abc import Awaitable, Callable
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
 from app.api.schemas.response import ApiResponse, format_http_status
-from app.api.schemas.v1 import ProjectCreateRequest, ProjectData
+from app.api.schemas.v1 import (
+    ProjectCreateRequest,
+    ProjectData,
+    ProjectUpdateRequest,
+)
 from app.application.identity import VerifiedIdentity
-from app.application.projects import CreateProject
+from app.application.projects.use_cases import (
+    CreateProject,
+    DeleteProject,
+    GetProject,
+    GetUserProjects,
+    UpdateProject,
+)
 
 
 def build_project_route(
     create_project_dependency: Callable[..., CreateProject],
+    get_project_dependency: Callable[..., GetProject],
+    get_user_projects_dependency: Callable[..., GetUserProjects],
+    update_project_dependency: Callable[..., UpdateProject],
+    delete_project_dependency: Callable[..., DeleteProject],
     authenticated_identity_dependency: Callable[
         ..., VerifiedIdentity | Awaitable[VerifiedIdentity]
     ],
@@ -17,7 +32,7 @@ def build_project_route(
     router = APIRouter(tags=["projects"])
 
     @router.post(
-        "/projects/create",
+        "/projects",
         response_model=ApiResponse[ProjectData],
         status_code=status.HTTP_201_CREATED,
     )
@@ -38,6 +53,84 @@ def build_project_route(
             status=format_http_status(status.HTTP_201_CREATED),
             message="Project created successfully",
             data=ProjectData.model_validate(project),
+        )
+
+    @router.get(
+        "/projects/{project_id}",
+        response_model=ApiResponse[ProjectData],
+        status_code=status.HTTP_200_OK,
+    )
+    async def get_project(
+        project_id: UUID,
+        get_project: GetProject = Depends(get_project_dependency),
+        identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
+    ) -> ApiResponse[ProjectData]:
+        project = await get_project.execute(identity=identity, project_id=project_id)
+        return ApiResponse[ProjectData](
+            status=format_http_status(status.HTTP_200_OK),
+            data=ProjectData.model_validate(project),
+        )
+
+    @router.get(
+        "/projects",
+        response_model=ApiResponse[list[ProjectData]],
+        status_code=status.HTTP_200_OK,
+    )
+    async def get_user_projects(
+        get_user_projects: GetUserProjects = Depends(get_user_projects_dependency),
+        identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
+    ) -> ApiResponse[list[ProjectData]]:
+        projects = await get_user_projects.execute(identity=identity)
+        return ApiResponse[list[ProjectData]](
+            status=format_http_status(status.HTTP_200_OK),
+            data=[ProjectData.model_validate(project) for project in projects],
+        )
+
+    @router.put(
+        "/projects/{project_id}",
+        response_model=ApiResponse[ProjectData],
+        status_code=status.HTTP_200_OK,
+    )
+    async def update_project(
+        project_id: UUID,
+        request: ProjectUpdateRequest,
+        update_project: UpdateProject = Depends(update_project_dependency),
+        identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
+    ) -> ApiResponse[ProjectData]:
+        result = await update_project.execute(
+            identity=identity,
+            project_id=project_id,
+            name=request.name,
+            description=request.description,
+            project_type=request.project_type,
+            status=request.status,
+            version=request.version,
+            metadata=request.metadata,
+        )
+
+        return ApiResponse[ProjectData](
+            status=format_http_status(status.HTTP_200_OK),
+            message="Project updated successfully",
+            data=ProjectData.model_validate(result),
+        )
+
+    @router.delete(
+        "/projects/{project_id}",
+        response_model=ApiResponse[None],
+        status_code=status.HTTP_200_OK,
+    )
+    async def delete_project(
+        project_id: UUID,
+        delete_project: DeleteProject = Depends(delete_project_dependency),
+        identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
+    ) -> ApiResponse[None]:
+        await delete_project.execute(
+            identity=identity,
+            project_id=project_id,
+        )
+        return ApiResponse[None](
+            status=format_http_status(status.HTTP_200_OK),
+            message="Project deleted successfully",
         )
 
     return router
