@@ -19,6 +19,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.persistence.base import Base
+from app.infrastructure.persistence.slug_defaults import slug_from_name
 
 if TYPE_CHECKING:
     from app.infrastructure.persistence.models.infrastructure.device import Device
@@ -55,6 +56,9 @@ class Connection(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(
+        String(255), nullable=False, default=slug_from_name
+    )
     host: Mapped[str] = mapped_column(String(512), nullable=False)
     port: Mapped[int] = mapped_column(
         Integer, nullable=False, server_default=text("22")

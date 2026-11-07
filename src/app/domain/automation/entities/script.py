@@ -7,6 +7,7 @@ from app.domain.automation.enums import ScriptExecutionType, ScriptRiskLevel
 from app.domain.automation.exceptions import InvalidScript
 from app.domain.automation.value_objects import ScriptInterpreter, ScriptName
 from app.domain.common.entity import Entity
+from app.domain.common.slug import make_slug
 from app.domain.common.types import EntityId
 
 
@@ -99,6 +100,10 @@ class Script(Entity):
     @property
     def name(self) -> str:
         return self._name.value
+
+    @property
+    def slug(self) -> str:
+        return make_slug(self.name, f"script-{self.id.hex[:8]}")
 
     @property
     def name_value(self) -> ScriptName:

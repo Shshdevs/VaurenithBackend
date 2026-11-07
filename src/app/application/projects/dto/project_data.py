@@ -9,6 +9,7 @@ class ProjectData:
     id: UUID
     user_id: UUID
     name: str
+    slug: str
     description: str | None
     project_type: str
     status: str

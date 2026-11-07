@@ -95,6 +95,7 @@ async def test_update_project_persists_changes_and_returns_project_data() -> Non
     assert repository.updated_project.created_at == existing_project.created_at
     assert repository.updated_project.updated_at > existing_project.updated_at
     assert result.id == existing_project.id
+    assert result.slug == "updated-project"
     assert result.status == ProjectStatus.ARCHIVED.value
     assert result.updated_at == repository.updated_project.updated_at
 

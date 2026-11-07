@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.domain.common.entity import Entity
+from app.domain.common.slug import make_slug
 from app.domain.common.types import EntityId
 from app.domain.development.enums import RepositoryType
 from app.domain.development.exceptions import InvalidBranch, InvalidRepository
@@ -93,6 +94,10 @@ class Repository(Entity):
     @property
     def name(self) -> str:
         return self._name.value
+
+    @property
+    def slug(self) -> str:
+        return make_slug(self.name, f"repository-{self.id.hex[:8]}")
 
     @property
     def name_value(self) -> RepositoryName:

@@ -4,6 +4,7 @@ from typing import Any
 from uuid import UUID
 
 from app.domain.common.entity import Entity
+from app.domain.common.slug import make_slug
 from app.domain.common.types import EntityId
 from app.domain.projects.enums import ProjectStatus, ProjectType
 from app.domain.projects.exceptions import InvalidProject
@@ -81,6 +82,10 @@ class Project(Entity):
     @property
     def name_value(self) -> ProjectName:
         return self._name
+
+    @property
+    def slug(self) -> str:
+        return make_slug(self.name, f"project-{self.id.hex[:8]}")
 
     @property
     def description(self) -> str | None:

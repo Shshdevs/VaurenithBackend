@@ -19,6 +19,7 @@ class GetCurrentUser:
             id=user.id,
             email=str(user.email),
             display_name=user.display_name,
+            nickname=user.nickname,
             auth_provider=user.auth_provider,
             created_at=user.created_at,
             updated_at=user.updated_at,

@@ -43,6 +43,7 @@ def test_project_data_accepts_application_dto_values() -> None:
             "id": uuid4(),
             "user_id": uuid4(),
             "name": "Project epsilon",
+            "slug": "project-epsilon",
             "description": None,
             "project_type": ProjectType.SOFTWARE.value,
             "status": ProjectStatus.ACTIVE.value,

@@ -4,6 +4,7 @@ from typing import Any
 from uuid import UUID
 
 from app.domain.common.entity import Entity
+from app.domain.common.slug import make_slug
 from app.domain.common.types import EntityId
 from app.domain.infrastructure.enums import DbmsType, ResourceStatus
 from app.domain.infrastructure.exceptions import InvalidDatabase
@@ -125,6 +126,10 @@ class Database(Entity):
     @property
     def name(self) -> str:
         return self._name.value
+
+    @property
+    def slug(self) -> str:
+        return make_slug(self.name, f"database-{self.id.hex[:8]}")
 
     @property
     def name_value(self) -> DatabaseResourceName:

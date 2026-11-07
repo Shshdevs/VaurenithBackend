@@ -55,6 +55,7 @@ class SqlAlchemyProjectRepository(ProjectRepository):
             )
             .values(
                 name=project.name,
+                slug=project.slug,
                 description=project.description,
                 project_type=project.project_type,
                 status=project.status,
@@ -116,6 +117,7 @@ class SqlAlchemyProjectRepository(ProjectRepository):
             id=entity.id,
             user_id=entity.user_id,
             name=entity.name,
+            slug=entity.slug,
             description=entity.description,
             project_type=entity.project_type,
             status=entity.status,

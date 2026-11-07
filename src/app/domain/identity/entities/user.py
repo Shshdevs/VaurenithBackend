@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from app.domain.common.entity import Entity
+from app.domain.common.slug import make_slug
 from app.domain.common.types import EntityId
 from app.domain.identity.value_objects.email import EmailAddress
 
@@ -31,6 +32,13 @@ class User(Entity):
     @property
     def display_name(self) -> str | None:
         return self._display_name
+
+    @property
+    def nickname(self) -> str:
+        source = (self._display_name or "").strip() or self._email.value.partition("@")[
+            0
+        ]
+        return make_slug(source, f"user-{self.id.hex[:8]}")
 
     @property
     def auth_provider(self) -> str | None:

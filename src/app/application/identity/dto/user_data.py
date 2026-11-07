@@ -8,6 +8,7 @@ class UserData:
     id: UUID
     email: str
     display_name: str | None
+    nickname: str
     auth_provider: str | None
     created_at: datetime
     updated_at: datetime

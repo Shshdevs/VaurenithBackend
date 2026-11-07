@@ -67,6 +67,7 @@ class UpdateProject:
             id=project.id,
             user_id=project.user_id,
             name=project.name,
+            slug=project.slug,
             description=project.description,
             project_type=project.project_type.value,
             status=project.status.value,

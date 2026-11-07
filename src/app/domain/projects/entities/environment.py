@@ -4,6 +4,7 @@ from typing import Any
 from uuid import UUID
 
 from app.domain.common.entity import Entity
+from app.domain.common.slug import make_slug
 from app.domain.common.types import EntityId
 from app.domain.projects.enums import EnvironmentType
 from app.domain.projects.exceptions import InvalidEnvironment
@@ -86,6 +87,10 @@ class Environment(Entity):
     @property
     def name_value(self) -> EnvironmentName:
         return self._name
+
+    @property
+    def slug(self) -> str:
+        return make_slug(self.name, f"environment-{self.id.hex[:8]}")
 
     @property
     def environment_type(self) -> EnvironmentType:

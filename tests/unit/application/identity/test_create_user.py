@@ -56,6 +56,7 @@ async def test_create_user_registers_user_and_session() -> None:
     assert result.id == identity.user_id
     assert result.email == "user@example.com"
     assert result.display_name == "Test User"
+    assert result.nickname == "test-user"
     assert result.auth_provider == "example-idp"
     assert repository.registered is not None
 

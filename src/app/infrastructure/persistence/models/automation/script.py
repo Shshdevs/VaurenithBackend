@@ -16,6 +16,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.persistence.base import Base
+from app.infrastructure.persistence.slug_defaults import slug_from_name
 
 if TYPE_CHECKING:
     from app.infrastructure.persistence.models.automation.script_execution import (
@@ -47,6 +48,9 @@ class Script(Base):
         ForeignKey("projects.projects.id", deferrable=True, initially="IMMEDIATE"),
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(
+        String(255), nullable=False, default=slug_from_name
+    )
     description: Mapped[str | None] = mapped_column(Text)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     interpreter: Mapped[str | None] = mapped_column(String(100))

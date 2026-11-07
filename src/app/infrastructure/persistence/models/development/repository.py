@@ -15,6 +15,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.persistence.base import Base
+from app.infrastructure.persistence.slug_defaults import slug_from_name
 
 if TYPE_CHECKING:
     from app.infrastructure.persistence.models.development.branch import Branch
@@ -43,6 +44,9 @@ class Repository(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(
+        String(255), nullable=False, default=slug_from_name
+    )
     description: Mapped[str | None] = mapped_column(Text)
     remote_url: Mapped[str | None] = mapped_column(Text)
     default_branch: Mapped[str | None] = mapped_column(String(255))

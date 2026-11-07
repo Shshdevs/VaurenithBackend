@@ -14,6 +14,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.persistence.base import Base
+from app.infrastructure.persistence.slug_defaults import slug_from_name
 
 if TYPE_CHECKING:
     from app.infrastructure.persistence.models import DeviceGroupMember
@@ -36,6 +37,9 @@ class DeviceGroup(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(
+        String(255), nullable=False, default=slug_from_name
+    )
     description: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=text("now()")

@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import UUID
 
 from app.domain.common.entity import Entity
+from app.domain.common.slug import make_slug
 from app.domain.common.types import EntityId
 from app.domain.infrastructure.enums import AuthenticationType, ConnectionStatus
 from app.domain.infrastructure.exceptions import InvalidConnection
@@ -111,6 +112,10 @@ class Connection(Entity):
     @property
     def name(self) -> str:
         return self._name
+
+    @property
+    def slug(self) -> str:
+        return make_slug(self.name, f"connection-{self.id.hex[:8]}")
 
     @property
     def host(self) -> str:

@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.persistence.base import Base
+from app.infrastructure.persistence.slug_defaults import nickname_from_user
 
 if TYPE_CHECKING:
     from app.infrastructure.persistence.models.identity.client_device import (
@@ -48,6 +49,9 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(320), unique=True, nullable=False)
 
     display_name: Mapped[str | None] = mapped_column(String(255))
+    nickname: Mapped[str] = mapped_column(
+        String(255), nullable=False, default=nickname_from_user
+    )
 
     auth_provider: Mapped[str | None] = mapped_column(String(100))
 

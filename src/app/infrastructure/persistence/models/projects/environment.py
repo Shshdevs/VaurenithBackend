@@ -15,6 +15,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.persistence.base import Base
+from app.infrastructure.persistence.slug_defaults import slug_from_name
 
 if TYPE_CHECKING:
     from app.infrastructure.persistence.models.automation.script_target import (
@@ -44,6 +45,9 @@ class Environment(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(
+        String(255), nullable=False, default=slug_from_name
+    )
     environment_type: Mapped[EnvironmentType] = mapped_column(
         Enum(
             EnvironmentType,

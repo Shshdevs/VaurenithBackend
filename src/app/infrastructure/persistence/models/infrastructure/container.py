@@ -15,6 +15,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.persistence.base import Base
+from app.infrastructure.persistence.slug_defaults import slug_from_name
 
 if TYPE_CHECKING:
     from app.infrastructure.persistence.models.infrastructure.database import Database
@@ -68,6 +69,9 @@ class Container(Base):
     )
     container_runtime_id: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    slug: Mapped[str] = mapped_column(
+        String(255), nullable=False, default=slug_from_name
+    )
     image: Mapped[str | None] = mapped_column(String(512))
     status: Mapped[ContainerStatus] = mapped_column(
         Enum(

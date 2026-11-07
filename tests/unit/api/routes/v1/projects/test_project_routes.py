@@ -88,6 +88,7 @@ def test_put_project_route_updates_project_and_returns_api_data() -> None:
     assert body["data"]["id"] == str(project_id)
     assert body["data"]["user_id"] == str(user_id)
     assert body["data"]["name"] == "Updated project"
+    assert body["data"]["slug"] == "updated-project"
     assert body["data"]["project_type"] == "fullstack"
     assert body["data"]["status"] == "archived"
     assert body["data"]["version"] == 2

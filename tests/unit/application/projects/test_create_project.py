@@ -46,6 +46,7 @@ async def test_create_project_uses_defaults_and_persists_project() -> None:
     assert result.id == repository.created.id
     assert result.user_id == identity.user_id
     assert result.name == "Project alpha"
+    assert result.slug == "project-alpha"
     assert result.project_type == ProjectType.SOFTWARE.value
     assert result.status == "active"
     assert result.version == 1

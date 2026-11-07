@@ -14,6 +14,7 @@ class ProjectData(Schema):
     id: UUID
     user_id: UUID
     name: str
+    slug: str
     description: str | None
     project_type: ProjectType
     status: ProjectStatus
