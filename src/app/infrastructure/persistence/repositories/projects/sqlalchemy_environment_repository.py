@@ -4,7 +4,8 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.projects import EnvironmentDeletionConflict, EnvironmentRepository
+from app.application.projects.exceptions import EnvironmentDeletionConflict
+from app.application.projects.interfaces import EnvironmentRepository
 from app.domain.projects import Environment as EnvironmentEntity
 from app.domain.projects import EnvironmentName, EnvironmentType
 from app.infrastructure.persistence.models.projects import Environment
