@@ -10,7 +10,7 @@ from app.api.schemas.v1 import (
     ProjectUpdateRequest,
 )
 from app.application.identity import VerifiedIdentity
-from app.application.projects.use_cases import (
+from app.application.projects.use_cases.projects import (
     CreateProject,
     DeleteProject,
     GetProject,

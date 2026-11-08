@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.api.routes.v1.projects.project import build_project_route
 from app.application.identity import VerifiedIdentity
-from app.application.projects.use_cases.update_project import UpdateProject
+from app.application.projects.use_cases.projects.update_project import UpdateProject
 from app.domain.identity import EmailAddress, TokenHash
 from app.domain.projects import Project, ProjectName, ProjectStatus, ProjectType
 

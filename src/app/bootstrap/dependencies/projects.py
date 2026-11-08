@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.projects.use_cases import (
+from app.application.projects.use_cases.projects import (
     CreateProject,
     DeleteProject,
     GetProject,

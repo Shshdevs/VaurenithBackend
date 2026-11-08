@@ -6,7 +6,7 @@ import pytest
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
 from app.application.projects.exceptions import ProjectNotFound
-from app.application.projects.use_cases.update_project import UpdateProject
+from app.application.projects.use_cases.projects.update_project import UpdateProject
 from app.domain.identity import EmailAddress, TokenHash
 from app.domain.projects import Project, ProjectName, ProjectStatus, ProjectType
 
