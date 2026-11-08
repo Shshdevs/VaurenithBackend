@@ -35,9 +35,7 @@ class LogMetadata(Entity):
             (user_id, "user"),
         ):
             if not isinstance(identifier, UUID):
-                raise InvalidLogMetadata(
-                    f"{name.capitalize()} identifier must be a UUID"
-                )
+                raise InvalidLogMetadata(f"{name.capitalize()} identifier must be a UUID")
         for identifier, name in (
             (project_id, "project"),
             (device_id, "device"),
@@ -45,9 +43,7 @@ class LogMetadata(Entity):
             (container_id, "container"),
         ):
             if identifier is not None and not isinstance(identifier, UUID):
-                raise InvalidLogMetadata(
-                    f"{name.capitalize()} identifier must be a UUID"
-                )
+                raise InvalidLogMetadata(f"{name.capitalize()} identifier must be a UUID")
         if not isinstance(source, str) or len(source) > self.MAX_SOURCE_LENGTH:
             raise InvalidLogMetadata("Log source must be a string of at most 255 chars")
         if reference is not None and not isinstance(reference, str):

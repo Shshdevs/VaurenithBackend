@@ -52,20 +52,14 @@ class Database(Base):
     )
     container_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "infrastructure.containers.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("infrastructure.containers.id", deferrable=True, initially="IMMEDIATE"),
     )
     service_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "infrastructure.services.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("infrastructure.services.id", deferrable=True, initially="IMMEDIATE"),
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
     dbms_type: Mapped[DbmsType] = mapped_column(
         Enum(
             DbmsType,

@@ -97,12 +97,12 @@ def upgrade() -> None:
         name="project_type",
         create_type=False,
     ).create(op.get_bind(), checkfirst=True)
-    postgresql.ENUM(
-        "active", "archived", name="project_status", create_type=False
-    ).create(op.get_bind(), checkfirst=True)
-    postgresql.ENUM(
-        "local", "ssh", name="script_execution_type", create_type=False
-    ).create(op.get_bind(), checkfirst=True)
+    postgresql.ENUM("active", "archived", name="project_status", create_type=False).create(
+        op.get_bind(), checkfirst=True
+    )
+    postgresql.ENUM("local", "ssh", name="script_execution_type", create_type=False).create(
+        op.get_bind(), checkfirst=True
+    )
     postgresql.ENUM(
         "safe",
         "moderate",
@@ -551,9 +551,7 @@ def upgrade() -> None:
         sa.Column("tags", sa.ARRAY(sa.Text()), nullable=True),
         sa.Column("last_seen_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("last_status_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -596,16 +594,12 @@ def upgrade() -> None:
         ),
         sa.Column(
             "status",
-            postgresql.ENUM(
-                "active", "archived", name="project_status", create_type=False
-            ),
+            postgresql.ENUM("active", "archived", name="project_status", create_type=False),
             server_default=sa.text("'active'"),
             nullable=False,
         ),
         sa.Column("metadata", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -662,9 +656,7 @@ def upgrade() -> None:
             server_default=sa.text("false"),
             nullable=False,
         ),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -703,9 +695,7 @@ def upgrade() -> None:
             server_default=sa.text("'git'"),
             nullable=False,
         ),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -803,9 +793,7 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("last_error", sa.Text(), nullable=True),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -1061,16 +1049,12 @@ def upgrade() -> None:
         sa.Column("client_device_id", sa.UUID(), nullable=True),
         sa.Column(
             "scope",
-            postgresql.ENUM(
-                "global", "client", name="setting_scope", create_type=False
-            ),
+            postgresql.ENUM("global", "client", name="setting_scope", create_type=False),
             nullable=False,
         ),
         sa.Column("key", sa.String(length=255), nullable=False),
         sa.Column("value", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -1133,12 +1117,8 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("description", sa.Text(), nullable=True),
-        sa.Column(
-            "configuration", postgresql.JSONB(astext_type=sa.Text()), nullable=True
-        ),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("configuration", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -1239,9 +1219,7 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column("version", sa.BigInteger(), nullable=False),
-        sa.Column(
-            "sequence", sa.BigInteger(), sa.Identity(always=True), nullable=False
-        ),
+        sa.Column("sequence", sa.BigInteger(), sa.Identity(always=True), nullable=False),
         sa.Column("changed_by_client_id", sa.UUID(), nullable=True),
         sa.Column("changed_by_user_id", sa.UUID(), nullable=False),
         sa.Column("payload", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
@@ -1609,9 +1587,7 @@ def upgrade() -> None:
         sa.Column("author_email", sa.String(length=320), nullable=True),
         sa.Column("message", sa.Text(), nullable=True),
         sa.Column("committed_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column(
-            "changed_files", postgresql.JSONB(astext_type=sa.Text()), nullable=True
-        ),
+        sa.Column("changed_files", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
         sa.Column("cached_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(
             ["repository_id"],
@@ -1671,9 +1647,7 @@ def upgrade() -> None:
         ),
         sa.Column("last_status_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("metadata", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -1810,9 +1784,7 @@ def upgrade() -> None:
         sa.Column("started_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("last_seen_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("metadata", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
@@ -1905,9 +1877,7 @@ def upgrade() -> None:
         ),
         sa.Column("last_checked_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("metadata", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
-        sa.Column(
-            "version", sa.BigInteger(), server_default=sa.text("1"), nullable=False
-        ),
+        sa.Column("version", sa.BigInteger(), server_default=sa.text("1"), nullable=False),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),

@@ -45,9 +45,7 @@ class Environment(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
     environment_type: Mapped[EnvironmentType] = mapped_column(
         Enum(
             EnvironmentType,

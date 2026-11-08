@@ -49,9 +49,7 @@ class ClientDevice(Base):
     )
 
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
 
     platform: Mapped[PlatformType] = mapped_column(
         SQLAlchemyEnum(

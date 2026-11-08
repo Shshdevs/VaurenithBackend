@@ -115,20 +115,14 @@ class ScriptExecution(Entity):
         if started_at is not None:
             cls._validate_timestamp(started_at, "started_at")
             if started_at < created_at:
-                raise InvalidScriptExecution(
-                    "Start time cannot precede execution creation"
-                )
+                raise InvalidScriptExecution("Start time cannot precede execution creation")
         if finished_at is not None:
             cls._validate_timestamp(finished_at, "finished_at")
             if finished_at < created_at:
                 raise InvalidScriptExecution(
                     "Finish time cannot precede execution creation"
                 )
-        if (
-            started_at is not None
-            and finished_at is not None
-            and finished_at < started_at
-        ):
+        if started_at is not None and finished_at is not None and finished_at < started_at:
             raise InvalidScriptExecution("Finish time cannot precede start time")
 
     @staticmethod
@@ -252,9 +246,7 @@ class ScriptExecution(Entity):
     ) -> None:
         self._validate_timestamp(at, "finished_at")
         if at < self._created_at:
-            raise InvalidScriptExecution(
-                "Finish time cannot precede execution creation"
-            )
+            raise InvalidScriptExecution("Finish time cannot precede execution creation")
         if self._started_at is not None and at < self._started_at:
             raise InvalidScriptExecution("Finish time cannot precede start time")
         if exit_code is not None and (

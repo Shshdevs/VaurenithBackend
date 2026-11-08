@@ -59,9 +59,7 @@ class Relation(Base):
         ),
         nullable=False,
     )
-    source_entity_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False
-    )
+    source_entity_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     target_entity_type: Mapped[EntityType] = mapped_column(
         Enum(
             EntityType,
@@ -70,9 +68,7 @@ class Relation(Base):
         ),
         nullable=False,
     )
-    target_entity_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), nullable=False
-    )
+    target_entity_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     relation_type: Mapped[RelationType] = mapped_column(
         Enum(
             RelationType,

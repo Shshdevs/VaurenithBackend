@@ -83,9 +83,7 @@ class Event(Base):
     metadata_: Mapped[Any | None] = mapped_column("metadata", JSONB)
     client_device_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "identity.client_devices.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("identity.client_devices.id", deferrable=True, initially="IMMEDIATE"),
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=text("now()")

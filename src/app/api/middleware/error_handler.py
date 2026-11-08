@@ -33,9 +33,7 @@ async def handle_http_exception(
 ) -> JSONResponse:
     http_exception = cast(StarletteHTTPException, exception)
     message = (
-        http_exception.detail
-        if isinstance(http_exception.detail, str)
-        else "HTTP error"
+        http_exception.detail if isinstance(http_exception.detail, str) else "HTTP error"
     )
     return _error(http_exception.status_code, message)
 

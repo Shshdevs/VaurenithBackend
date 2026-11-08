@@ -44,9 +44,7 @@ class Repository(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
     description: Mapped[str | None] = mapped_column(Text)
     remote_url: Mapped[str | None] = mapped_column(Text)
     default_branch: Mapped[str | None] = mapped_column(String(255))

@@ -63,15 +63,11 @@ class Container(Base):
     )
     service_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "infrastructure.services.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("infrastructure.services.id", deferrable=True, initially="IMMEDIATE"),
     )
     container_runtime_id: Mapped[str] = mapped_column(String(255), nullable=False)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
     image: Mapped[str | None] = mapped_column(String(512))
     status: Mapped[ContainerStatus] = mapped_column(
         Enum(

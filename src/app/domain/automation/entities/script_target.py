@@ -18,8 +18,7 @@ class ScriptTarget(Entity):
         environment_id: EntityId | None = None,
     ) -> None:
         if not all(
-            isinstance(identifier, UUID)
-            for identifier in (entity_id, script_id, device_id)
+            isinstance(identifier, UUID) for identifier in (entity_id, script_id, device_id)
         ):
             raise InvalidScriptTarget(
                 "Target, script, and device identifiers must be UUIDs"

@@ -32,8 +32,7 @@ def main() -> int:
         raise SystemExit("Set DATABASE_URL in the environment or .env.")
     if _database_identity(test_database_url) == _database_identity(database_url):
         raise SystemExit(
-            "Refusing to migrate the configured application database "
-            "as a test database."
+            "Refusing to migrate the configured application database as a test database."
         )
 
     environment = os.environ.copy()

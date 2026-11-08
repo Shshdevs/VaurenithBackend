@@ -44,9 +44,7 @@ class CodeComponent(Base):
     )
     repository_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "development.repositories.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("development.repositories.id", deferrable=True, initially="IMMEDIATE"),
         nullable=False,
     )
     parent_id: Mapped[uuid.UUID | None] = mapped_column(

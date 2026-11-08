@@ -18,9 +18,7 @@ class RelationConfidence(ValueObject):
             raise InvalidRelation("Relation confidence must be between 0 and 1")
         normalized_value = self.value.quantize(self.SCALE)
         if normalized_value != self.value:
-            raise InvalidRelation(
-                "Relation confidence can have at most 4 decimal places"
-            )
+            raise InvalidRelation("Relation confidence can have at most 4 decimal places")
         object.__setattr__(self, "value", normalized_value)
 
     def equality_components(self) -> tuple[Decimal, ...]:

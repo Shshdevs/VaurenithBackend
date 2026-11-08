@@ -38,9 +38,7 @@ class CodeComponent(Entity):
         source_commit_hash: str | None = None,
     ) -> None:
         if not isinstance(entity_id, UUID) or not isinstance(repository_id, UUID):
-            raise InvalidCodeComponent(
-                "Component and repository identifiers must be UUIDs"
-            )
+            raise InvalidCodeComponent("Component and repository identifiers must be UUIDs")
         if parent_id is not None and not isinstance(parent_id, UUID):
             raise InvalidCodeComponent("Parent identifier must be a UUID")
         if parent_id == entity_id:
@@ -174,9 +172,7 @@ class CodeComponent(Entity):
     @property
     def source_commit_hash(self) -> str | None:
         return (
-            self._source_commit_hash.value
-            if self._source_commit_hash is not None
-            else None
+            self._source_commit_hash.value if self._source_commit_hash is not None else None
         )
 
     @property

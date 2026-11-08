@@ -48,9 +48,7 @@ class Script(Base):
         ForeignKey("projects.projects.id", deferrable=True, initially="IMMEDIATE"),
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
     description: Mapped[str | None] = mapped_column(Text)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     interpreter: Mapped[str | None] = mapped_column(String(100))

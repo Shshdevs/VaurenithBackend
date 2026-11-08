@@ -57,9 +57,7 @@ class Service(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
     service_type: Mapped[ServiceType] = mapped_column(
         Enum(
             ServiceType,

@@ -52,9 +52,7 @@ class Project(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
     description: Mapped[str | None] = mapped_column(Text)
     project_type: Mapped[ProjectType] = mapped_column(
         Enum(

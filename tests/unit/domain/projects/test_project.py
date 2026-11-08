@@ -60,9 +60,7 @@ def test_project_rejects_update_before_creation() -> None:
     created_at = datetime(2026, 1, 2, tzinfo=UTC)
 
     with pytest.raises(InvalidProject):
-        make_project(
-            created_at=created_at, updated_at=created_at - timedelta(seconds=1)
-        )
+        make_project(created_at=created_at, updated_at=created_at - timedelta(seconds=1))
 
 
 def test_project_rejects_deletion_before_creation() -> None:

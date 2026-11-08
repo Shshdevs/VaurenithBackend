@@ -34,9 +34,7 @@ class Commit(Base):
     )
     repository_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "development.repositories.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("development.repositories.id", deferrable=True, initially="IMMEDIATE"),
         nullable=False,
     )
     hash: Mapped[str] = mapped_column(String(64), nullable=False)

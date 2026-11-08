@@ -59,9 +59,7 @@ class Setting(Base):
     )
     client_device_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "identity.client_devices.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("identity.client_devices.id", deferrable=True, initially="IMMEDIATE"),
     )
     scope: Mapped[SettingScope] = mapped_column(
         Enum(

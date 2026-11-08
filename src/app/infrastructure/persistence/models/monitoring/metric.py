@@ -66,9 +66,7 @@ class Metric(Base):
         nullable=False,
     )
     source: Mapped[str | None] = mapped_column(String(255))
-    collected_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+    collected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     device: Mapped["Device"] = relationship(
         "Device", back_populates="metrics", foreign_keys=[device_id]

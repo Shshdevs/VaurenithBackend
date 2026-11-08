@@ -119,9 +119,7 @@ class Service(Entity):
     @property
     def system_identifier(self) -> str | None:
         return (
-            self._system_identifier.value
-            if self._system_identifier is not None
-            else None
+            self._system_identifier.value if self._system_identifier is not None else None
         )
 
     @property

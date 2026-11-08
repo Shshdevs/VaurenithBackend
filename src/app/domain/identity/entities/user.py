@@ -35,9 +35,7 @@ class User(Entity):
 
     @property
     def nickname(self) -> str:
-        source = (self._display_name or "").strip() or self._email.value.partition("@")[
-            0
-        ]
+        source = (self._display_name or "").strip() or self._email.value.partition("@")[0]
         return make_slug(source, f"user-{self.id.hex[:8]}")
 
     @property

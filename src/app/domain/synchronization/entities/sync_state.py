@@ -38,9 +38,7 @@ class SyncState(Entity):
         if entity_type is not None and not isinstance(entity_type, EntityType):
             raise InvalidSyncState("Entity type is invalid")
         if (entity_type is None) != (entity_id is None):
-            raise InvalidSyncState(
-                "Entity type and entity identifier must be set together"
-            )
+            raise InvalidSyncState("Entity type and entity identifier must be set together")
         if entity_id is not None and not isinstance(entity_id, UUID):
             raise InvalidSyncState("Synchronized entity identifier must be a UUID")
         if not isinstance(status, SyncStatus):
@@ -75,9 +73,7 @@ class SyncState(Entity):
     @staticmethod
     def _validate_timestamp(value: datetime, name: str) -> None:
         if not isinstance(value, datetime) or value.utcoffset() is None:
-            raise InvalidSyncState(
-                f"Synchronization {name} time must include a timezone"
-            )
+            raise InvalidSyncState(f"Synchronization {name} time must include a timezone")
 
     @property
     def user_id(self) -> EntityId:

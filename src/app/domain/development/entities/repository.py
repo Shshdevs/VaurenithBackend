@@ -64,9 +64,7 @@ class Repository(Entity):
         if deleted_at is not None:
             self._validate_timestamp(deleted_at, "deleted_at")
             if deleted_at < created_at:
-                raise InvalidRepository(
-                    "Deletion time cannot precede repository creation"
-                )
+                raise InvalidRepository("Deletion time cannot precede repository creation")
             if updated_at > deleted_at:
                 raise InvalidRepository("Update time cannot follow repository deletion")
 
