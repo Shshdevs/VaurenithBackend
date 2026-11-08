@@ -50,9 +50,7 @@ class ScriptExecution(Base):
     )
     client_device_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "identity.client_devices.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("identity.client_devices.id", deferrable=True, initially="IMMEDIATE"),
         nullable=False,
     )
     parameters: Mapped[Any | None] = mapped_column(JSONB)

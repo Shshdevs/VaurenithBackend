@@ -7,6 +7,7 @@ import pytest
 from app.domain.projects.entities.environment import Environment
 from app.domain.projects.enums import EnvironmentType
 from app.domain.projects.exceptions import InvalidEnvironment
+from app.domain.projects.value_objects import EnvironmentName
 
 
 def make_environment(**overrides: Any) -> Environment:
@@ -14,7 +15,7 @@ def make_environment(**overrides: Any) -> Environment:
     values: dict[str, Any] = {
         "entity_id": uuid4(),
         "project_id": uuid4(),
-        "name": "  Production  ",
+        "name": EnvironmentName("  Production  "),
         "environment_type": EnvironmentType.PRODUCTION,
         "description": None,
         "configuration": None,
@@ -22,6 +23,8 @@ def make_environment(**overrides: Any) -> Environment:
         "updated_at": created_at,
     }
     values.update(overrides)
+    if isinstance(values["name"], str):
+        values["name"] = EnvironmentName(values["name"])
     return Environment(**values)
 
 

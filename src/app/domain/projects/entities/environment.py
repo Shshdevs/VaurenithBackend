@@ -18,7 +18,7 @@ class Environment(Entity):
         self,
         entity_id: EntityId,
         project_id: EntityId,
-        name: str,
+        name: EnvironmentName,
         environment_type: EnvironmentType,
         description: str | None,
         configuration: dict[str, Any] | None,
@@ -28,11 +28,9 @@ class Environment(Entity):
         deleted_at: datetime | None = None,
     ) -> None:
         if not isinstance(entity_id, UUID) or not isinstance(project_id, UUID):
-            raise InvalidEnvironment(
-                "Environment and project identifiers must be UUIDs"
-            )
-        normalized_name = EnvironmentName(name)
-
+            raise InvalidEnvironment("Environment and project identifiers must be UUIDs")
+        if not isinstance(name, EnvironmentName):
+            raise InvalidEnvironment("Environment name must be an EnvironmentName")
         if not isinstance(environment_type, EnvironmentType):
             raise InvalidEnvironment("Environment type is invalid")
 
@@ -56,13 +54,11 @@ class Environment(Entity):
                     "Deletion time cannot precede environment creation"
                 )
             if updated_at > deleted_at:
-                raise InvalidEnvironment(
-                    "Update time cannot follow environment deletion"
-                )
+                raise InvalidEnvironment("Update time cannot follow environment deletion")
 
         super().__init__(entity_id)
         self._project_id = project_id
-        self._name = normalized_name
+        self._name = name
         self._environment_type = environment_type
         self._description = description
         self._configuration = deepcopy(configuration)

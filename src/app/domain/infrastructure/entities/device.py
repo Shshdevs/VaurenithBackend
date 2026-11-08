@@ -48,9 +48,7 @@ class Device(Entity):
         normalized_hostname = self._normalize_optional_text(
             hostname, "hostname", self.MAX_HOST_NAME_LENGTH
         )
-        normalized_description = self._normalize_optional_text(
-            description, "description"
-        )
+        normalized_description = self._normalize_optional_text(description, "description")
         normalized_operating_system = self._normalize_optional_text(
             operating_system, "operating_system", self.MAX_OPERATING_SYSTEM_LENGTH
         )

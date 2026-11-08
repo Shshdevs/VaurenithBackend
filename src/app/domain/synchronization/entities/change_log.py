@@ -37,9 +37,7 @@ class ChangeLog(Entity):
         ):
             if not isinstance(identifier, UUID):
                 raise InvalidChangeLog(f"{name.capitalize()} identifier must be a UUID")
-        if changed_by_client_id is not None and not isinstance(
-            changed_by_client_id, UUID
-        ):
+        if changed_by_client_id is not None and not isinstance(changed_by_client_id, UUID):
             raise InvalidChangeLog("Actor client identifier must be a UUID")
         if not isinstance(entity_type, EntityType):
             raise InvalidChangeLog("Entity type is invalid")

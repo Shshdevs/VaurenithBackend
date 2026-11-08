@@ -71,14 +71,10 @@ class ChangeLog(Base):
         nullable=False,
     )
     version: Mapped[int] = mapped_column(BigInteger, nullable=False)
-    sequence: Mapped[int] = mapped_column(
-        BigInteger, Identity(always=True), nullable=False
-    )
+    sequence: Mapped[int] = mapped_column(BigInteger, Identity(always=True), nullable=False)
     changed_by_client_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "identity.client_devices.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("identity.client_devices.id", deferrable=True, initially="IMMEDIATE"),
     )
     changed_by_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),

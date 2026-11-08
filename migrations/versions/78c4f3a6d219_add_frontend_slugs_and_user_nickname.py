@@ -34,9 +34,7 @@ def _backfill_slug(
     fallback_prefix: str,
 ) -> None:
     connection = op.get_bind()
-    table_model = sa.Table(
-        table, sa.MetaData(), schema=schema, autoload_with=connection
-    )
+    table_model = sa.Table(table, sa.MetaData(), schema=schema, autoload_with=connection)
     rows = connection.execute(
         sa.select(table_model.c.id, table_model.c[source_column])
     ).mappings()

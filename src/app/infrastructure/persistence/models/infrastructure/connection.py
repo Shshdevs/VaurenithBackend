@@ -56,13 +56,9 @@ class Connection(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
     host: Mapped[str] = mapped_column(String(512), nullable=False)
-    port: Mapped[int] = mapped_column(
-        Integer, nullable=False, server_default=text("22")
-    )
+    port: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("22"))
     username: Mapped[str] = mapped_column(String(255), nullable=False)
     authentication_type: Mapped[AuthenticationType] = mapped_column(
         Enum(

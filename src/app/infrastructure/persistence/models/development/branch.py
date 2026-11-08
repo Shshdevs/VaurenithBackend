@@ -40,9 +40,7 @@ class Branch(Base):
     )
     repository_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "development.repositories.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("development.repositories.id", deferrable=True, initially="IMMEDIATE"),
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)

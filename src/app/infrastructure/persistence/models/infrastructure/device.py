@@ -61,9 +61,7 @@ class Device(Base):
         nullable=False,
     )
     name: Mapped[str] = mapped_column(String(255), nullable=False)
-    slug: Mapped[str] = mapped_column(
-        String(255), nullable=False, default=slug_from_name
-    )
+    slug: Mapped[str] = mapped_column(String(255), nullable=False, default=slug_from_name)
     hostname: Mapped[str | None] = mapped_column(String(255))
     description: Mapped[str | None] = mapped_column(Text)
     device_type: Mapped[DeviceType] = mapped_column(

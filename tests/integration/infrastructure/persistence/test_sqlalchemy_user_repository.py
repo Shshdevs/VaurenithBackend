@@ -96,9 +96,9 @@ async def test_register_persists_user_and_session_then_rolls_back() -> None:
             await transaction.rollback()
 
         async with AsyncSession(engine) as verification_session:
-            stored_user = await SqlAlchemyUserRepository(
-                verification_session
-            ).get_by_id(user_id)
+            stored_user = await SqlAlchemyUserRepository(verification_session).get_by_id(
+                user_id
+            )
             assert stored_user is None
     finally:
         await engine.dispose()

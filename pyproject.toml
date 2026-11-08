@@ -4,7 +4,7 @@ extraPaths = ["src"]
 pythonVersion = "3.13"
 
 [tool.ruff]
-line-length = 88
+line-length = 92
 target-version = "py313"
 src = ["src"]
 extend-exclude = [".venv", "build", "dist"]

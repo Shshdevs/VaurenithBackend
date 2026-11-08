@@ -57,23 +57,8 @@ class UpdateProject:
         except (InvalidProject, ValueError) as error:
             raise InvalidInput(str(error)) from error
 
-        result = await self._project_repository.update(
-            identity.user_id, project=project
-        )
+        result = await self._project_repository.update(identity.user_id, project=project)
         if not result:
             raise ProjectNotFound(str(project_id))
 
-        return ProjectData(
-            id=project.id,
-            user_id=project.user_id,
-            name=project.name,
-            slug=project.slug,
-            description=project.description,
-            project_type=project.project_type.value,
-            status=project.status.value,
-            metadata=project.metadata,
-            version=project.version,
-            created_at=project.created_at,
-            updated_at=project.updated_at,
-            deleted_at=project.deleted_at,
-        )
+        return ProjectData.from_project(project)

@@ -37,9 +37,7 @@ class Connection(Entity):
     ) -> None:
         if not isinstance(entity_id, UUID) or not isinstance(device_id, UUID):
             raise InvalidConnection("Connection and device identifiers must be UUIDs")
-        normalized_name = self._normalize_required_text(
-            name, "name", self.MAX_NAME_LENGTH
-        )
+        normalized_name = self._normalize_required_text(name, "name", self.MAX_NAME_LENGTH)
         endpoint = ConnectionEndpoint(host=host, port=port)
         normalized_username = self._normalize_required_text(
             username, "username", self.MAX_USERNAME_LENGTH
@@ -72,9 +70,7 @@ class Connection(Entity):
                     "Last connected time cannot precede connection creation"
                 )
             if last_connected_at > updated_at:
-                raise InvalidConnection(
-                    "Last connected time cannot follow the last update"
-                )
+                raise InvalidConnection("Last connected time cannot follow the last update")
 
         super().__init__(entity_id)
         self._device_id = device_id

@@ -37,9 +37,7 @@ class Session(Base):
 
     client_device_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
-        ForeignKey(
-            "identity.client_devices.id", deferrable=True, initially="IMMEDIATE"
-        ),
+        ForeignKey("identity.client_devices.id", deferrable=True, initially="IMMEDIATE"),
         nullable=True,
     )
 
