@@ -1,9 +1,7 @@
 from uuid import UUID
 
 from app.application.projects.exceptions import EnvironmentNotFound
-from app.application.projects.interfaces.environment_repository import (
-    EnvironmentRepository,
-)
+from app.application.projects.interfaces import EnvironmentRepository
 
 
 class DeleteEnvironment:

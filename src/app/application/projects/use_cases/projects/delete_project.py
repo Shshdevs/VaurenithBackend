@@ -2,7 +2,7 @@ from uuid import UUID
 
 from app.application.identity.dto import VerifiedIdentity
 from app.application.projects.exceptions import ProjectNotFound
-from app.application.projects.interfaces.project_repository import ProjectRepository
+from app.application.projects.interfaces import ProjectRepository
 
 
 class DeleteProject:

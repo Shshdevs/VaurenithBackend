@@ -1,9 +1,9 @@
 from uuid import UUID
 
 from app.application.identity.dto import VerifiedIdentity
-from app.application.projects.dto.project_data import ProjectData
+from app.application.projects.dto import ProjectData
 from app.application.projects.exceptions import ProjectNotFound
-from app.application.projects.interfaces.project_repository import ProjectRepository
+from app.application.projects.interfaces import ProjectRepository
 
 
 class GetProject:

@@ -4,7 +4,8 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.projects import ProjectDeletionConflict, ProjectRepository
+from app.application.projects.exceptions import ProjectDeletionConflict
+from app.application.projects.interfaces import ProjectRepository
 from app.domain.projects import Project as ProjectEntity
 from app.domain.projects import ProjectName, ProjectStatus
 from app.infrastructure.persistence.models.projects import Project

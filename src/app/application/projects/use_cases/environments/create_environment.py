@@ -3,10 +3,8 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from app.application.common.exceptions import InvalidInput
-from app.application.projects.dto.environment_data import EnvironmentData
-from app.application.projects.interfaces.environment_repository import (
-    EnvironmentRepository,
-)
+from app.application.projects.dto import EnvironmentData
+from app.application.projects.interfaces import EnvironmentRepository
 from app.domain.projects import (
     Environment,
     EnvironmentName,
