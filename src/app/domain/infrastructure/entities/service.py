@@ -16,14 +16,14 @@ class Service(Entity):
         self,
         entity_id: EntityId,
         device_id: EntityId,
-        name: str,
+        name: ServiceName,
         service_type: ServiceType,
         created_at: datetime,
         updated_at: datetime,
         project_id: EntityId | None = None,
         environment_id: EntityId | None = None,
         description: str | None = None,
-        system_identifier: str | None = None,
+        system_identifier: SystemIdentifier | None = None,
         status: ResourceStatus = ResourceStatus.UNKNOWN,
         last_status_at: datetime | None = None,
         metadata: dict[str, Any] | None = None,
@@ -36,14 +36,17 @@ class Service(Entity):
         if environment_id is not None and not isinstance(environment_id, UUID):
             raise InvalidService("Environment identifier must be a UUID")
 
-        service_name = ServiceName(name)
-        normalized_system_identifier = None
-        if system_identifier is not None and not (
-            isinstance(system_identifier, str) and not system_identifier.strip()
+        if not isinstance(name, ServiceName):
+            raise InvalidService("Service name must be a ServiceName")
+        if system_identifier is not None and not isinstance(
+            system_identifier, SystemIdentifier
         ):
-            normalized_system_identifier = SystemIdentifier(system_identifier)
+            raise InvalidService("System identifier must be a SystemIdentifier")
         if description is not None and not isinstance(description, str):
             raise InvalidService("Service description must be a string")
+        normalized_description = description.strip() if description is not None else None
+        if normalized_description == "":
+            normalized_description = None
         if not isinstance(service_type, ServiceType):
             raise InvalidService("Service type is invalid")
         if not isinstance(status, ResourceStatus):
@@ -68,10 +71,10 @@ class Service(Entity):
         self._device_id = device_id
         self._project_id = project_id
         self._environment_id = environment_id
-        self._name = service_name
+        self._name = name
         self._service_type = service_type
-        self._description = description
-        self._system_identifier = normalized_system_identifier
+        self._description = normalized_description
+        self._system_identifier = system_identifier
         self._status = status
         self._last_status_at = last_status_at
         self._metadata = deepcopy(metadata)

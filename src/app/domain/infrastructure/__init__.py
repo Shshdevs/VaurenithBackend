@@ -1,5 +1,6 @@
 from app.domain.infrastructure.entities.device import Device
 from app.domain.infrastructure.entities.device_group import DeviceGroup
+from app.domain.infrastructure.entities.service import Service
 from app.domain.infrastructure.enums import (
     AuthenticationType,
     AvailabilityStatus,
@@ -10,7 +11,11 @@ from app.domain.infrastructure.enums import (
     ResourceStatus,
     ServiceType,
 )
-from app.domain.infrastructure.exceptions import InvalidDevice, InvalidDeviceGroup
+from app.domain.infrastructure.exceptions import (
+    InvalidDevice,
+    InvalidDeviceGroup,
+    InvalidService,
+)
 from app.domain.infrastructure.value_objects import (
     ConnectionEndpoint,
     ContainerImage,
@@ -49,6 +54,8 @@ __all__ = [
     "OperatingSystem",
     "ResourceStatus",
     "ServiceName",
+    "Service",
     "ServiceType",
+    "InvalidService",
     "SystemIdentifier",
 ]
