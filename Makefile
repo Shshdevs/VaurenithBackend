@@ -1,4 +1,4 @@
-.PHONY: lint lint-fix format format-check typecheck semgrep security test test-unit test-integration test-cov check fix setup install-hooks docker docker-up docker-build docker-down docker-logs db-upgrade db-upgrade-test db-current db-revision
+.PHONY: lint lint-fix format format-check typecheck semgrep semgrep-all security test test-unit test-integration test-cov check fix setup install-hooks docker docker-up docker-build docker-down docker-logs db-upgrade db-upgrade-test db-current db-revision
 
 PYTHON ?= python3.13
 TEST_PATH ?= tests
@@ -25,11 +25,14 @@ typecheck:
 	pyright
 
 semgrep:
+	pre-commit run semgrep
+
+semgrep-all:
 	pre-commit run semgrep --all-files
 
 security:
 	bandit -r src migrations --baseline .bandit-baseline.json
-	$(MAKE) semgrep
+	$(MAKE) semgrep-all
 
 test:
 	pytest $(TEST_PATH) $(PYTEST_ARGS)
