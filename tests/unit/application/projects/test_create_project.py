@@ -3,6 +3,7 @@ from typing import Any
 from uuid import uuid4
 
 import pytest
+from tests.support import NoOpRecordChange
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
@@ -34,7 +35,7 @@ def make_identity() -> VerifiedIdentity:
 async def test_create_project_uses_defaults_and_persists_project() -> None:
     identity = make_identity()
     repository = FakeProjectRepository()
-    use_case = CreateProject(repository)
+    use_case = CreateProject(repository, NoOpRecordChange())
 
     result = await use_case.execute(
         identity=identity,
@@ -60,7 +61,7 @@ async def test_create_project_uses_defaults_and_persists_project() -> None:
 @pytest.mark.anyio
 async def test_create_project_preserves_custom_version_and_data() -> None:
     repository = FakeProjectRepository()
-    use_case = CreateProject(repository)
+    use_case = CreateProject(repository, NoOpRecordChange())
     metadata: dict[str, Any] = {"environment": "production"}
 
     result = await use_case.execute(
@@ -83,7 +84,7 @@ async def test_create_project_preserves_custom_version_and_data() -> None:
 @pytest.mark.anyio
 async def test_create_project_rejects_invalid_name_without_saving() -> None:
     repository = FakeProjectRepository()
-    use_case = CreateProject(repository)
+    use_case = CreateProject(repository, NoOpRecordChange())
 
     with pytest.raises(InvalidInput, match="Project name is invalid"):
         await use_case.execute(

@@ -21,37 +21,37 @@ from app.bootstrap.providers.projects import (
 
 
 def get_get_project_device_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetProjectDevice:
     return provide_get_project_device(session)
 
 
 def get_get_project_devices_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetProjectDevices:
     return provide_get_project_devices(session)
 
 
 def get_get_device_projects_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetDeviceProjects:
     return provide_get_device_projects(session)
 
 
 def get_update_project_device_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> UpdateProjectDevice:
     return provide_update_project_device(session)
 
 
 def get_link_project_device_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> LinkProjectDevice:
     return provide_link_project_device(session)
 
 
 def get_delete_project_device_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> DeleteProjectDevice:
     return provide_delete_project_device(session)
 

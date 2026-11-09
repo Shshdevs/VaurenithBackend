@@ -6,6 +6,8 @@ from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import ProjectData
 from app.application.projects.interfaces import ProjectRepository
+from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.domain.common.enums import EntityType
 from app.domain.projects import (
     InvalidProject,
     Project,
@@ -13,11 +15,15 @@ from app.domain.projects import (
     ProjectStatus,
     ProjectType,
 )
+from app.domain.synchronization import ChangeOperation
 
 
 class CreateProject:
-    def __init__(self, project_repository: ProjectRepository) -> None:
+    def __init__(
+        self, project_repository: ProjectRepository, recorder: ChangeRecorder
+    ) -> None:
         self._project_repository = project_repository
+        self._recorder = recorder
 
     async def execute(
         self,
@@ -47,5 +53,18 @@ class CreateProject:
             raise InvalidInput(str(error)) from error
 
         await self._project_repository.create(project=project)
+        await self._recorder.execute(
+            identity,
+            EntityType.PROJECT,
+            project.id,
+            ChangeOperation.INSERT,
+            project.version,
+            {
+                "name": project.name,
+                "description": project.description,
+                "project_type": project.project_type.value,
+                "status": project.status.value,
+            },
+        )
 
         return ProjectData.from_project(project)

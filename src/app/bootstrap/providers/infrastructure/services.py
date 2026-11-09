@@ -11,13 +11,20 @@ from app.application.infrastructure.use_cases.service import (
     UpdateService,
     UpdateServiceStatus,
 )
+from app.application.synchronization.change_log import RecordChange
 from app.infrastructure.persistence.repositories.infrastructure import (
     SqlAlchemyServiceRepository,
+)
+from app.infrastructure.persistence.repositories.synchronization import (
+    SqlAlchemyChangeLogRepository,
 )
 
 
 def provide_create_service(session: AsyncSession) -> CreateService:
-    return CreateService(SqlAlchemyServiceRepository(session))
+    return CreateService(
+        SqlAlchemyServiceRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 def provide_get_service(session: AsyncSession) -> GetService:
@@ -41,12 +48,21 @@ def provide_get_environment_services(session: AsyncSession) -> GetEnvironmentSer
 
 
 def provide_update_service(session: AsyncSession) -> UpdateService:
-    return UpdateService(SqlAlchemyServiceRepository(session))
+    return UpdateService(
+        SqlAlchemyServiceRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 def provide_update_service_status(session: AsyncSession) -> UpdateServiceStatus:
-    return UpdateServiceStatus(SqlAlchemyServiceRepository(session))
+    return UpdateServiceStatus(
+        SqlAlchemyServiceRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 def provide_delete_service(session: AsyncSession) -> DeleteService:
-    return DeleteService(SqlAlchemyServiceRepository(session))
+    return DeleteService(
+        SqlAlchemyServiceRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )

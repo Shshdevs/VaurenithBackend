@@ -28,12 +28,6 @@ class SqlAlchemyProjectRepository(ProjectRepository):
     async def create(self, project: ProjectEntity) -> None:
         self._session.add(self._to_model(project))
 
-        try:
-            await self._session.commit()
-        except IntegrityError:
-            await self._session.rollback()
-            raise
-
     async def get_user_projects(self, user_id: UUID) -> list[ProjectEntity]:
         result = await self._session.execute(
             select(Project).where(
@@ -71,28 +65,26 @@ class SqlAlchemyProjectRepository(ProjectRepository):
 
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError:
-            await self._session.rollback()
             raise
-        return result.scalar_one_or_none() is not None
+        updated_id = result.scalar_one_or_none()
+        return updated_id is not None
 
     async def delete(self, user_id: UUID, project_id: UUID) -> bool:
         statement = (
             delete(Project)
             .where(self._owned_project(user_id, project_id))
-            .returning(Project.id)
+            .returning(Project.id, Project.version)
         )
 
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError as error:
-            await self._session.rollback()
             if getattr(error.orig, "sqlstate", None) == "23503":
                 raise ProjectDeletionConflict(str(project_id)) from error
             raise
-        return result.scalar_one_or_none() is not None
+        deleted = result.one_or_none()
+        return deleted is not None
 
     @staticmethod
     def _owned_project(user_id: UUID, project_id) -> Exists:

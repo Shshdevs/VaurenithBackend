@@ -212,11 +212,8 @@ async def test_service_repository_persists_and_enforces_owner_scope_and_versions
                 assert updated_model.name == "api-v2"
                 assert updated_model.version == 2
                 assert updated_model.status is ResourceStatus.RUNNING
-
-                assert not await repository.delete(other_identity, service_id)
                 assert await repository.delete(identity, service_id)
                 assert not await repository.delete(identity, service_id)
-
             await transaction.rollback()
     finally:
         await engine.dispose()

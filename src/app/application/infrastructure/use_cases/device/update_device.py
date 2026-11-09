@@ -9,13 +9,19 @@ from app.application.infrastructure.interfaces import DeviceRepository
 from app.application.infrastructure.use_cases.device.operating_system import (
     build_operating_system_info,
 )
+from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.domain.common.enums import EntityType
 from app.domain.infrastructure import Device, DeviceName, InvalidDevice
 from app.domain.infrastructure.enums import DeviceType
+from app.domain.synchronization import ChangeOperation
 
 
 class UpdateDevice:
-    def __init__(self, device_repository: DeviceRepository) -> None:
+    def __init__(
+        self, device_repository: DeviceRepository, recorder: ChangeRecorder
+    ) -> None:
         self._device_repository = device_repository
+        self._recorder = recorder
 
     async def execute(
         self,
@@ -63,4 +69,21 @@ class UpdateDevice:
             if latest is None:
                 raise DeviceNotFound(str(device_id))
             raise DeviceVersionConflict(expected_version, latest.version)
+        await self._recorder.execute(
+            identity,
+            EntityType.DEVICE,
+            device.id,
+            ChangeOperation.UPDATE,
+            device.version,
+            {
+                "name": device.name,
+                "hostname": device.hostname,
+                "description": device.description,
+                "device_type": device.device_type.value,
+                "operating_system": device.operating_system,
+                "os_version": device.os_version,
+                "architecture": device.architecture,
+                "tags": device.tags,
+            },
+        )
         return DeviceData.from_device(device)

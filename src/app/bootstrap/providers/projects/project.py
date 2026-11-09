@@ -7,11 +7,18 @@ from app.application.projects.use_cases.projects import (
     GetUserProjects,
     UpdateProject,
 )
+from app.application.synchronization.change_log import RecordChange
 from app.infrastructure.persistence.repositories.projects import SqlAlchemyProjectRepository
+from app.infrastructure.persistence.repositories.synchronization import (
+    SqlAlchemyChangeLogRepository,
+)
 
 
 def provide_create_project(session: AsyncSession) -> CreateProject:
-    return CreateProject(SqlAlchemyProjectRepository(session))
+    return CreateProject(
+        SqlAlchemyProjectRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 def provide_get_project(session: AsyncSession) -> GetProject:
@@ -23,11 +30,17 @@ def provide_get_user_projects(session: AsyncSession) -> GetUserProjects:
 
 
 def provide_update_project(session: AsyncSession) -> UpdateProject:
-    return UpdateProject(SqlAlchemyProjectRepository(session))
+    return UpdateProject(
+        SqlAlchemyProjectRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 def provide_delete_project(session: AsyncSession) -> DeleteProject:
-    return DeleteProject(SqlAlchemyProjectRepository(session))
+    return DeleteProject(
+        SqlAlchemyProjectRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 __all__ = [

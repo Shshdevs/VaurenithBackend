@@ -184,7 +184,6 @@ async def test_create_persists_environment_through_orm_model() -> None:
                 assert stored.version == 2
                 assert not await repository.delete(other_identity, environment_id)
                 assert await repository.delete(identity, environment_id)
-
             await transaction.rollback()
     finally:
         await engine.dispose()

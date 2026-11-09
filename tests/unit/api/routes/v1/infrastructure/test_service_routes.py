@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from tests.support import NoOpRecordChange
 
 from app.api.middleware.error_handler import register_error_handlers
 from app.api.routes.v1.infrastructure.service import build_service_router
@@ -104,15 +105,17 @@ def build_test_client(identity_provider=None):
     register_error_handlers(app)
     app.include_router(
         build_service_router(
-            create_service_dependency=lambda: CreateService(repository),
+            create_service_dependency=lambda: CreateService(repository, NoOpRecordChange()),
             get_service_dependency=lambda: GetService(repository),
             get_user_services_dependency=lambda: GetUserServices(repository),
             get_device_services_dependency=lambda: GetDeviceServices(repository),
             get_project_services_dependency=lambda: GetProjectServices(repository),
             get_environment_services_dependency=lambda: GetEnvironmentServices(repository),
-            update_service_dependency=lambda: UpdateService(repository),
-            update_service_status_dependency=lambda: UpdateServiceStatus(repository),
-            delete_service_dependency=lambda: DeleteService(repository),
+            update_service_dependency=lambda: UpdateService(repository, NoOpRecordChange()),
+            update_service_status_dependency=lambda: UpdateServiceStatus(
+                repository, NoOpRecordChange()
+            ),
+            delete_service_dependency=lambda: DeleteService(repository, NoOpRecordChange()),
             authenticated_identity_dependency=provide_identity,
         )
     )

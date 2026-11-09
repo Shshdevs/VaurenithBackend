@@ -19,31 +19,31 @@ from app.bootstrap.providers.projects import (
 
 
 def get_create_project_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> CreateProject:
     return provide_create_project(session)
 
 
 def get_get_project_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetProject:
     return provide_get_project(session)
 
 
 def get_get_user_projects_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetUserProjects:
     return provide_get_user_projects(session)
 
 
 def get_update_project_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> UpdateProject:
     return provide_update_project(session)
 
 
 def get_delete_project_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> DeleteProject:
     return provide_delete_project(session)
 

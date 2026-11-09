@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from tests.support import NoOpRecordChange
 
 from app.api.middleware.error_handler import register_error_handlers
 from app.api.routes.v1.infrastructure.device import build_device_router
@@ -84,7 +85,7 @@ def build_test_client(
         return identity
 
     def provide_create() -> CreateDevice:
-        return CreateDevice(repository)
+        return CreateDevice(repository, NoOpRecordChange())
 
     def provide_get() -> GetDevice:
         return GetDevice(repository)
@@ -93,10 +94,10 @@ def build_test_client(
         return GetUserDevices(repository)
 
     def provide_update() -> UpdateDevice:
-        return UpdateDevice(repository)
+        return UpdateDevice(repository, NoOpRecordChange())
 
     def provide_delete() -> DeleteDevice:
-        return DeleteDevice(repository)
+        return DeleteDevice(repository, NoOpRecordChange())
 
     app = FastAPI()
     register_error_handlers(app)

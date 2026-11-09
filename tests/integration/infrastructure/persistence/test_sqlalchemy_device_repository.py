@@ -16,6 +16,9 @@ from app.infrastructure.persistence.models.identity.user import User
 from app.infrastructure.persistence.models.infrastructure.device import (
     Device as DeviceModel,
 )
+from app.infrastructure.persistence.models.synchronization import (
+    ChangeLog as ChangeLogModel,
+)
 from app.infrastructure.persistence.repositories.infrastructure import (
     SqlAlchemyDeviceRepository,
 )
@@ -144,7 +147,6 @@ async def test_device_repository_crud_owner_scope_and_soft_delete() -> None:
                 assert updated_model is not None
                 assert updated_model.name == "worker-02"
                 assert updated_model.version == 2
-
                 deleted_at = datetime.now(UTC) + timedelta(seconds=2)
                 assert await repository.delete(identity, device_id, deleted_at)
                 assert not await repository.delete(identity, device_id, deleted_at)
@@ -155,7 +157,18 @@ async def test_device_repository_crud_owner_scope_and_soft_delete() -> None:
                 )
                 assert retained_model is not None
                 assert retained_model.deleted_at == deleted_at
-
             await transaction.rollback()
+            assert (
+                await connection.scalar(
+                    select(DeviceModel.id).where(DeviceModel.id == device_id)
+                )
+                is None
+            )
+            assert (
+                await connection.scalar(
+                    select(ChangeLogModel.id).where(ChangeLogModel.entity_id == device_id)
+                )
+                is None
+            )
     finally:
         await engine.dispose()

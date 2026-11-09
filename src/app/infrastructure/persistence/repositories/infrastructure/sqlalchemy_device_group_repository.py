@@ -33,9 +33,8 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
         self._session.add(self._to_model(device_group))
 
         try:
-            await self._session.commit()
+            await self._session.flush()
         except IntegrityError as error:
-            await self._session.rollback()
             if getattr(error.orig, "sqlstate", None) == "23505":
                 raise DeviceGroupAlreadyExists(device_group.name) from error
             raise
@@ -57,9 +56,7 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
 
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError as error:
-            await self._session.rollback()
             if getattr(error.orig, "sqlstate", None) == "23505":
                 raise DeviceGroupAlreadyExists(device_group.name) from error
             raise
@@ -74,9 +71,7 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
         )
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError as error:
-            await self._session.rollback()
             if getattr(error.orig, "sqlstate", None) == "23503":
                 raise DeviceGroupDeletionConflict(str(device_group_id)) from error
             raise

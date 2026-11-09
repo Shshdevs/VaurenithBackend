@@ -38,7 +38,6 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
 
     async def create(self, device: DeviceEntity) -> None:
         self._session.add(self._to_model(device))
-        await self._session.commit()
 
     async def update(
         self, identity: VerifiedIdentity, device: DeviceEntity, expected_version: int
@@ -63,8 +62,8 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
             )
             .returning(DeviceModel.id)
         )
-        await self._session.commit()
-        return result.scalar_one_or_none() is not None
+        updated_id = result.scalar_one_or_none()
+        return updated_id is not None
 
     async def delete(
         self, identity: VerifiedIdentity, device_id: UUID, deleted_at: datetime
@@ -72,11 +71,15 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
         result = await self._session.execute(
             update(DeviceModel)
             .where(self._owned_active_device(identity, device_id))
-            .values(deleted_at=deleted_at, updated_at=deleted_at)
-            .returning(DeviceModel.id)
+            .values(
+                deleted_at=deleted_at,
+                updated_at=deleted_at,
+                version=DeviceModel.version + 1,
+            )
+            .returning(DeviceModel.version)
         )
-        await self._session.commit()
-        return result.scalar_one_or_none() is not None
+        deleted_version = result.scalar_one_or_none()
+        return deleted_version is not None
 
     @staticmethod
     def _owned_active_device(identity: VerifiedIdentity, device_id: UUID) -> Exists:

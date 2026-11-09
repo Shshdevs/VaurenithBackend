@@ -62,9 +62,8 @@ class SqlAlchemyUserRepository(UserRepository):
         session_model.client_device = client_device_model
         self._session.add_all([user_model, client_device_model, session_model])
         try:
-            await self._session.commit()
+            await self._session.flush()
         except IntegrityError as error:
-            await self._session.rollback()
             raise UserAlreadyExists(str(user.email)) from error
 
     @staticmethod

@@ -9,13 +9,19 @@ from app.application.infrastructure.exceptions import (
     ServiceVersionConflict,
 )
 from app.application.infrastructure.interfaces import ServiceRepository
+from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.domain.common.enums import EntityType
 from app.domain.infrastructure import InvalidService, Service
 from app.domain.infrastructure.enums import ResourceStatus
+from app.domain.synchronization import ChangeOperation
 
 
 class UpdateServiceStatus:
-    def __init__(self, service_repository: ServiceRepository) -> None:
+    def __init__(
+        self, service_repository: ServiceRepository, recorder: ChangeRecorder
+    ) -> None:
         self._service_repository = service_repository
+        self._recorder = recorder
 
     async def execute(
         self,
@@ -56,4 +62,23 @@ class UpdateServiceStatus:
             if latest is None:
                 raise ServiceNotFound(str(service_id))
             raise ServiceVersionConflict(expected_version, latest.version)
+        await self._recorder.execute(
+            identity,
+            EntityType.SERVICE,
+            service.id,
+            ChangeOperation.UPDATE,
+            service.version,
+            {
+                "device_id": str(service.device_id),
+                "project_id": str(service.project_id) if service.project_id else None,
+                "environment_id": str(service.environment_id)
+                if service.environment_id
+                else None,
+                "name": service.name,
+                "service_type": service.service_type.value,
+                "description": service.description,
+                "system_identifier": service.system_identifier,
+                "status": service.status.value,
+            },
+        )
         return ServiceData.from_service(service)

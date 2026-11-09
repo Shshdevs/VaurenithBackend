@@ -99,9 +99,7 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
 
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError:
-            await self._session.rollback()
             raise
         return result.scalar_one_or_none() is not None
 
@@ -130,9 +128,7 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
 
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError:
-            await self._session.rollback()
             raise
         return result.scalar_one_or_none() is not None
 
@@ -149,10 +145,7 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
 
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError as error:
-            await self._session.rollback()
-
             if getattr(error.orig, "sqlstate", None) == "23503":
                 raise ProjectDeviceDeletionConflict(str(project_device_id)) from error
 

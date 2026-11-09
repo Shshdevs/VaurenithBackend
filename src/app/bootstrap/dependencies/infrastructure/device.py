@@ -19,30 +19,30 @@ from app.bootstrap.providers.infrastructure.devices import (
 
 
 def get_create_device_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> CreateDevice:
     return provide_create_device(session)
 
 
 def get_get_device_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetDevice:
     return provide_get_device(session)
 
 
 def get_get_user_devices_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetUserDevices:
     return provide_get_user_devices(session)
 
 
 def get_update_device_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> UpdateDevice:
     return provide_update_device(session)
 
 
 def get_delete_device_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> DeleteDevice:
     return provide_delete_device(session)

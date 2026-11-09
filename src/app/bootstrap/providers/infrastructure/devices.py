@@ -7,13 +7,20 @@ from app.application.infrastructure.use_cases.device import (
     GetUserDevices,
     UpdateDevice,
 )
+from app.application.synchronization.change_log import RecordChange
 from app.infrastructure.persistence.repositories.infrastructure import (
     SqlAlchemyDeviceRepository,
+)
+from app.infrastructure.persistence.repositories.synchronization import (
+    SqlAlchemyChangeLogRepository,
 )
 
 
 def provide_create_device(session: AsyncSession) -> CreateDevice:
-    return CreateDevice(SqlAlchemyDeviceRepository(session))
+    return CreateDevice(
+        SqlAlchemyDeviceRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 def provide_get_device(session: AsyncSession) -> GetDevice:
@@ -25,8 +32,14 @@ def provide_get_user_devices(session: AsyncSession) -> GetUserDevices:
 
 
 def provide_update_device(session: AsyncSession) -> UpdateDevice:
-    return UpdateDevice(SqlAlchemyDeviceRepository(session))
+    return UpdateDevice(
+        SqlAlchemyDeviceRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 def provide_delete_device(session: AsyncSession) -> DeleteDevice:
-    return DeleteDevice(SqlAlchemyDeviceRepository(session))
+    return DeleteDevice(
+        SqlAlchemyDeviceRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )

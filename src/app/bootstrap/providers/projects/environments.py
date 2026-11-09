@@ -7,13 +7,20 @@ from app.application.projects.use_cases.environments import (
     GetProjectEnvironments,
     UpdateEnvironment,
 )
+from app.application.synchronization.change_log import RecordChange
 from app.infrastructure.persistence.repositories.projects import (
     SqlAlchemyEnvironmentRepository,
+)
+from app.infrastructure.persistence.repositories.synchronization import (
+    SqlAlchemyChangeLogRepository,
 )
 
 
 def provide_create_environment(session: AsyncSession) -> CreateEnvironment:
-    return CreateEnvironment(SqlAlchemyEnvironmentRepository(session))
+    return CreateEnvironment(
+        SqlAlchemyEnvironmentRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 def provide_get_environment(session: AsyncSession) -> GetEnvironment:
@@ -25,11 +32,17 @@ def provide_get_project_environments(session: AsyncSession) -> GetProjectEnviron
 
 
 def provide_update_environment(session: AsyncSession) -> UpdateEnvironment:
-    return UpdateEnvironment(SqlAlchemyEnvironmentRepository(session))
+    return UpdateEnvironment(
+        SqlAlchemyEnvironmentRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 def provide_delete_environment(session: AsyncSession) -> DeleteEnvironment:
-    return DeleteEnvironment(SqlAlchemyEnvironmentRepository(session))
+    return DeleteEnvironment(
+        SqlAlchemyEnvironmentRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+    )
 
 
 __all__ = [
