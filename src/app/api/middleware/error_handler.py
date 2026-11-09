@@ -43,7 +43,11 @@ async def handle_validation_exception(
     exception: Exception,
 ) -> JSONResponse:
     validation_error = cast(RequestValidationError, exception)
-    return _error(422, "Request validation failed", validation_error.errors())
+    errors = [
+        {key: value for key, value in error.items() if key != "ctx"}
+        for error in validation_error.errors()
+    ]
+    return _error(422, "Request validation failed", errors)
 
 
 async def handle_unexpected_exception(
