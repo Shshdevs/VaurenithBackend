@@ -1,8 +1,9 @@
 from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy import select, update
+from sqlalchemy import exists, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.selectable import Exists
 
 from app.application.identity import VerifiedIdentity
 from app.application.infrastructure.interfaces import DeviceRepository
@@ -19,11 +20,7 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
         self, identity: VerifiedIdentity, device_id: UUID
     ) -> DeviceEntity | None:
         result = await self._session.execute(
-            select(DeviceModel).where(
-                DeviceModel.id == device_id,
-                DeviceModel.user_id == identity.user_id,
-                DeviceModel.deleted_at.is_(None),
-            )
+            select(DeviceModel).where(self._owned_active_device(identity, device_id))
         )
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model is not None else None
@@ -46,11 +43,7 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
     async def update(self, identity: VerifiedIdentity, device: DeviceEntity) -> bool:
         result = await self._session.execute(
             update(DeviceModel)
-            .where(
-                DeviceModel.id == device.id,
-                DeviceModel.user_id == identity.user_id,
-                DeviceModel.deleted_at.is_(None),
-            )
+            .where(self._owned_active_device(identity, device.id))
             .values(
                 name=device.name,
                 hostname=device.hostname,
@@ -73,16 +66,22 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
     ) -> bool:
         result = await self._session.execute(
             update(DeviceModel)
-            .where(
-                DeviceModel.id == device_id,
-                DeviceModel.user_id == identity.user_id,
-                DeviceModel.deleted_at.is_(None),
-            )
+            .where(self._owned_active_device(identity, device_id))
             .values(deleted_at=deleted_at, updated_at=deleted_at)
             .returning(DeviceModel.id)
         )
         await self._session.commit()
         return result.scalar_one_or_none() is not None
+
+    @staticmethod
+    def _owned_active_device(identity: VerifiedIdentity, device_id: UUID) -> Exists:
+        return exists(
+            select(DeviceModel.id).where(
+                DeviceModel.id == device_id,
+                DeviceModel.user_id == identity.user_id,
+                DeviceModel.deleted_at.is_(None),
+            )
+        )
 
     @staticmethod
     def _to_entity(model: DeviceModel) -> DeviceEntity:

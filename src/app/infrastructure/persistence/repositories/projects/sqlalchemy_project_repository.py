@@ -1,8 +1,9 @@
 from uuid import UUID
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, exists, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.selectable import Exists
 
 from app.application.projects.exceptions import ProjectDeletionConflict
 from app.application.projects.interfaces import ProjectRepository
@@ -18,9 +19,7 @@ class SqlAlchemyProjectRepository(ProjectRepository):
     async def get_by_id(self, user_id: UUID, project_id: UUID) -> ProjectEntity | None:
         result = await self._session.execute(
             select(Project).where(
-                Project.id == project_id,
-                Project.user_id == user_id,
-                Project.deleted_at.is_(None),
+                self._owned_project(user_id, project_id), Project.deleted_at.is_(None)
             )
         )
         project = result.scalar_one_or_none()
@@ -52,8 +51,7 @@ class SqlAlchemyProjectRepository(ProjectRepository):
         statement = (
             update(Project)
             .where(
-                Project.id == project.id,
-                Project.user_id == user_id,
+                self._owned_project(user_id, project.id),
                 Project.deleted_at.is_(None),
                 Project.version == expected_version,
             )
@@ -82,10 +80,7 @@ class SqlAlchemyProjectRepository(ProjectRepository):
     async def delete(self, user_id: UUID, project_id: UUID) -> bool:
         statement = (
             delete(Project)
-            .where(
-                Project.id == project_id,
-                Project.user_id == user_id,
-            )
+            .where(self._owned_project(user_id, project_id))
             .returning(Project.id)
         )
 
@@ -98,6 +93,15 @@ class SqlAlchemyProjectRepository(ProjectRepository):
                 raise ProjectDeletionConflict(str(project_id)) from error
             raise
         return result.scalar_one_or_none() is not None
+
+    @staticmethod
+    def _owned_project(user_id: UUID, project_id) -> Exists:
+        return exists(
+            select(Project.id).where(
+                Project.id == project_id,
+                Project.user_id == user_id,
+            )
+        )
 
     @staticmethod
     def _to_entity(model: Project) -> ProjectEntity:

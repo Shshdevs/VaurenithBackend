@@ -1,8 +1,9 @@
 from uuid import UUID
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, exists, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.selectable import Exists
 
 from app.application.projects.exceptions import EnvironmentDeletionConflict
 from app.application.projects.interfaces import EnvironmentRepository
@@ -17,9 +18,7 @@ class SqlAlchemyEnvironmentRepository(EnvironmentRepository):
 
     async def get_by_id(self, environment_id: UUID) -> EnvironmentEntity | None:
         result = await self._session.execute(
-            select(Environment).where(
-                Environment.id == environment_id, Environment.deleted_at.is_(None)
-            )
+            select(Environment).where(self._active_environment(environment_id))
         )
 
         environment = result.scalar_one_or_none()
@@ -46,7 +45,7 @@ class SqlAlchemyEnvironmentRepository(EnvironmentRepository):
     async def update(self, environment: EnvironmentEntity) -> bool:
         statement = (
             update(Environment)
-            .where(Environment.id == environment.id, Environment.deleted_at.is_(None))
+            .where(self._active_environment(environment.id))
             .values(
                 project_id=environment.project_id,
                 name=environment.name,
@@ -72,7 +71,7 @@ class SqlAlchemyEnvironmentRepository(EnvironmentRepository):
     async def delete(self, environment_id: UUID) -> bool:
         statement = (
             delete(Environment)
-            .where(Environment.id == environment_id, Environment.deleted_at.is_(None))
+            .where(self._active_environment(environment_id))
             .returning(Environment.id)
         )
         try:
@@ -84,6 +83,15 @@ class SqlAlchemyEnvironmentRepository(EnvironmentRepository):
                 raise EnvironmentDeletionConflict(str(environment_id)) from error
             raise
         return result.scalar_one_or_none() is not None
+
+    @staticmethod
+    def _active_environment(environment_id) -> Exists:
+        return exists(
+            select(Environment.id).where(
+                Environment.id == environment_id,
+                Environment.deleted_at.is_(None),
+            )
+        )
 
     @staticmethod
     def _to_entity(model: Environment) -> EnvironmentEntity:

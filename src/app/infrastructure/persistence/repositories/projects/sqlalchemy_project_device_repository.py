@@ -3,6 +3,7 @@ from uuid import UUID
 from sqlalchemy import DateTime, String, delete, exists, insert, literal, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.selectable import Exists
 
 from app.application.identity import VerifiedIdentity
 from app.application.projects.exceptions import ProjectDeviceDeletionConflict
@@ -81,9 +82,13 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
             .join(Device, Device.id == project_device.device_id)
             .where(
                 Project.id == project_device.project_id,
-                Project.user_id == identity.user_id,
-                Device.user_id == identity.user_id,
-                Device.deleted_at.is_(None),
+                Device.id == project_device.device_id,
+                *self._association_conditions(
+                    identity,
+                    project_device.project_id,
+                    project_device.device_id,
+                    require_active_device=True,
+                ),
             )
         )
         statement = (
@@ -103,32 +108,17 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
     async def update(
         self, identity: VerifiedIdentity, project_device: ProjectDeviceEntity
     ) -> bool:
-        owned_source_project = exists(
-            select(Project.id).where(
-                Project.id == ProjectDevice.project_id,
-                Project.user_id == identity.user_id,
-            )
-        )
-        owned_target_project = exists(
-            select(Project.id).where(
-                Project.id == project_device.project_id,
-                Project.user_id == identity.user_id,
-            )
-        )
-        owned_device = exists(
-            select(Device.id).where(
-                Device.id == project_device.device_id,
-                Device.user_id == identity.user_id,
-                Device.deleted_at.is_(None),
-            )
-        )
         statement = (
             update(ProjectDevice)
             .where(
                 ProjectDevice.id == project_device.id,
-                owned_source_project,
-                owned_target_project,
-                owned_device,
+                self._owned_project(identity, ProjectDevice.project_id),
+                *self._association_conditions(
+                    identity,
+                    project_device.project_id,
+                    project_device.device_id,
+                    require_active_device=True,
+                ),
             )
             .values(
                 project_id=project_device.project_id,
@@ -147,21 +137,13 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
         return result.scalar_one_or_none() is not None
 
     async def delete(self, identity: VerifiedIdentity, project_device_id: UUID) -> bool:
-        owned_project = exists(
-            select(Project.id).where(
-                Project.id == ProjectDevice.project_id,
-                Project.user_id == identity.user_id,
-            )
-        )
-        owned_device = exists(
-            select(Device.id).where(
-                Device.id == ProjectDevice.device_id,
-                Device.user_id == identity.user_id,
-            )
-        )
         statement = (
             delete(ProjectDevice)
-            .where(ProjectDevice.id == project_device_id, owned_project, owned_device)
+            .where(
+                ProjectDevice.id == project_device_id,
+                self._owned_project(identity, ProjectDevice.project_id),
+                self._owned_device(identity, ProjectDevice.device_id),
+            )
             .returning(ProjectDevice.id)
         )
 
@@ -176,6 +158,38 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
 
             raise
         return result.scalar_one_or_none() is not None
+
+    @staticmethod
+    def _association_conditions(
+        identity: VerifiedIdentity,
+        project_id: UUID,
+        device_id: UUID,
+        require_active_device: bool = False,
+    ) -> tuple[Exists, Exists]:
+        return (
+            SqlAlchemyProjectDeviceRepository._owned_project(identity, project_id),
+            SqlAlchemyProjectDeviceRepository._owned_device(
+                identity, device_id, require_active_device
+            ),
+        )
+
+    @staticmethod
+    def _owned_project(identity: VerifiedIdentity, project_id) -> Exists:
+        return exists(
+            select(Project.id).where(
+                Project.id == project_id,
+                Project.user_id == identity.user_id,
+            )
+        )
+
+    @staticmethod
+    def _owned_device(
+        identity: VerifiedIdentity, device_id, require_active: bool = False
+    ) -> Exists:
+        conditions = [Device.id == device_id, Device.user_id == identity.user_id]
+        if require_active:
+            conditions.append(Device.deleted_at.is_(None))
+        return exists(select(Device.id).where(*conditions))
 
     def _to_entity(self, model: ProjectDevice) -> ProjectDeviceEntity:
         return ProjectDeviceEntity(
