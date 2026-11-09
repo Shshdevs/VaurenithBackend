@@ -5,6 +5,9 @@ from app.api.schemas.v1.health.health import (
 )
 from app.api.schemas.v1.identity.user import UserData
 from app.api.schemas.v1.identity.user_create import UserCreateRequest
+from app.api.schemas.v1.infrastructure.device_group import DeviceGroup
+from app.api.schemas.v1.infrastructure.device_group_create import DeviceGroupCreateRequest
+from app.api.schemas.v1.infrastructure.device_group_update import DeviceGroupUpdateRequest
 from app.api.schemas.v1.projects.environment import EnvironmentData
 from app.api.schemas.v1.projects.environment_create import EnvironmentCreateRequest
 from app.api.schemas.v1.projects.environment_update import EnvironmentUpdateRequest
@@ -27,6 +30,9 @@ __all__ = [
     "ProjectDeviceCreateRequest",
     "ProjectDeviceUpdateRequest",
     "ProjectDeviceData",
+    "DeviceGroup",
+    "DeviceGroupCreateRequest",
+    "DeviceGroupUpdateRequest",
     "DependencyHealth",
     "LivenessData",
     "ReadinessData",

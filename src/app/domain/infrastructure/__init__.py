@@ -1,3 +1,4 @@
+from app.domain.infrastructure.entities.device_group import DeviceGroup
 from app.domain.infrastructure.enums import (
     AuthenticationType,
     AvailabilityStatus,
@@ -8,6 +9,7 @@ from app.domain.infrastructure.enums import (
     ResourceStatus,
     ServiceType,
 )
+from app.domain.infrastructure.exceptions import InvalidDeviceGroup
 from app.domain.infrastructure.value_objects import (
     ConnectionEndpoint,
     ContainerImage,
@@ -16,6 +18,7 @@ from app.domain.infrastructure.value_objects import (
     DatabaseCatalogName,
     DatabaseEndpoint,
     DatabaseResourceName,
+    DeviceGroupName,
     DeviceName,
     OperatingSystem,
     ServiceName,
@@ -37,6 +40,9 @@ __all__ = [
     "DbmsType",
     "DeviceType",
     "DeviceName",
+    "DeviceGroup",
+    "DeviceGroupName",
+    "InvalidDeviceGroup",
     "OperatingSystem",
     "ResourceStatus",
     "ServiceName",
