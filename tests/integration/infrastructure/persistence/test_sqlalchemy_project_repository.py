@@ -131,7 +131,7 @@ async def test_create_persists_project_and_custom_version_then_rolls_back() -> N
                 assert final_project.name == "Updated integration project"
                 assert final_project.description == "First versioned update"
                 assert final_project.version == 8
-
+                assert await repository.delete(user_id, project_id)
             await transaction.rollback()
     finally:
         await engine.dispose()

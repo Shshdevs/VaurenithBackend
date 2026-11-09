@@ -7,17 +7,25 @@ from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import EnvironmentData
 from app.application.projects.exceptions import ProjectNotFound
 from app.application.projects.interfaces import EnvironmentRepository
+from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.domain.common.enums import EntityType
 from app.domain.projects import (
     Environment,
     EnvironmentName,
     EnvironmentType,
     InvalidEnvironment,
 )
+from app.domain.synchronization import ChangeOperation
 
 
 class CreateEnvironment:
-    def __init__(self, environment_repository: EnvironmentRepository) -> None:
+    def __init__(
+        self,
+        environment_repository: EnvironmentRepository,
+        recorder: ChangeRecorder,
+    ) -> None:
         self._environment_repository = environment_repository
+        self._recorder = recorder
 
     async def execute(
         self,
@@ -47,4 +55,17 @@ class CreateEnvironment:
             raise InvalidInput(str(error)) from error
         if not await self._environment_repository.create(identity, environment):
             raise ProjectNotFound(str(project_id))
+        await self._recorder.execute(
+            identity,
+            EntityType.ENVIRONMENT,
+            environment.id,
+            ChangeOperation.INSERT,
+            environment.version,
+            {
+                "project_id": str(environment.project_id),
+                "name": environment.name,
+                "environment_type": environment.environment_type.value,
+                "description": environment.description,
+            },
+        )
         return EnvironmentData.from_environment(environment=environment)

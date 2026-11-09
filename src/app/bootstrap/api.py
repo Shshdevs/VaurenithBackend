@@ -5,6 +5,7 @@ from app.bootstrap.routes.health import build_health_api_router
 from app.bootstrap.routes.identity import build_identity_api_router
 from app.bootstrap.routes.infrastructure import build_infrastructure_api_router
 from app.bootstrap.routes.projects import build_projects_api_router
+from app.bootstrap.routes.synchronization import build_synchronization_api_router
 
 
 def build_api_router(prefix: str) -> APIRouter:
@@ -14,4 +15,5 @@ def build_api_router(prefix: str) -> APIRouter:
         identity_router=build_identity_api_router(),
         projects_router=build_projects_api_router(),
         infrastructure_router=build_infrastructure_api_router(),
+        synchronization_router=build_synchronization_api_router(),
     )

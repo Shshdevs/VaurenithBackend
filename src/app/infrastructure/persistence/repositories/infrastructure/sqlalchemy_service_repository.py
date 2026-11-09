@@ -127,11 +127,10 @@ class SqlAlchemyServiceRepository(ServiceRepository):
         )
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError:
-            await self._session.rollback()
             raise
-        return result.scalar_one_or_none() is not None
+        created_id = result.scalar_one_or_none()
+        return created_id is not None
 
     async def update(
         self,
@@ -172,11 +171,10 @@ class SqlAlchemyServiceRepository(ServiceRepository):
         )
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError:
-            await self._session.rollback()
             raise
-        return result.scalar_one_or_none() is not None
+        updated_id = result.scalar_one_or_none()
+        return updated_id is not None
 
     async def delete(self, identity: VerifiedIdentity, service_id: UUID) -> bool:
         owned_device = exists(
@@ -190,17 +188,16 @@ class SqlAlchemyServiceRepository(ServiceRepository):
         statement = (
             delete(ServiceModel)
             .where(ServiceModel.id == service_id, owned_device)
-            .returning(ServiceModel.id)
+            .returning(ServiceModel.version)
         )
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError as error:
-            await self._session.rollback()
             if getattr(error.orig, "sqlstate", None) == "23503":
                 raise ServiceDeletionConflict(str(service_id)) from error
             raise
-        return result.scalar_one_or_none() is not None
+        deleted_version = result.scalar_one_or_none()
+        return deleted_version is not None
 
     @staticmethod
     def _value(column_name: str, value: Any) -> ColumnElement[Any]:

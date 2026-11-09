@@ -26,6 +26,7 @@ from app.api.schemas.v1.projects.project_device import ProjectDeviceData
 from app.api.schemas.v1.projects.project_device_create import ProjectDeviceCreateRequest
 from app.api.schemas.v1.projects.project_device_update import ProjectDeviceUpdateRequest
 from app.api.schemas.v1.projects.project_update import ProjectUpdateRequest
+from app.api.schemas.v1.synchronization.change_log import ChangeLogData
 
 __all__ = [
     "UserData",
@@ -52,4 +53,5 @@ __all__ = [
     "DependencyHealth",
     "LivenessData",
     "ReadinessData",
+    "ChangeLogData",
 ]

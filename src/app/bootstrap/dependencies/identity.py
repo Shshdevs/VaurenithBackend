@@ -22,13 +22,13 @@ _bearer_scheme = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetCurrentUser:
     return provide_current_user(session)
 
 
 def get_create_user(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> CreateUser:
     return provide_create_user(session)
 
@@ -38,7 +38,7 @@ def get_verify_identity_token() -> VerifyIdentityToken:
 
 
 def get_authenticate_identity(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
     verify_identity_token: VerifyIdentityToken = Depends(get_verify_identity_token),
 ) -> AuthenticateIdentity:
     return provide_authenticate_identity(verify_identity_token, session)

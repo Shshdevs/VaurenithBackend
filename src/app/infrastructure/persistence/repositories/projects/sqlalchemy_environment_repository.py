@@ -83,11 +83,10 @@ class SqlAlchemyEnvironmentRepository(EnvironmentRepository):
         )
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError:
-            await self._session.rollback()
             raise
-        return result.scalar_one_or_none() is not None
+        created_id = result.scalar_one_or_none()
+        return created_id is not None
 
     async def update(
         self,
@@ -119,27 +118,25 @@ class SqlAlchemyEnvironmentRepository(EnvironmentRepository):
 
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError:
-            await self._session.rollback()
             raise
-        return result.scalar_one_or_none() is not None
+        updated_id = result.scalar_one_or_none()
+        return updated_id is not None
 
     async def delete(self, identity: VerifiedIdentity, environment_id: UUID) -> bool:
         statement = (
             delete(Environment)
             .where(self._owned_environment(identity, environment_id))
-            .returning(Environment.id)
+            .returning(Environment.version)
         )
         try:
             result = await self._session.execute(statement)
-            await self._session.commit()
         except IntegrityError as error:
-            await self._session.rollback()
             if getattr(error.orig, "sqlstate", None) == "23503":
                 raise EnvironmentDeletionConflict(str(environment_id)) from error
             raise
-        return result.scalar_one_or_none() is not None
+        deleted_version = result.scalar_one_or_none()
+        return deleted_version is not None
 
     @staticmethod
     def _owned_environment(

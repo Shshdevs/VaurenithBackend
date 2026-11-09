@@ -28,6 +28,7 @@ class ChangeLog(Entity):
         created_at: datetime,
         changed_by_client_id: EntityId | None = None,
         payload: Any | None = None,
+        sequence: int | None = None,
     ) -> None:
         for identifier, name in (
             (change_log_id, "change log"),
@@ -51,6 +52,10 @@ class ChangeLog(Entity):
             raise InvalidChangeLog("Change version must be a positive 64-bit integer")
         if not isinstance(created_at, datetime) or created_at.utcoffset() is None:
             raise InvalidChangeLog("Change creation time must include a timezone")
+        if sequence is not None and (
+            not isinstance(sequence, int) or isinstance(sequence, bool) or sequence < 1
+        ):
+            raise InvalidChangeLog("Change sequence must be a positive integer")
 
         super().__init__(change_log_id)
         self._user_id = user_id
@@ -62,6 +67,7 @@ class ChangeLog(Entity):
         self._changed_by_user_id = changed_by_user_id
         self._payload = deepcopy(payload)
         self._created_at = created_at
+        self._sequence = sequence
 
     @property
     def user_id(self) -> EntityId:
@@ -98,3 +104,7 @@ class ChangeLog(Entity):
     @property
     def created_at(self) -> datetime:
         return self._created_at
+
+    @property
+    def sequence(self) -> int | None:
+        return self._sequence

@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from tests.support import NoOpRecordChange
 
 from app.api.middleware.error_handler import register_error_handlers
 from app.api.routes.v1.projects.project import build_project_route
@@ -51,7 +52,7 @@ def build_test_client(project_version: int = 1) -> tuple[TestClient, FakeProject
         version=project_version,
     )
     repository = FakeProjectRepository(project)
-    update_project = UpdateProject(repository)
+    update_project = UpdateProject(repository, NoOpRecordChange())
 
     def unused_dependency() -> None:
         return None

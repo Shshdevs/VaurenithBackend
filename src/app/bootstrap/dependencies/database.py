@@ -6,5 +6,5 @@ from app.infrastructure.persistence.database import SessionLocal
 
 
 async def get_database_session() -> AsyncGenerator[AsyncSession]:
-    async with SessionLocal() as session:
+    async with SessionLocal() as session, session.begin():
         yield session

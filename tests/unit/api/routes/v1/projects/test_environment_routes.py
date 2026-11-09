@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from tests.support import NoOpRecordChange
 
 from app.api.middleware.error_handler import register_error_handlers
 from app.api.routes.v1.projects.environment import build_environment_route
@@ -80,11 +81,11 @@ def build_test_client(
     project_id: UUID,
 ) -> tuple[TestClient, FakeEnvironmentRepository]:
     repository = FakeEnvironmentRepository()
-    create_environment = CreateEnvironment(repository)
+    create_environment = CreateEnvironment(repository, NoOpRecordChange())
     get_environment = GetEnvironment(repository)
     get_project_environments = GetProjectEnvironments(repository)
-    update_environment = UpdateEnvironment(repository)
-    delete_environment = DeleteEnvironment(repository)
+    update_environment = UpdateEnvironment(repository, NoOpRecordChange())
+    delete_environment = DeleteEnvironment(repository, NoOpRecordChange())
     project_access = FakeProjectAccess(project_id)
     identity = make_identity()
 

@@ -19,31 +19,31 @@ from app.bootstrap.providers.projects import (
 
 
 def get_create_environment_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> CreateEnvironment:
     return provide_create_environment(session)
 
 
 def get_get_environment_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetEnvironment:
     return provide_get_environment(session)
 
 
 def get_get_project_environments_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> GetProjectEnvironments:
     return provide_get_project_environments(session)
 
 
 def get_update_environment_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> UpdateEnvironment:
     return provide_update_environment(session)
 
 
 def get_delete_environment_dependency(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> DeleteEnvironment:
     return provide_delete_environment(session)
 

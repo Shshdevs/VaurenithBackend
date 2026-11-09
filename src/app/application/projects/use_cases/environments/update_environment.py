@@ -10,17 +10,25 @@ from app.application.projects.exceptions import (
     EnvironmentVersionConflict,
 )
 from app.application.projects.interfaces import EnvironmentRepository
+from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.domain.common.enums import EntityType
 from app.domain.projects import (
     Environment,
     EnvironmentName,
     EnvironmentType,
     InvalidEnvironment,
 )
+from app.domain.synchronization import ChangeOperation
 
 
 class UpdateEnvironment:
-    def __init__(self, environment_repository: EnvironmentRepository) -> None:
+    def __init__(
+        self,
+        environment_repository: EnvironmentRepository,
+        recorder: ChangeRecorder,
+    ) -> None:
         self._environment_repository = environment_repository
+        self._recorder = recorder
 
     async def execute(
         self,
@@ -69,4 +77,17 @@ class UpdateEnvironment:
             if latest is None:
                 raise EnvironmentNotFound(str(environment_id))
             raise EnvironmentVersionConflict(expected_version, latest.version)
+        await self._recorder.execute(
+            identity,
+            EntityType.ENVIRONMENT,
+            environment.id,
+            ChangeOperation.UPDATE,
+            environment.version,
+            {
+                "project_id": str(environment.project_id),
+                "name": environment.name,
+                "environment_type": environment.environment_type.value,
+                "description": environment.description,
+            },
+        )
         return EnvironmentData.from_environment(environment=environment)

@@ -7,6 +7,6 @@ from app.bootstrap.providers.health import provide_database_health_check
 
 
 def get_database_health_check(
-    session: AsyncSession = Depends(get_database_session),
+    session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> CheckDatabaseHealth:
     return provide_database_health_check(session)

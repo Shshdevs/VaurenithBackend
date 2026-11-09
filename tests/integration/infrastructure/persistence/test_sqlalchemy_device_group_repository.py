@@ -155,7 +155,8 @@ async def test_device_group_repository_crud_owner_scope_and_member_cascade() -> 
                     updated_at=now,
                 )
                 with pytest.raises(DeviceGroupAlreadyExists):
-                    await repository.create(duplicate)
+                    async with database_session.begin_nested():
+                        await repository.create(duplicate)
 
                 database_session.add(
                     DeviceGroupMember(group_id=group_id, device_id=device_id)
