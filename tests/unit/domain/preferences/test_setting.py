@@ -28,6 +28,7 @@ def test_setting_keeps_fields_and_copies_json_value() -> None:
     assert setting.id is not None
     assert setting.value == {"nested": [1]}
     returned = setting.value
+    assert returned is not None
     returned["nested"].append(3)
     assert setting.value == {"nested": [1]}
 

@@ -48,6 +48,7 @@ def build_environment_route(
     ) -> ApiResponse[EnvironmentData]:
         await get_project.execute(identity=identity, project_id=project_id)
         environment = await create_environment.execute(
+            identity=identity,
             project_id=project_id,
             name=request.name,
             environment_type=request.environment_type,
@@ -75,7 +76,9 @@ def build_environment_route(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[list[EnvironmentData]]:
         await get_project.execute(identity=identity, project_id=project_id)
-        environments = await get_project_environments.execute(project_id=project_id)
+        environments = await get_project_environments.execute(
+            identity=identity, project_id=project_id
+        )
         return ApiResponse[list[EnvironmentData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[EnvironmentData.model_validate(item) for item in environments],
@@ -94,7 +97,7 @@ def build_environment_route(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[EnvironmentData]:
         await get_project.execute(identity=identity, project_id=project_id)
-        environment = await get_environment.execute(environment_id=environment_id)
+        environment = await get_environment.execute(identity, environment_id)
         if environment.project_id != project_id:
             raise EnvironmentNotFound(str(environment_id))
         return ApiResponse[EnvironmentData](
@@ -117,17 +120,18 @@ def build_environment_route(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[EnvironmentData]:
         await get_project.execute(identity=identity, project_id=project_id)
-        current_environment = await get_environment.execute(environment_id=environment_id)
+        current_environment = await get_environment.execute(identity, environment_id)
         if current_environment.project_id != project_id:
             raise EnvironmentNotFound(str(environment_id))
         environment = await update_environment.execute(
+            identity=identity,
             environment_id=environment_id,
             project_id=project_id,
             name=request.name,
             environment_type=request.environment_type,
             description=request.description,
             configuration=request.configuration,
-            version=request.version,
+            expected_version=request.version,
         )
         return ApiResponse[EnvironmentData](
             status=format_http_status(status.HTTP_200_OK),
@@ -149,10 +153,10 @@ def build_environment_route(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await get_project.execute(identity=identity, project_id=project_id)
-        environment = await get_environment.execute(environment_id=environment_id)
+        environment = await get_environment.execute(identity, environment_id)
         if environment.project_id != project_id:
             raise EnvironmentNotFound(str(environment_id))
-        await delete_environment.execute(environment_id=environment_id)
+        await delete_environment.execute(identity, environment_id)
         return ApiResponse[None](
             status=format_http_status(status.HTTP_200_OK),
             message="Environment deleted successfully",

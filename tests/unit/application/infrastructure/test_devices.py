@@ -5,7 +5,7 @@ import pytest
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
-from app.application.infrastructure.exceptions import DeviceNotFound
+from app.application.infrastructure.exceptions import DeviceNotFound, DeviceVersionConflict
 from app.application.infrastructure.use_cases.device import (
     CreateDevice,
     DeleteDevice,
@@ -46,8 +46,11 @@ class FakeDeviceRepository:
         self.created = device
         self.devices[device.id] = device
 
-    async def update(self, identity: VerifiedIdentity, device: Device) -> bool:
-        if await self.get_by_id(identity, device.id) is None:
+    async def update(
+        self, identity: VerifiedIdentity, device: Device, expected_version: int
+    ) -> bool:
+        existing = await self.get_by_id(identity, device.id)
+        if existing is None or existing.version != expected_version:
             return False
         self.updated = device
         self.devices[device.id] = device
@@ -150,6 +153,7 @@ async def test_update_preserves_identity_timestamps_and_increments_version() -> 
     updated = await UpdateDevice(repository).execute(
         identity=identity,
         device_id=existing.id,
+        expected_version=existing.version,
         name="worker-02",
         device_type=DeviceType.CLOUD,
         tags=[" staging "],
@@ -163,6 +167,15 @@ async def test_update_preserves_identity_timestamps_and_increments_version() -> 
     assert updated.name == "worker-02"
     assert updated.operating_system is None
 
+    with pytest.raises(DeviceVersionConflict):
+        await UpdateDevice(repository).execute(
+            identity=identity,
+            device_id=existing.id,
+            expected_version=existing.version,
+            name="stale-name",
+            device_type=DeviceType.VPS,
+        )
+
 
 @pytest.mark.anyio
 async def test_update_rejects_missing_or_invalid_device() -> None:
@@ -173,6 +186,7 @@ async def test_update_rejects_missing_or_invalid_device() -> None:
         await use_case.execute(
             identity=identity,
             device_id=uuid4(),
+            expected_version=1,
             name="worker",
             device_type=DeviceType.VPS,
         )
@@ -183,6 +197,7 @@ async def test_update_rejects_missing_or_invalid_device() -> None:
         await use_case.execute(
             identity=identity,
             device_id=device.id,
+            expected_version=device.version,
             name="worker",
             device_type=DeviceType.VPS,
             architecture="x" * 51,

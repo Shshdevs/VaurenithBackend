@@ -23,26 +23,37 @@ class FakeEnvironmentRepository:
     def __init__(self) -> None:
         self.environments: dict[UUID, Environment] = {}
 
-    async def get_by_id(self, environment_id: UUID) -> Environment | None:
+    async def get_by_id(
+        self, identity: VerifiedIdentity, environment_id: UUID
+    ) -> Environment | None:
         return self.environments.get(environment_id)
 
-    async def get_active_by_project_id(self, project_id: UUID) -> list[Environment]:
+    async def get_active_by_project_id(
+        self, identity: VerifiedIdentity, project_id: UUID
+    ) -> list[Environment]:
         return [
             environment
             for environment in self.environments.values()
             if environment.project_id == project_id and environment.deleted_at is None
         ]
 
-    async def create(self, environment: Environment) -> None:
+    async def create(self, identity: VerifiedIdentity, environment: Environment) -> bool:
         self.environments[environment.id] = environment
+        return True
 
-    async def update(self, environment: Environment) -> bool:
-        if environment.id not in self.environments:
+    async def update(
+        self,
+        identity: VerifiedIdentity,
+        environment: Environment,
+        expected_version: int,
+    ) -> bool:
+        existing = self.environments.get(environment.id)
+        if existing is None or existing.version != expected_version:
             return False
         self.environments[environment.id] = environment
         return True
 
-    async def delete(self, environment_id: UUID) -> bool:
+    async def delete(self, identity: VerifiedIdentity, environment_id: UUID) -> bool:
         return self.environments.pop(environment_id, None) is not None
 
 
@@ -152,7 +163,7 @@ def test_environment_routes_support_create_list_get_update_and_delete() -> None:
             "environment_type": "staging",
             "description": "Staging environment",
             "configuration": {"region": "us"},
-            "version": 2,
+            "version": 1,
         },
     )
     assert updated.status_code == 200

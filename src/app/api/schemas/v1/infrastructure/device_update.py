@@ -1,4 +1,4 @@
-from pydantic import field_validator
+from pydantic import Field, field_validator
 
 from app.api.schemas.common import Schema
 from app.domain.infrastructure import DeviceName, InvalidDevice
@@ -6,6 +6,7 @@ from app.domain.infrastructure.enums import DeviceType
 
 
 class DeviceUpdateRequest(Schema):
+    version: int = Field(ge=1)
     name: str
     device_type: DeviceType
     hostname: str | None = None

@@ -1,5 +1,5 @@
 from datetime import UTC, datetime, timedelta
-from typing import Any
+from typing import Any, cast
 from uuid import uuid4
 
 import pytest
@@ -67,7 +67,7 @@ def test_device_group_rejects_update_time_before_creation() -> None:
 
 def test_device_group_name_rejects_non_string_values() -> None:
     with pytest.raises(InvalidDeviceGroup):
-        DeviceGroupName(42)
+        DeviceGroupName(cast(Any, 42))
 
 
 @pytest.mark.parametrize("name", ["  ", "x" * 256])

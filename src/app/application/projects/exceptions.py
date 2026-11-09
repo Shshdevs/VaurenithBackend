@@ -24,6 +24,16 @@ class EnvironmentNotFound(NotFound):
         super().__init__(f"Environment with id {environment_id} not found")
 
 
+class EnvironmentVersionConflict(Conflict):
+    def __init__(self, expected_version: int, current_version: int | None = None) -> None:
+        message = (
+            f"Environment version conflict: expected version {expected_version} is stale"
+        )
+        if current_version is not None:
+            message += f"; current version is {current_version}"
+        super().__init__(message)
+
+
 class EnvironmentDeletionConflict(Conflict):
     def __init__(self, environment_id: str) -> None:
         super().__init__(f"Environment with id {environment_id} has dependent records")

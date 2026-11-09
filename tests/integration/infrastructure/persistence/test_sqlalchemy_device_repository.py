@@ -133,8 +133,11 @@ async def test_device_repository_crud_owner_scope_and_soft_delete() -> None:
                     tags=["staging"],
                     version=2,
                 )
-                assert await repository.update(identity, updated)
-                assert not await repository.update(other_identity, updated)
+                assert await repository.update(identity, updated, expected_version=1)
+                assert not await repository.update(identity, device, expected_version=1)
+                assert not await repository.update(
+                    other_identity, updated, expected_version=2
+                )
                 updated_model = await session.scalar(
                     select(DeviceModel).where(DeviceModel.id == device_id)
                 )
