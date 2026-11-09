@@ -102,7 +102,7 @@ class SqlAlchemyEnvironmentRepository(EnvironmentRepository):
     @staticmethod
     def _to_model(entity: EnvironmentEntity) -> Environment:
         return Environment(
-            entity_id=entity.id,
+            id=entity.id,
             project_id=entity.project_id,
             name=entity.name,
             slug=entity.slug,
