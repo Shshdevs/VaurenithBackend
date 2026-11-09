@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import ProjectDeviceData
+from app.application.projects.exceptions import DeviceNotFound
 from app.application.projects.interfaces import ProjectDeviceRepository, ProjectRepository
 from app.application.projects.use_cases.project_devices.project_access import ProjectAccess
 from app.domain.projects import ProjectDevice, ProjectDeviceRole
@@ -36,9 +37,13 @@ class LinkProjectDevice:
                 role=ProjectDeviceRole(role) if role else None,
                 created_at=now,
             )
-        except InvalidProjectDevice as error:
+        except (InvalidProjectDevice, ValueError) as error:
             raise InvalidInput(str(error)) from error
 
-        await self._project_device_repository.link(project_device=project_device)
+        linked = await self._project_device_repository.link(
+            identity=identity, project_device=project_device
+        )
+        if not linked:
+            raise DeviceNotFound(str(device_id))
 
         return ProjectDeviceData.from_project_device(project_device)

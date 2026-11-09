@@ -6,7 +6,11 @@ import pytest
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
-from app.application.projects.exceptions import ProjectDeviceNotFound, ProjectNotFound
+from app.application.projects.exceptions import (
+    DeviceNotFound,
+    ProjectDeviceNotFound,
+    ProjectNotFound,
+)
 from app.application.projects.use_cases.project_devices import (
     DeleteProjectDevice,
     GetDeviceProjects,
@@ -22,34 +26,48 @@ from app.domain.projects import ProjectDevice, ProjectDeviceRole
 class FakeProjectDeviceRepository:
     def __init__(self, project_devices: list[ProjectDevice] | None = None) -> None:
         self.project_devices = {item.id: item for item in project_devices or []}
+        self.device_owners: dict[UUID, UUID] = {}
         self.linked: ProjectDevice | None = None
         self.updated: ProjectDevice | None = None
 
-    async def get_by_id(self, project_device_id: UUID) -> ProjectDevice | None:
+    async def get_by_id(
+        self, identity: VerifiedIdentity, project_device_id: UUID
+    ) -> ProjectDevice | None:
         return self.project_devices.get(project_device_id)
 
-    async def get_by_project(self, project_id: UUID) -> list[ProjectDevice]:
+    async def get_by_project(
+        self, identity: VerifiedIdentity, project_id: UUID
+    ) -> list[ProjectDevice]:
         return [
             item for item in self.project_devices.values() if item.project_id == project_id
         ]
 
-    async def get_by_device(self, device_id: UUID) -> list[ProjectDevice]:
+    async def get_by_device(
+        self, identity: VerifiedIdentity, device_id: UUID
+    ) -> list[ProjectDevice]:
         return [
             item for item in self.project_devices.values() if item.device_id == device_id
         ]
 
-    async def link(self, project_device: ProjectDevice) -> None:
+    async def link(self, identity: VerifiedIdentity, project_device: ProjectDevice) -> bool:
+        if self.device_owners.get(project_device.device_id) != identity.user_id:
+            return False
         self.linked = project_device
         self.project_devices[project_device.id] = project_device
+        return True
 
-    async def update(self, project_device: ProjectDevice) -> bool:
+    async def update(
+        self, identity: VerifiedIdentity, project_device: ProjectDevice
+    ) -> bool:
         if project_device.id not in self.project_devices:
+            return False
+        if self.device_owners.get(project_device.device_id) != identity.user_id:
             return False
         self.updated = project_device
         self.project_devices[project_device.id] = project_device
         return True
 
-    async def delete(self, project_device_id: UUID) -> bool:
+    async def delete(self, identity: VerifiedIdentity, project_device_id: UUID) -> bool:
         return self.project_devices.pop(project_device_id, None) is not None
 
 
@@ -101,6 +119,7 @@ async def test_link_project_device_requires_owned_project_and_persists_link() ->
     project_id = uuid4()
     device_id = uuid4()
     repository = FakeProjectDeviceRepository()
+    repository.device_owners[device_id] = identity.user_id
     use_case = LinkProjectDevice(
         repository, FakeProjectRepository({project_id: identity.user_id})
     )
@@ -130,6 +149,20 @@ async def test_link_project_device_rejects_unowned_project_and_invalid_role() ->
             role=None,
         )
     assert repository.linked is None
+
+    owned_project_id = uuid4()
+    foreign_device_id = uuid4()
+    repository.device_owners[foreign_device_id] = uuid4()
+    foreign_device_use_case = LinkProjectDevice(
+        repository, FakeProjectRepository({owned_project_id: identity.user_id})
+    )
+    with pytest.raises(DeviceNotFound):
+        await foreign_device_use_case.execute(
+            identity=identity,
+            project_id=owned_project_id,
+            device_id=foreign_device_id,
+            role=None,
+        )
 
     project_id = uuid4()
     authorized_use_case = LinkProjectDevice(
@@ -172,8 +205,10 @@ async def test_get_device_projects_returns_only_callers_projects() -> None:
     device_id = uuid4()
     owned = make_project_device(project_id=owned_project_id, device_id=device_id)
     hidden = make_project_device(project_id=other_project_id, device_id=device_id)
+    repository = FakeProjectDeviceRepository([owned, hidden])
+    repository.device_owners[device_id] = identity.user_id
     use_case = GetDeviceProjects(
-        FakeProjectDeviceRepository([owned, hidden]),
+        repository,
         FakeProjectRepository(
             {owned_project_id: identity.user_id, other_project_id: uuid4()}
         ),
@@ -190,6 +225,7 @@ async def test_get_project_device_requires_project_ownership() -> None:
     project_id = uuid4()
     project_device = make_project_device(project_id=project_id)
     repository = FakeProjectDeviceRepository([project_device])
+    repository.device_owners[project_device.device_id] = identity.user_id
     use_case = GetProjectDevice(
         repository, FakeProjectRepository({project_id: identity.user_id})
     )
@@ -211,16 +247,19 @@ async def test_update_project_device_checks_both_projects_and_preserves_link_id(
     target_project_id = uuid4()
     project_device = make_project_device(project_id=current_project_id)
     repository = FakeProjectDeviceRepository([project_device])
+    repository.device_owners[project_device.device_id] = identity.user_id
     project_repository = FakeProjectRepository(
         {current_project_id: identity.user_id, target_project_id: identity.user_id}
     )
     use_case = UpdateProjectDevice(repository, project_repository)
+    target_device_id = uuid4()
+    repository.device_owners[target_device_id] = identity.user_id
 
     result = await use_case.execute(
         identity=identity,
         project_device_id=project_device.id,
         project_id=target_project_id,
-        device_id=uuid4(),
+        device_id=target_device_id,
         role="operator",
     )
 
@@ -229,6 +268,17 @@ async def test_update_project_device_checks_both_projects_and_preserves_link_id(
     assert result.project_id == target_project_id
     assert result.created_at == project_device.created_at
     assert result.role == "operator"
+
+    foreign_device_id = uuid4()
+    repository.device_owners[foreign_device_id] = uuid4()
+    with pytest.raises(DeviceNotFound):
+        await use_case.execute(
+            identity=identity,
+            project_device_id=project_device.id,
+            project_id=target_project_id,
+            device_id=foreign_device_id,
+            role="operator",
+        )
 
     unauthorized = UpdateProjectDevice(repository, FakeProjectRepository())
     with pytest.raises(ProjectNotFound):

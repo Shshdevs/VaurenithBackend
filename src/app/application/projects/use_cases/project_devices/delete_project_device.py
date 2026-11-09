@@ -17,13 +17,13 @@ class DeleteProjectDevice:
 
     async def execute(self, identity: VerifiedIdentity, project_device_id: UUID) -> None:
         project_device = await self._project_device_repository.get_by_id(
-            project_device_id=project_device_id
+            identity=identity, project_device_id=project_device_id
         )
         if project_device is None:
             raise ProjectDeviceNotFound(str(project_device_id))
         await self._project_access.require_project(identity, project_device.project_id)
         result = await self._project_device_repository.delete(
-            project_device_id=project_device_id
+            identity=identity, project_device_id=project_device_id
         )
 
         if not result:

@@ -7,7 +7,9 @@ from sqlalchemy import select
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
+from app.application.identity import VerifiedIdentity
 from app.core.config import get_settings
+from app.domain.identity import EmailAddress, TokenHash
 from app.domain.infrastructure.enums import DeviceType
 from app.domain.projects import ProjectDevice as ProjectDeviceEntity
 from app.domain.projects import ProjectDeviceRole, ProjectStatus, ProjectType
@@ -47,10 +49,20 @@ async def test_project_device_repository_crud_round_trip() -> None:
 
     engine = create_async_engine(test_database_url)
     user_id = uuid4()
+    other_user_id = uuid4()
     project_id = uuid4()
+    other_project_id = uuid4()
     device_id = uuid4()
+    other_device_id = uuid4()
     project_device_id = uuid4()
     now = datetime.now(UTC)
+    identity = VerifiedIdentity(
+        user_id=user_id,
+        email=EmailAddress(f"{user_id}@example.test"),
+        auth_provider="integration-test",
+        expires_at=now.replace(year=now.year + 1),
+        token_hash=TokenHash("a" * 64),
+    )
     project_device = ProjectDeviceEntity(
         entity_id=project_device_id,
         project_id=project_id,
@@ -67,15 +79,25 @@ async def test_project_device_repository_crud_round_trip() -> None:
                 join_transaction_mode="create_savepoint",
                 expire_on_commit=False,
             ) as database_session:
-                database_session.add(
-                    User(
-                        id=user_id,
-                        email=f"{user_id}@example.test",
-                        display_name="Project Device Integration Test",
-                        auth_provider="integration-test",
-                        created_at=now,
-                        updated_at=now,
-                    )
+                database_session.add_all(
+                    [
+                        User(
+                            id=user_id,
+                            email=f"{user_id}@example.test",
+                            display_name="Project Device Integration Test",
+                            auth_provider="integration-test",
+                            created_at=now,
+                            updated_at=now,
+                        ),
+                        User(
+                            id=other_user_id,
+                            email=f"{other_user_id}@example.test",
+                            display_name="Other Project Device Owner",
+                            auth_provider="integration-test",
+                            created_at=now,
+                            updated_at=now,
+                        ),
+                    ]
                 )
                 database_session.add(
                     Project(
@@ -102,22 +124,77 @@ async def test_project_device_repository_crud_round_trip() -> None:
                         updated_at=now,
                     )
                 )
+                database_session.add(
+                    Project(
+                        id=other_project_id,
+                        user_id=other_user_id,
+                        name="Other Project Device Integration Test",
+                        slug=f"other-project-device-{other_project_id}",
+                        project_type=ProjectType.SOFTWARE,
+                        status=ProjectStatus.ACTIVE,
+                        version=1,
+                        created_at=now,
+                        updated_at=now,
+                    )
+                )
+                database_session.add(
+                    Device(
+                        id=other_device_id,
+                        user_id=other_user_id,
+                        name="Other Project Device Integration Test",
+                        slug=f"other-project-device-{other_device_id}",
+                        device_type=DeviceType.VPS,
+                        version=1,
+                        created_at=now,
+                        updated_at=now,
+                    )
+                )
                 await database_session.flush()
 
                 repository = SqlAlchemyProjectDeviceRepository(database_session)
-                await repository.link(project_device)
+                assert await repository.link(identity, project_device)
+                foreign_device_link = ProjectDeviceEntity(
+                    entity_id=uuid4(),
+                    project_id=project_id,
+                    device_id=other_device_id,
+                    role=None,
+                    created_at=now,
+                )
+                assert not await repository.link(identity, foreign_device_link)
+                foreign_project_link = ProjectDeviceEntity(
+                    entity_id=uuid4(),
+                    project_id=other_project_id,
+                    device_id=device_id,
+                    role=None,
+                    created_at=now,
+                )
+                assert not await repository.link(identity, foreign_project_link)
 
-                stored = await repository.get_by_id(project_device_id)
+                stored = await repository.get_by_id(identity, project_device_id)
                 assert stored is not None
                 assert stored.project_id == project_id
                 assert stored.device_id == device_id
                 assert stored.role == "deployer"
                 assert [
-                    item.id for item in await repository.get_by_project(project_id)
+                    item.id
+                    for item in await repository.get_by_project(identity, project_id)
                 ] == [project_device_id]
-                assert [item.id for item in await repository.get_by_device(device_id)] == [
-                    project_device_id
-                ]
+                assert [
+                    item.id for item in await repository.get_by_device(identity, device_id)
+                ] == [project_device_id]
+                assert (
+                    await repository.get_by_id(
+                        VerifiedIdentity(
+                            user_id=other_user_id,
+                            email=EmailAddress(f"{other_user_id}@example.test"),
+                            auth_provider="integration-test",
+                            expires_at=now.replace(year=now.year + 1),
+                            token_hash=TokenHash("b" * 64),
+                        ),
+                        project_device_id,
+                    )
+                    is None
+                )
 
                 updated = ProjectDeviceEntity(
                     entity_id=project_device_id,
@@ -126,16 +203,24 @@ async def test_project_device_repository_crud_round_trip() -> None:
                     role=ProjectDeviceRole("operator"),
                     created_at=now,
                 )
-                assert await repository.update(updated)
+                unauthorized_update = ProjectDeviceEntity(
+                    entity_id=project_device_id,
+                    project_id=project_id,
+                    device_id=other_device_id,
+                    role=ProjectDeviceRole("operator"),
+                    created_at=now,
+                )
+                assert not await repository.update(identity, unauthorized_update)
+                assert await repository.update(identity, updated)
                 stored_model = await database_session.scalar(
                     select(ProjectDevice).where(ProjectDevice.id == project_device_id)
                 )
                 assert stored_model is not None
                 assert stored_model.role == "operator"
 
-                assert await repository.delete(project_device_id)
-                assert not await repository.delete(project_device_id)
-                assert await repository.get_by_id(project_device_id) is None
+                assert await repository.delete(identity, project_device_id)
+                assert not await repository.delete(identity, project_device_id)
+                assert await repository.get_by_id(identity, project_device_id) is None
 
             await transaction.rollback()
     finally:

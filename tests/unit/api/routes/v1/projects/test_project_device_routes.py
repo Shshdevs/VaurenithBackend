@@ -25,29 +25,38 @@ class FakeProjectDeviceRepository:
     def __init__(self) -> None:
         self.project_devices: dict[UUID, ProjectDevice] = {}
 
-    async def get_by_id(self, project_device_id: UUID) -> ProjectDevice | None:
+    async def get_by_id(
+        self, identity: VerifiedIdentity, project_device_id: UUID
+    ) -> ProjectDevice | None:
         return self.project_devices.get(project_device_id)
 
-    async def get_by_project(self, project_id: UUID) -> list[ProjectDevice]:
+    async def get_by_project(
+        self, identity: VerifiedIdentity, project_id: UUID
+    ) -> list[ProjectDevice]:
         return [
             item for item in self.project_devices.values() if item.project_id == project_id
         ]
 
-    async def get_by_device(self, device_id: UUID) -> list[ProjectDevice]:
+    async def get_by_device(
+        self, identity: VerifiedIdentity, device_id: UUID
+    ) -> list[ProjectDevice]:
         return [
             item for item in self.project_devices.values() if item.device_id == device_id
         ]
 
-    async def link(self, project_device: ProjectDevice) -> None:
+    async def link(self, identity: VerifiedIdentity, project_device: ProjectDevice) -> bool:
         self.project_devices[project_device.id] = project_device
+        return True
 
-    async def update(self, project_device: ProjectDevice) -> bool:
+    async def update(
+        self, identity: VerifiedIdentity, project_device: ProjectDevice
+    ) -> bool:
         if project_device.id not in self.project_devices:
             return False
         self.project_devices[project_device.id] = project_device
         return True
 
-    async def delete(self, project_device_id: UUID) -> bool:
+    async def delete(self, identity: VerifiedIdentity, project_device_id: UUID) -> bool:
         return self.project_devices.pop(project_device_id, None) is not None
 
 
