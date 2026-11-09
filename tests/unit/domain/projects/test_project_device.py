@@ -5,7 +5,8 @@ from uuid import uuid4
 import pytest
 
 from app.domain.projects.entities.project_device import ProjectDevice
-from app.domain.projects.exceptions import InvalidProjectDeviceRelation
+from app.domain.projects.exceptions import InvalidProjectDevice
+from app.domain.projects.value_objects import ProjectDeviceRole
 
 
 def make_project_device(**overrides: Any) -> ProjectDevice:
@@ -14,7 +15,7 @@ def make_project_device(**overrides: Any) -> ProjectDevice:
         "project_id": uuid4(),
         "device_id": uuid4(),
         "created_at": datetime(2026, 1, 1, tzinfo=UTC),
-        "role": "  deployer  ",
+        "role": ProjectDeviceRole("  deployer  "),
     }
     values.update(overrides)
     return ProjectDevice(**values)
@@ -27,15 +28,16 @@ def test_project_device_normalizes_role_and_exposes_values() -> None:
     assert relation.created_at == datetime(2026, 1, 1, tzinfo=UTC)
 
 
-def test_project_device_converts_blank_role_to_none() -> None:
-    assert make_project_device(role="   ").role is None
+def test_project_device_role_value_object_normalizes_and_validates_role() -> None:
+    role = ProjectDeviceRole("  deployer  ")
 
-
-def test_project_device_rejects_role_over_maximum_length() -> None:
-    with pytest.raises(InvalidProjectDeviceRelation):
-        make_project_device(role="x" * 101)
+    assert role.value == "deployer"
+    with pytest.raises(InvalidProjectDevice):
+        ProjectDeviceRole("   ")
+    with pytest.raises(InvalidProjectDevice):
+        ProjectDeviceRole("x" * 101)
 
 
 def test_project_device_rejects_naive_creation_time() -> None:
-    with pytest.raises(InvalidProjectDeviceRelation):
+    with pytest.raises(InvalidProjectDevice):
         make_project_device(created_at=datetime(2026, 1, 1))

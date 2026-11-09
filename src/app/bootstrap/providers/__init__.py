@@ -10,12 +10,18 @@ from app.bootstrap.providers.projects import (
     provide_create_project,
     provide_delete_environment,
     provide_delete_project,
+    provide_delete_project_device,
+    provide_get_device_projects,
     provide_get_environment,
     provide_get_project,
+    provide_get_project_device,
+    provide_get_project_devices,
     provide_get_project_environments,
     provide_get_user_projects,
+    provide_link_project_device,
     provide_update_environment,
     provide_update_project,
+    provide_update_project_device,
 )
 
 __all__ = [
@@ -35,4 +41,10 @@ __all__ = [
     "provide_get_environment",
     "provide_get_project_environments",
     "provide_update_environment",
+    "provide_link_project_device",
+    "provide_update_project_device",
+    "provide_delete_project_device",
+    "provide_get_device_projects",
+    "provide_get_project_device",
+    "provide_get_project_devices",
 ]

@@ -7,6 +7,14 @@ from app.application.projects.use_cases.environments import (
     GetProjectEnvironments,
     UpdateEnvironment,
 )
+from app.application.projects.use_cases.project_devices import (
+    DeleteProjectDevice,
+    GetDeviceProjects,
+    GetProjectDevice,
+    GetProjectDevices,
+    LinkProjectDevice,
+    UpdateProjectDevice,
+)
 from app.application.projects.use_cases.projects import (
     CreateProject,
     DeleteProject,
@@ -16,6 +24,7 @@ from app.application.projects.use_cases.projects import (
 )
 from app.infrastructure.persistence.repositories.projects import (
     SqlAlchemyEnvironmentRepository,
+    SqlAlchemyProjectDeviceRepository,
     SqlAlchemyProjectRepository,
 )
 
@@ -58,3 +67,39 @@ def provide_update_environment(session: AsyncSession) -> UpdateEnvironment:
 
 def provide_delete_environment(session: AsyncSession) -> DeleteEnvironment:
     return DeleteEnvironment(SqlAlchemyEnvironmentRepository(session))
+
+
+def provide_link_project_device(session: AsyncSession) -> LinkProjectDevice:
+    return LinkProjectDevice(
+        SqlAlchemyProjectDeviceRepository(session), SqlAlchemyProjectRepository(session)
+    )
+
+
+def provide_update_project_device(session: AsyncSession) -> UpdateProjectDevice:
+    return UpdateProjectDevice(
+        SqlAlchemyProjectDeviceRepository(session), SqlAlchemyProjectRepository(session)
+    )
+
+
+def provide_delete_project_device(session: AsyncSession) -> DeleteProjectDevice:
+    return DeleteProjectDevice(
+        SqlAlchemyProjectDeviceRepository(session), SqlAlchemyProjectRepository(session)
+    )
+
+
+def provide_get_device_projects(session: AsyncSession) -> GetDeviceProjects:
+    return GetDeviceProjects(
+        SqlAlchemyProjectDeviceRepository(session), SqlAlchemyProjectRepository(session)
+    )
+
+
+def provide_get_project_device(session: AsyncSession) -> GetProjectDevice:
+    return GetProjectDevice(
+        SqlAlchemyProjectDeviceRepository(session), SqlAlchemyProjectRepository(session)
+    )
+
+
+def provide_get_project_devices(session: AsyncSession) -> GetProjectDevices:
+    return GetProjectDevices(
+        SqlAlchemyProjectDeviceRepository(session), SqlAlchemyProjectRepository(session)
+    )

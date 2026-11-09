@@ -3,14 +3,12 @@ from uuid import UUID
 
 from app.domain.common.entity import Entity
 from app.domain.common.types import EntityId
-from app.domain.projects.exceptions import InvalidProjectDeviceRelation
+from app.domain.projects.exceptions import InvalidProjectDevice
 from app.domain.projects.value_objects import ProjectDeviceRole
 
 
 class ProjectDevice(Entity):
     """Many-to-many association between projects and infrastructure devices"""
-
-    MAX_ROLE_LENGTH = ProjectDeviceRole.MAX_LENGTH
 
     def __init__(
         self,
@@ -18,29 +16,22 @@ class ProjectDevice(Entity):
         project_id: EntityId,
         device_id: EntityId,
         created_at: datetime,
-        role: str | None = None,
+        role: ProjectDeviceRole | None = None,
     ) -> None:
         if not all(
             isinstance(identifier, UUID)
             for identifier in (entity_id, project_id, device_id)
         ):
-            raise InvalidProjectDeviceRelation("Project and device IDs must be UUIDs")
+            raise InvalidProjectDevice("Project and device IDs must be UUIDs")
 
-        normalized_role = (
-            None
-            if role is None or (isinstance(role, str) and not role.strip())
-            else ProjectDeviceRole(role)
-        )
         if not isinstance(created_at, datetime) or created_at.utcoffset() is None:
-            raise InvalidProjectDeviceRelation(
-                "Relation creation time must include a timezone"
-            )
+            raise InvalidProjectDevice("Relation creation time must include a timezone")
 
         super().__init__(entity_id)
         self._project_id = project_id
         self._device_id = device_id
         self._created_at = created_at
-        self._role = normalized_role
+        self._role = role
 
     @property
     def project_id(self) -> EntityId:

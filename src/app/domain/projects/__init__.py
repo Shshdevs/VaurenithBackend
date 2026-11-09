@@ -5,7 +5,7 @@ from app.domain.projects.enums import EnvironmentType, ProjectStatus, ProjectTyp
 from app.domain.projects.exceptions import (
     InvalidEnvironment,
     InvalidProject,
-    InvalidProjectDeviceRelation,
+    InvalidProjectDevice,
 )
 from app.domain.projects.value_objects import (
     EnvironmentName,
@@ -25,5 +25,5 @@ __all__ = [
     "ProjectType",
     "InvalidEnvironment",
     "InvalidProject",
-    "InvalidProjectDeviceRelation",
+    "InvalidProjectDevice",
 ]

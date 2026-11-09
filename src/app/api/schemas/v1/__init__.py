@@ -10,6 +10,9 @@ from app.api.schemas.v1.projects.environment_create import EnvironmentCreateRequ
 from app.api.schemas.v1.projects.environment_update import EnvironmentUpdateRequest
 from app.api.schemas.v1.projects.project import ProjectData
 from app.api.schemas.v1.projects.project_create import ProjectCreateRequest
+from app.api.schemas.v1.projects.project_device import ProjectDeviceData
+from app.api.schemas.v1.projects.project_device_create import ProjectDeviceCreateRequest
+from app.api.schemas.v1.projects.project_device_update import ProjectDeviceUpdateRequest
 from app.api.schemas.v1.projects.project_update import ProjectUpdateRequest
 
 __all__ = [
@@ -21,6 +24,9 @@ __all__ = [
     "EnvironmentData",
     "EnvironmentCreateRequest",
     "EnvironmentUpdateRequest",
+    "ProjectDeviceCreateRequest",
+    "ProjectDeviceUpdateRequest",
+    "ProjectDeviceData",
     "DependencyHealth",
     "LivenessData",
     "ReadinessData",
