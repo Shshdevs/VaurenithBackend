@@ -20,7 +20,7 @@ class GetProjectDevice:
         self, identity: VerifiedIdentity, project_device_id: UUID
     ) -> ProjectDeviceData:
         project_device = await self._project_device_repository.get_by_id(
-            project_device_id=project_device_id
+            identity=identity, project_device_id=project_device_id
         )
 
         if not project_device:

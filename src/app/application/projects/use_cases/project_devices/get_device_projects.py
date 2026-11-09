@@ -19,7 +19,7 @@ class GetDeviceProjects:
         self, identity: VerifiedIdentity, device_id: UUID
     ) -> list[ProjectDeviceData]:
         project_devices = await self._project_device_repository.get_by_device(
-            device_id=device_id
+            identity=identity, device_id=device_id
         )
         project_ids = await self._project_access.get_user_project_ids(identity)
         return [

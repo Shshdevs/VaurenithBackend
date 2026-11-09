@@ -20,7 +20,7 @@ class GetProjectDevices:
     ) -> list[ProjectDeviceData]:
         await self._project_access.require_project(identity, project_id)
         project_devices = await self._project_device_repository.get_by_project(
-            project_id=project_id
+            identity=identity, project_id=project_id
         )
         return [
             ProjectDeviceData.from_project_device(project_device)

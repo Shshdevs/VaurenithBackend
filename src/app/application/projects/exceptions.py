@@ -26,6 +26,11 @@ class ProjectDeviceNotFound(NotFound):
         super().__init__(f"ProjectDevice with id {project_device_id} not found")
 
 
+class DeviceNotFound(NotFound):
+    def __init__(self, device_id: str) -> None:
+        super().__init__(f"Device with id {device_id} not found")
+
+
 class ProjectDeviceDeletionConflict(Conflict):
     def __init__(self, project_device_id: str) -> None:
         super().__init__(f"ProjectDevice with id {project_device_id} has dependent records")

@@ -3,7 +3,7 @@ from uuid import UUID
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import ProjectDeviceData
-from app.application.projects.exceptions import ProjectDeviceNotFound
+from app.application.projects.exceptions import DeviceNotFound, ProjectDeviceNotFound
 from app.application.projects.interfaces import ProjectDeviceRepository, ProjectRepository
 from app.application.projects.use_cases.project_devices.project_access import ProjectAccess
 from app.domain.projects import (
@@ -32,7 +32,7 @@ class UpdateProjectDevice:
     ) -> ProjectDeviceData:
         try:
             existing_project_device = await self._project_device_repository.get_by_id(
-                project_device_id=project_device_id
+                identity=identity, project_device_id=project_device_id
             )
             if not existing_project_device:
                 raise ProjectDeviceNotFound(str(project_device_id))
@@ -51,8 +51,8 @@ class UpdateProjectDevice:
         except (InvalidProjectDevice, ValueError) as error:
             raise InvalidInput(str(error)) from error
 
-        result = await self._project_device_repository.update(project_device)
+        result = await self._project_device_repository.update(identity, project_device)
         if not result:
-            raise ProjectDeviceNotFound(str(project_device_id))
+            raise DeviceNotFound(str(device_id))
 
         return ProjectDeviceData.from_project_device(project_device)
