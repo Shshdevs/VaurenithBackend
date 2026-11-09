@@ -13,6 +13,7 @@ from app.domain.infrastructure.value_objects.database_endpoint import DatabaseEn
 from app.domain.infrastructure.value_objects.database_resource_name import (
     DatabaseResourceName,
 )
+from app.domain.infrastructure.value_objects.device_group_name import DeviceGroupName
 from app.domain.infrastructure.value_objects.device_name import DeviceName
 from app.domain.infrastructure.value_objects.operating_system import OperatingSystem
 from app.domain.infrastructure.value_objects.service_name import ServiceName
@@ -27,6 +28,7 @@ __all__ = [
     "DatabaseEndpoint",
     "DatabaseResourceName",
     "DeviceName",
+    "DeviceGroupName",
     "OperatingSystem",
     "ServiceName",
     "SystemIdentifier",

@@ -1,0 +1,48 @@
+from datetime import UTC, datetime
+from uuid import UUID
+
+from app.application.common.exceptions import InvalidInput
+from app.application.identity import VerifiedIdentity
+from app.application.infrastructure.dto import DeviceGroupData
+from app.application.infrastructure.exceptions import DeviceGroupNotFound
+from app.application.infrastructure.interfaces import DeviceGroupRepository
+from app.domain.infrastructure import DeviceGroup, DeviceGroupName, InvalidDeviceGroup
+
+
+class UpdateDeviceGroup:
+    def __init__(self, device_group_repository: DeviceGroupRepository) -> None:
+        self._device_group_repository = device_group_repository
+
+    async def execute(
+        self,
+        device_group_id: UUID,
+        identity: VerifiedIdentity,
+        name: str,
+        description: str | None,
+    ) -> DeviceGroupData:
+        existing_device_group = await self._device_group_repository.get_by_id(
+            device_group_id=device_group_id, identity=identity
+        )
+        if not existing_device_group:
+            raise DeviceGroupNotFound(str(device_group_id))
+
+        try:
+            now = datetime.now(UTC)
+            device_group = DeviceGroup(
+                entity_id=existing_device_group.id,
+                user_id=existing_device_group.user_id,
+                name=DeviceGroupName(name),
+                description=description,
+                created_at=existing_device_group.created_at,
+                updated_at=now,
+            )
+        except InvalidDeviceGroup as error:
+            raise InvalidInput(str(error)) from error
+
+        result = await self._device_group_repository.update(
+            device_group=device_group, identity=identity
+        )
+        if not result:
+            raise DeviceGroupNotFound(str(device_group_id))
+
+        return DeviceGroupData.from_device_group(device_group=device_group)

@@ -5,6 +5,10 @@ class InvalidDevice(DomainError):
     pass
 
 
+class InvalidDeviceGroup(DomainError):
+    pass
+
+
 class InvalidConnection(DomainError):
     pass
 
