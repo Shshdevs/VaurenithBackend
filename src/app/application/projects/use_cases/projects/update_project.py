@@ -5,7 +5,7 @@ from uuid import UUID
 from app.application.common.exceptions import InvalidInput
 from app.application.identity.dto import VerifiedIdentity
 from app.application.projects.dto import ProjectData
-from app.application.projects.exceptions import ProjectNotFound
+from app.application.projects.exceptions import ProjectNotFound, ProjectVersionConflict
 from app.application.projects.interfaces import ProjectRepository
 from app.domain.projects import (
     InvalidProject,
@@ -27,7 +27,7 @@ class UpdateProject:
         name: str,
         project_type: ProjectType,
         status: ProjectStatus,
-        version: int,
+        expected_version: int,
         description: str | None,
         metadata: dict[str, Any] | None,
     ) -> ProjectData:
@@ -37,6 +37,8 @@ class UpdateProject:
         )
         if existing_project is None:
             raise ProjectNotFound(str(project_id))
+        if existing_project.version != expected_version:
+            raise ProjectVersionConflict(expected_version, existing_project.version)
 
         try:
             project_name = ProjectName(name)
@@ -49,7 +51,7 @@ class UpdateProject:
                 project_type=ProjectType(project_type),
                 status=ProjectStatus(status),
                 metadata=metadata,
-                version=version,
+                version=expected_version + 1,
                 created_at=existing_project.created_at,
                 updated_at=now,
                 deleted_at=existing_project.deleted_at,
@@ -57,8 +59,10 @@ class UpdateProject:
         except (InvalidProject, ValueError) as error:
             raise InvalidInput(str(error)) from error
 
-        result = await self._project_repository.update(identity.user_id, project=project)
+        result = await self._project_repository.update(
+            identity.user_id, project=project, expected_version=expected_version
+        )
         if not result:
-            raise ProjectNotFound(str(project_id))
+            raise ProjectVersionConflict(expected_version)
 
         return ProjectData.from_project(project)

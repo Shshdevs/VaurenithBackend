@@ -46,13 +46,16 @@ class SqlAlchemyProjectRepository(ProjectRepository):
         projects = result.scalars().all()
         return [self._to_entity(model) for model in projects]
 
-    async def update(self, user_id: UUID, project: ProjectEntity) -> bool:
+    async def update(
+        self, user_id: UUID, project: ProjectEntity, expected_version: int
+    ) -> bool:
         statement = (
             update(Project)
             .where(
                 Project.id == project.id,
                 Project.user_id == user_id,
                 Project.deleted_at.is_(None),
+                Project.version == expected_version,
             )
             .values(
                 name=project.name,
@@ -61,7 +64,7 @@ class SqlAlchemyProjectRepository(ProjectRepository):
                 project_type=project.project_type,
                 status=project.status,
                 metadata_=project.metadata,
-                version=project.version,
+                version=expected_version + 1,
                 updated_at=project.updated_at,
                 deleted_at=project.deleted_at,
             )

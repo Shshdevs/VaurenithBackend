@@ -78,7 +78,8 @@ async def test_create_persists_project_and_custom_version_then_rolls_back() -> N
                 )
                 await database_session.flush()
 
-                await SqlAlchemyProjectRepository(database_session).create(project)
+                repository = SqlAlchemyProjectRepository(database_session)
+                await repository.create(project)
 
                 stored_project = await database_session.scalar(
                     select(ProjectModel).where(ProjectModel.id == project_id)
@@ -92,6 +93,44 @@ async def test_create_persists_project_and_custom_version_then_rolls_back() -> N
                 assert stored_project.version == 7
                 assert stored_project.created_at == now
                 assert stored_project.updated_at == now
+
+                updated_project = Project(
+                    entity_id=project_id,
+                    user_id=user_id,
+                    name=ProjectName("Updated integration project"),
+                    description="First versioned update",
+                    project_type=ProjectType.FULLSTACK,
+                    status=ProjectStatus.ACTIVE,
+                    metadata={"integration": True},
+                    version=8,
+                    created_at=now,
+                    updated_at=datetime.now(UTC),
+                )
+                assert await repository.update(user_id, updated_project, expected_version=7)
+
+                stale_project = Project(
+                    entity_id=project_id,
+                    user_id=user_id,
+                    name=ProjectName("Stale update"),
+                    description="Must not overwrite the newer update",
+                    project_type=ProjectType.SOFTWARE,
+                    status=ProjectStatus.ACTIVE,
+                    metadata={"integration": False},
+                    version=8,
+                    created_at=now,
+                    updated_at=datetime.now(UTC),
+                )
+                assert not await repository.update(
+                    user_id, stale_project, expected_version=7
+                )
+
+                final_project = await database_session.scalar(
+                    select(ProjectModel).where(ProjectModel.id == project_id)
+                )
+                assert final_project is not None
+                assert final_project.name == "Updated integration project"
+                assert final_project.description == "First versioned update"
+                assert final_project.version == 8
 
             await transaction.rollback()
     finally:
