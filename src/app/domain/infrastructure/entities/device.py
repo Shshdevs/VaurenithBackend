@@ -12,25 +12,19 @@ from app.domain.infrastructure.value_objects import DeviceName, OperatingSystem
 class Device(Entity):
     """Physical machines, virtual machines, VPS and other managed nodes"""
 
-    MAX_ARCHITECTURE_LENGTH = 50
-    MAX_OS_VERSION_LENGTH = 100
-    MAX_OPERATING_SYSTEM_LENGTH = 100
     MAX_HOST_NAME_LENGTH = 255
-    MAX_NAME_LENGTH = 255
 
     def __init__(
         self,
         entity_id: EntityId,
         user_id: EntityId,
-        name: str,
+        name: DeviceName,
         created_at: datetime,
         updated_at: datetime,
         device_type: DeviceType,
         hostname: str | None = None,
         description: str | None = None,
-        operating_system: str | None = None,
-        os_version: str | None = None,
-        architecture: str | None = None,
+        operating_system_info: OperatingSystem | None = None,
         tags: list[str] | None = None,
         version: int = 1,
         last_seen_at: datetime | None = None,
@@ -39,7 +33,8 @@ class Device(Entity):
     ) -> None:
         if not isinstance(entity_id, UUID) or not isinstance(user_id, UUID):
             raise InvalidDevice("Device and owner identifiers must be UUIDs")
-        normalized_name = DeviceName(name)
+        if not isinstance(name, DeviceName):
+            raise InvalidDevice("Device name must be a DeviceName")
         if not isinstance(device_type, DeviceType):
             raise InvalidDevice("Device type is invalid")
         if not isinstance(version, int) or isinstance(version, bool) or version < 1:
@@ -49,29 +44,10 @@ class Device(Entity):
             hostname, "hostname", self.MAX_HOST_NAME_LENGTH
         )
         normalized_description = self._normalize_optional_text(description, "description")
-        normalized_operating_system = self._normalize_optional_text(
-            operating_system, "operating_system", self.MAX_OPERATING_SYSTEM_LENGTH
-        )
-        normalized_os_version = self._normalize_optional_text(
-            os_version, "os_version", self.MAX_OS_VERSION_LENGTH
-        )
-        normalized_architecture = self._normalize_optional_text(
-            architecture, "architecture", self.MAX_ARCHITECTURE_LENGTH
-        )
-        operating_system_info = None
-        if any(
-            value is not None
-            for value in (
-                normalized_operating_system,
-                normalized_os_version,
-                normalized_architecture,
-            )
+        if operating_system_info is not None and not isinstance(
+            operating_system_info, OperatingSystem
         ):
-            operating_system_info = OperatingSystem(
-                name=normalized_operating_system,
-                version=normalized_os_version,
-                architecture=normalized_architecture,
-            )
+            raise InvalidDevice("Operating system info must be an OperatingSystem")
         normalized_tags = self._normalize_tags(tags)
 
         self._validate_timestamp(created_at, "created_at")
@@ -99,7 +75,7 @@ class Device(Entity):
 
         super().__init__(entity_id)
         self._user_id = user_id
-        self._name = normalized_name
+        self._name = name
         self._hostname = normalized_hostname
         self._description = normalized_description
         self._device_type = device_type

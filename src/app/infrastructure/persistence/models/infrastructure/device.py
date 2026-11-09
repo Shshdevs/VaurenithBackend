@@ -75,7 +75,7 @@ class Device(Base):
     operating_system: Mapped[str | None] = mapped_column(String(100))
     os_version: Mapped[str | None] = mapped_column(String(100))
     architecture: Mapped[str | None] = mapped_column(String(50))
-    tags: Mapped[str | None] = mapped_column(ARRAY(Text))
+    tags: Mapped[list[str] | None] = mapped_column(ARRAY(Text))
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_status_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     version: Mapped[int] = mapped_column(
