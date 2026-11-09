@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
+from app.api.middleware.error_handler import register_error_handlers
 from app.api.routes.v1.projects.project import build_project_route
 from app.application.identity import VerifiedIdentity
 from app.application.projects.use_cases.projects.update_project import UpdateProject
@@ -15,18 +16,20 @@ class FakeProjectRepository:
     def __init__(self, project: Project) -> None:
         self.project = project
         self.updated_project: Project | None = None
+        self.expected_version: int | None = None
 
     async def get_by_id(self, user_id: UUID, project_id: UUID) -> Project | None:
         if self.project.user_id != user_id or self.project.id != project_id:
             return None
         return self.project
 
-    async def update(self, user_id: UUID, project: Project) -> bool:
+    async def update(self, user_id: UUID, project: Project, expected_version: int) -> bool:
         self.updated_project = project
+        self.expected_version = expected_version
         return True
 
 
-def test_put_project_route_updates_project_and_returns_api_data() -> None:
+def build_test_client(project_version: int = 1) -> tuple[TestClient, FakeProjectRepository]:
     user_id = uuid4()
     project_id = uuid4()
     now = datetime.now(UTC)
@@ -37,7 +40,7 @@ def test_put_project_route_updates_project_and_returns_api_data() -> None:
         expires_at=now + timedelta(hours=1),
         token_hash=TokenHash("a" * 64),
     )
-    existing_project = Project(
+    project = Project(
         entity_id=project_id,
         user_id=user_id,
         name=ProjectName("Original project"),
@@ -45,8 +48,9 @@ def test_put_project_route_updates_project_and_returns_api_data() -> None:
         updated_at=now,
         project_type=ProjectType.SOFTWARE,
         status=ProjectStatus.ACTIVE,
+        version=project_version,
     )
-    repository = FakeProjectRepository(existing_project)
+    repository = FakeProjectRepository(project)
     update_project = UpdateProject(repository)
 
     def unused_dependency() -> None:
@@ -59,6 +63,7 @@ def test_put_project_route_updates_project_and_returns_api_data() -> None:
         return identity
 
     app = FastAPI()
+    register_error_handlers(app)
     app.include_router(
         build_project_route(
             create_project_dependency=unused_dependency,
@@ -69,14 +74,20 @@ def test_put_project_route_updates_project_and_returns_api_data() -> None:
             authenticated_identity_dependency=provide_identity,
         )
     )
+    return TestClient(app), repository
 
-    response = TestClient(app).put(
+
+def test_put_project_route_updates_project_and_returns_incremented_version() -> None:
+    client, repository = build_test_client()
+    project_id = repository.project.id
+
+    response = client.put(
         f"/projects/{project_id}",
         json={
             "name": "Updated project",
             "project_type": "fullstack",
             "status": "archived",
-            "version": 2,
+            "version": 1,
             "description": "Updated description",
             "metadata": {"environment": "production"},
         },
@@ -86,7 +97,6 @@ def test_put_project_route_updates_project_and_returns_api_data() -> None:
     body = response.json()
     assert body["message"] == "Project updated successfully"
     assert body["data"]["id"] == str(project_id)
-    assert body["data"]["user_id"] == str(user_id)
     assert body["data"]["name"] == "Updated project"
     assert body["data"]["slug"] == "updated-project"
     assert body["data"]["project_type"] == "fullstack"
@@ -94,3 +104,22 @@ def test_put_project_route_updates_project_and_returns_api_data() -> None:
     assert body["data"]["version"] == 2
     assert repository.updated_project is not None
     assert repository.updated_project.status is ProjectStatus.ARCHIVED
+    assert repository.expected_version == 1
+
+
+def test_put_project_route_returns_conflict_for_stale_version() -> None:
+    client, repository = build_test_client(project_version=3)
+
+    response = client.put(
+        f"/projects/{repository.project.id}",
+        json={
+            "name": "Stale update",
+            "project_type": "software",
+            "status": "active",
+            "version": 2,
+        },
+    )
+
+    assert response.status_code == 409
+    assert "current version is 3" in response.json()["message"]
+    assert repository.updated_project is None

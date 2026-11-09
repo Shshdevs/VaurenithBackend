@@ -104,7 +104,7 @@ def build_project_route(
             description=request.description,
             project_type=request.project_type,
             status=request.status,
-            version=request.version,
+            expected_version=request.version,
             metadata=request.metadata,
         )
 
