@@ -11,7 +11,7 @@ from app.application.identity.use_cases import (
     VerifyIdentityToken,
 )
 from app.bootstrap.dependencies.database import get_database_session
-from app.bootstrap.providers import (
+from app.bootstrap.providers.identity import (
     provide_authenticate_identity,
     provide_create_user,
     provide_current_user,

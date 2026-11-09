@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.bootstrap.dependencies import get_database_session
+from app.bootstrap.dependencies.database import get_database_session
 from app.main import create_app
 
 
