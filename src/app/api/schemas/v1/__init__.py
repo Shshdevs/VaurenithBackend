@@ -11,6 +11,12 @@ from app.api.schemas.v1.infrastructure.device_group import DeviceGroup
 from app.api.schemas.v1.infrastructure.device_group_create import DeviceGroupCreateRequest
 from app.api.schemas.v1.infrastructure.device_group_update import DeviceGroupUpdateRequest
 from app.api.schemas.v1.infrastructure.device_update import DeviceUpdateRequest
+from app.api.schemas.v1.infrastructure.service import ServiceData
+from app.api.schemas.v1.infrastructure.service_create import ServiceCreateRequest
+from app.api.schemas.v1.infrastructure.service_status_update import (
+    ServiceStatusUpdateRequest,
+)
+from app.api.schemas.v1.infrastructure.service_update import ServiceUpdateRequest
 from app.api.schemas.v1.projects.environment import EnvironmentData
 from app.api.schemas.v1.projects.environment_create import EnvironmentCreateRequest
 from app.api.schemas.v1.projects.environment_update import EnvironmentUpdateRequest
@@ -39,6 +45,10 @@ __all__ = [
     "Device",
     "DeviceCreateRequest",
     "DeviceUpdateRequest",
+    "ServiceData",
+    "ServiceCreateRequest",
+    "ServiceUpdateRequest",
+    "ServiceStatusUpdateRequest",
     "DependencyHealth",
     "LivenessData",
     "ReadinessData",
