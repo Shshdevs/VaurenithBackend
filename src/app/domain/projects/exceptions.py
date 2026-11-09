@@ -9,5 +9,5 @@ class InvalidProject(DomainError):
     pass
 
 
-class InvalidProjectDeviceRelation(DomainError):
+class InvalidProjectDevice(DomainError):
     pass

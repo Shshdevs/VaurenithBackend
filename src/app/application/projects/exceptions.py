@@ -19,3 +19,13 @@ class EnvironmentNotFound(NotFound):
 class EnvironmentDeletionConflict(Conflict):
     def __init__(self, environment_id: str) -> None:
         super().__init__(f"Environment with id {environment_id} has dependent records")
+
+
+class ProjectDeviceNotFound(NotFound):
+    def __init__(self, project_device_id: str) -> None:
+        super().__init__(f"ProjectDevice with id {project_device_id} not found")
+
+
+class ProjectDeviceDeletionConflict(Conflict):
+    def __init__(self, project_device_id: str) -> None:
+        super().__init__(f"ProjectDevice with id {project_device_id} has dependent records")
