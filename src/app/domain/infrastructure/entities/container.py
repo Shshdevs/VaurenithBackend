@@ -22,14 +22,14 @@ class Container(Entity):
         self,
         entity_id: EntityId,
         device_id: EntityId,
-        container_runtime_id: str,
-        name: str,
+        container_runtime_id: ContainerRuntimeId,
+        name: ContainerName,
         created_at: datetime,
         updated_at: datetime,
         project_id: EntityId | None = None,
         environment_id: EntityId | None = None,
         service_id: EntityId | None = None,
-        image: str | None = None,
+        image: ContainerImage | None = None,
         status: ContainerStatus = ContainerStatus.UNKNOWN,
         ports: Any | None = None,
         volumes: Any | None = None,
@@ -51,11 +51,12 @@ class Container(Entity):
                     f"{field_name.capitalize()} identifier must be a UUID"
                 )
 
-        runtime_id_value = ContainerRuntimeId(container_runtime_id)
-        container_name = ContainerName(name)
-        container_image = None
-        if image is not None and not (isinstance(image, str) and not image.strip()):
-            container_image = ContainerImage(image)
+        if not isinstance(container_runtime_id, ContainerRuntimeId):
+            raise InvalidContainer("Container runtime ID must be a ContainerRuntimeId")
+        if not isinstance(name, ContainerName):
+            raise InvalidContainer("Container name must be a ContainerName")
+        if image is not None and not isinstance(image, ContainerImage):
+            raise InvalidContainer("Container image must be a ContainerImage")
         if not isinstance(status, ContainerStatus):
             raise InvalidContainer("Container status is invalid")
         if not isinstance(version, int) or isinstance(version, bool) or version < 1:
@@ -81,9 +82,9 @@ class Container(Entity):
         self._project_id = project_id
         self._environment_id = environment_id
         self._service_id = service_id
-        self._container_runtime_id = runtime_id_value
-        self._name = container_name
-        self._image = container_image
+        self._container_runtime_id = container_runtime_id
+        self._name = name
+        self._image = image
         self._status = status
         self._ports = deepcopy(ports)
         self._volumes = deepcopy(volumes)

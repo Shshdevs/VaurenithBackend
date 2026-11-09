@@ -87,7 +87,10 @@ def build_device_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[Device]:
         device = await update_device.execute(
-            identity=identity, device_id=device_id, **request.model_dump()
+            identity=identity,
+            device_id=device_id,
+            expected_version=request.version,
+            **request.model_dump(exclude={"version"}),
         )
         return ApiResponse[Device](
             status=format_http_status(status.HTTP_200_OK),

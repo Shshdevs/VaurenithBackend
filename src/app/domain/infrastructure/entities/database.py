@@ -23,7 +23,7 @@ class Database(Entity):
         self,
         entity_id: EntityId,
         device_id: EntityId,
-        name: str,
+        name: DatabaseResourceName,
         dbms_type: DbmsType,
         created_at: datetime,
         updated_at: datetime,
@@ -31,9 +31,8 @@ class Database(Entity):
         environment_id: EntityId | None = None,
         container_id: EntityId | None = None,
         service_id: EntityId | None = None,
-        host: str | None = None,
-        port: int | None = None,
-        database_name: str | None = None,
+        endpoint: DatabaseEndpoint | None = None,
+        database_name: DatabaseCatalogName | None = None,
         status: ResourceStatus = ResourceStatus.UNKNOWN,
         last_checked_at: datetime | None = None,
         metadata: Any | None = None,
@@ -52,17 +51,14 @@ class Database(Entity):
                     f"{field_name.capitalize()} identifier must be a UUID"
                 )
 
-        resource_name = DatabaseResourceName(name)
-        endpoint = None
-        if host is not None or port is not None:
-            endpoint_value = DatabaseEndpoint(host=host, port=port)
-            if endpoint_value.host is not None or endpoint_value.port is not None:
-                endpoint = endpoint_value
-        catalog_name = None
-        if database_name is not None and not (
-            isinstance(database_name, str) and not database_name.strip()
-        ):
-            catalog_name = DatabaseCatalogName(database_name)
+        if not isinstance(name, DatabaseResourceName):
+            raise InvalidDatabase("Database resource name must be a DatabaseResourceName")
+        if endpoint is not None and not isinstance(endpoint, DatabaseEndpoint):
+            raise InvalidDatabase("Database endpoint must be a DatabaseEndpoint")
+        if endpoint is not None and endpoint.host is None and endpoint.port is None:
+            endpoint = None
+        if database_name is not None and not isinstance(database_name, DatabaseCatalogName):
+            raise InvalidDatabase("Database name must be a DatabaseCatalogName")
         if not isinstance(dbms_type, DbmsType):
             raise InvalidDatabase("Database management system type is invalid")
         if not isinstance(status, ResourceStatus):
@@ -87,10 +83,10 @@ class Database(Entity):
         self._environment_id = environment_id
         self._container_id = container_id
         self._service_id = service_id
-        self._name = resource_name
+        self._name = name
         self._dbms_type = dbms_type
         self._endpoint = endpoint
-        self._database_name = catalog_name
+        self._database_name = database_name
         self._status = status
         self._last_checked_at = last_checked_at
         self._metadata = deepcopy(metadata)

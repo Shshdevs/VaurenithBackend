@@ -40,10 +40,15 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
         self._session.add(self._to_model(device))
         await self._session.commit()
 
-    async def update(self, identity: VerifiedIdentity, device: DeviceEntity) -> bool:
+    async def update(
+        self, identity: VerifiedIdentity, device: DeviceEntity, expected_version: int
+    ) -> bool:
         result = await self._session.execute(
             update(DeviceModel)
-            .where(self._owned_active_device(identity, device.id))
+            .where(
+                self._owned_active_device(identity, device.id),
+                DeviceModel.version == expected_version,
+            )
             .values(
                 name=device.name,
                 hostname=device.hostname,
@@ -53,7 +58,7 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
                 os_version=device.os_version,
                 architecture=device.architecture,
                 tags=device.tags,
-                version=device.version,
+                version=expected_version + 1,
                 updated_at=device.updated_at,
             )
             .returning(DeviceModel.id)

@@ -3,7 +3,9 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from app.application.common.exceptions import InvalidInput
+from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import EnvironmentData
+from app.application.projects.exceptions import ProjectNotFound
 from app.application.projects.interfaces import EnvironmentRepository
 from app.domain.projects import (
     Environment,
@@ -19,6 +21,7 @@ class CreateEnvironment:
 
     async def execute(
         self,
+        identity: VerifiedIdentity,
         project_id: UUID,
         name: str,
         environment_type: EnvironmentType,
@@ -42,5 +45,6 @@ class CreateEnvironment:
             )
         except (InvalidEnvironment, ValueError) as error:
             raise InvalidInput(str(error)) from error
-        await self._environment_repository.create(environment=environment)
+        if not await self._environment_repository.create(identity, environment):
+            raise ProjectNotFound(str(project_id))
         return EnvironmentData.from_environment(environment=environment)

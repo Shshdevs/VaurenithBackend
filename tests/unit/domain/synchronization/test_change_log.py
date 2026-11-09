@@ -33,6 +33,7 @@ def test_change_log_exposes_fields_and_copies_payload() -> None:
     assert change_log.version == 1
     assert change_log.payload == {"items": [1]}
     returned = change_log.payload
+    assert returned is not None
     returned["items"].append(3)
     assert change_log.payload == {"items": [1]}
 

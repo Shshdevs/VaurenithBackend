@@ -44,8 +44,11 @@ class FakeDeviceRepository:
     async def create(self, device: Device) -> None:
         self.devices[device.id] = device
 
-    async def update(self, identity: VerifiedIdentity, device: Device) -> bool:
-        if await self.get_by_id(identity, device.id) is None:
+    async def update(
+        self, identity: VerifiedIdentity, device: Device, expected_version: int
+    ) -> bool:
+        existing = await self.get_by_id(identity, device.id)
+        if existing is None or existing.version != expected_version:
             return False
         self.devices[device.id] = device
         return True
@@ -144,7 +147,12 @@ def test_device_routes_support_create_list_get_update_and_soft_delete() -> None:
 
     updated = client.put(
         f"/devices/{device_id}",
-        json={"name": "worker-02", "device_type": "cloud", "tags": ["staging"]},
+        json={
+            "name": "worker-02",
+            "device_type": "cloud",
+            "tags": ["staging"],
+            "version": data["version"],
+        },
     )
     assert updated.status_code == 200
     assert updated.json()["data"]["name"] == "worker-02"

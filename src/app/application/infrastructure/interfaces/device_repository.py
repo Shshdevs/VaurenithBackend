@@ -15,7 +15,9 @@ class DeviceRepository(Protocol):
 
     async def create(self, device: Device) -> None: ...
 
-    async def update(self, identity: VerifiedIdentity, device: Device) -> bool: ...
+    async def update(
+        self, identity: VerifiedIdentity, device: Device, expected_version: int
+    ) -> bool: ...
 
     async def delete(
         self, identity: VerifiedIdentity, device_id: UUID, deleted_at: datetime
