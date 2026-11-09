@@ -1,8 +1,9 @@
 from uuid import UUID
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, exists, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.selectable import Exists
 
 from app.application.identity import VerifiedIdentity
 from app.application.infrastructure.exceptions import (
@@ -23,9 +24,7 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
         self, identity: VerifiedIdentity, device_group_id: UUID
     ) -> DeviceGroupEntity | None:
         result = await self._session.execute(
-            select(DeviceGroup).where(
-                DeviceGroup.id == device_group_id, DeviceGroup.user_id == identity.user_id
-            )
+            select(DeviceGroup).where(self._owned_group(identity, device_group_id))
         )
         model = result.scalar_one_or_none()
         return self._to_entity(model) if model else None
@@ -46,9 +45,7 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
     ) -> bool:
         statement = (
             update(DeviceGroup)
-            .where(
-                DeviceGroup.id == device_group.id, DeviceGroup.user_id == identity.user_id
-            )
+            .where(self._owned_group(identity, device_group.id))
             .values(
                 user_id=device_group.user_id,
                 name=device_group.name,
@@ -72,9 +69,7 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
     async def delete(self, identity: VerifiedIdentity, device_group_id: UUID) -> bool:
         statement = (
             delete(DeviceGroup)
-            .where(
-                DeviceGroup.id == device_group_id, DeviceGroup.user_id == identity.user_id
-            )
+            .where(self._owned_group(identity, device_group_id))
             .returning(DeviceGroup.id)
         )
         try:
@@ -87,6 +82,15 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
             raise
 
         return result.scalar_one_or_none() is not None
+
+    @staticmethod
+    def _owned_group(identity: VerifiedIdentity, group_id: UUID) -> Exists:
+        return exists(
+            select(DeviceGroup.id).where(
+                DeviceGroup.id == group_id,
+                DeviceGroup.user_id == identity.user_id,
+            )
+        )
 
     def _to_entity(self, model: DeviceGroup) -> DeviceGroupEntity:
         return DeviceGroupEntity(
