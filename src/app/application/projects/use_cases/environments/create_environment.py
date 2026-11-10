@@ -7,7 +7,7 @@ from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import EnvironmentData
 from app.application.projects.exceptions import ProjectNotFound
 from app.application.projects.interfaces import EnvironmentRepository
-from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.application.synchronization.interfaces import ChangeRecorder
 from app.domain.common.enums import EntityType
 from app.domain.projects import (
     Environment,

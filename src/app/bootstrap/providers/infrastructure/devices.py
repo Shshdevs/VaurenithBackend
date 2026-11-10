@@ -7,7 +7,7 @@ from app.application.infrastructure.use_cases.device import (
     GetUserDevices,
     UpdateDevice,
 )
-from app.application.synchronization.change_log import RecordChange
+from app.application.synchronization import RecordChange
 from app.infrastructure.persistence.repositories.infrastructure import (
     SqlAlchemyDeviceRepository,
 )

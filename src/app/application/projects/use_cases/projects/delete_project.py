@@ -3,7 +3,7 @@ from uuid import UUID
 from app.application.identity.dto import VerifiedIdentity
 from app.application.projects.exceptions import ProjectNotFound
 from app.application.projects.interfaces import ProjectRepository
-from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.application.synchronization.interfaces import ChangeRecorder
 from app.domain.common.enums import EntityType
 from app.domain.synchronization import ChangeOperation
 

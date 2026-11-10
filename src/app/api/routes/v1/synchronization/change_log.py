@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, Query, status
 from app.api.schemas.response import ApiResponse, format_http_status
 from app.api.schemas.v1 import ChangeLogData
 from app.application.identity import VerifiedIdentity
-from app.application.synchronization.change_log import GetUserChangeLog
+from app.application.synchronization import GetUserChangeLog
 
 
 def build_change_log_route(

@@ -1,6 +1,6 @@
 from app.application.identity import VerifiedIdentity
-from app.application.synchronization.change_log.dto import ChangeLogData
-from app.application.synchronization.change_log.interfaces import ChangeLogRepository
+from app.application.synchronization.dto import ChangeLogData
+from app.application.synchronization.interfaces import ChangeLogRepository
 
 
 class GetUserChangeLog:

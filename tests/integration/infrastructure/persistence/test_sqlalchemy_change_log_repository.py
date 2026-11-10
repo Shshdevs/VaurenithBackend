@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app.application.identity import VerifiedIdentity
 from app.application.projects.use_cases.projects import CreateProject
-from app.application.synchronization.change_log import RecordChange
+from app.application.synchronization import RecordChange
 from app.core.config import get_settings
 from app.domain.common.enums import EntityType
 from app.domain.identity import EmailAddress, TokenHash

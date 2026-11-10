@@ -8,7 +8,7 @@ from app.application.infrastructure.interfaces import DeviceRepository
 from app.application.infrastructure.use_cases.device.operating_system import (
     build_operating_system_info,
 )
-from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.application.synchronization.interfaces import ChangeRecorder
 from app.domain.common.enums import EntityType
 from app.domain.infrastructure import Device, DeviceName, InvalidDevice
 from app.domain.infrastructure.enums import DeviceType

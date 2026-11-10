@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.synchronization.change_log import GetUserChangeLog
+from app.application.synchronization import GetUserChangeLog
 from app.bootstrap.dependencies.database import get_database_session
 from app.bootstrap.providers.synchronization import provide_get_user_change_log
 

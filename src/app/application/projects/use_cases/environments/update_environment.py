@@ -10,7 +10,7 @@ from app.application.projects.exceptions import (
     EnvironmentVersionConflict,
 )
 from app.application.projects.interfaces import EnvironmentRepository
-from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.application.synchronization.interfaces import ChangeRecorder
 from app.domain.common.enums import EntityType
 from app.domain.projects import (
     Environment,

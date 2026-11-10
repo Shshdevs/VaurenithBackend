@@ -7,7 +7,7 @@ from app.application.projects.use_cases.environments import (
     GetProjectEnvironments,
     UpdateEnvironment,
 )
-from app.application.synchronization.change_log import RecordChange
+from app.application.synchronization import RecordChange
 from app.infrastructure.persistence.repositories.projects import (
     SqlAlchemyEnvironmentRepository,
 )
