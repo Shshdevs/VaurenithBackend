@@ -3,6 +3,8 @@ from typing import Any
 from uuid import uuid4
 
 from app.application.common.exceptions import InvalidInput
+from app.application.common.transactional import transactional
+from app.application.common.unit_of_work import UnitOfWork
 from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import ProjectData
 from app.application.projects.interfaces import ProjectRepository
@@ -20,11 +22,16 @@ from app.domain.synchronization import ChangeOperation
 
 class CreateProject:
     def __init__(
-        self, project_repository: ProjectRepository, recorder: ChangeRecorder
+        self,
+        project_repository: ProjectRepository,
+        recorder: ChangeRecorder,
+        unit_of_work: UnitOfWork,
     ) -> None:
         self._project_repository = project_repository
         self._recorder = recorder
+        self._unit_of_work = unit_of_work
 
+    @transactional
     async def execute(
         self,
         identity: VerifiedIdentity,

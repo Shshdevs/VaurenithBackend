@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
-from tests.support import NoOpRecordChange
+from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
@@ -93,7 +93,7 @@ def make_device(user_id: UUID) -> Device:
 async def test_create_device_binds_owner_and_normalizes_fields() -> None:
     identity = make_identity()
     repository = FakeDeviceRepository()
-    result = await CreateDevice(repository, NoOpRecordChange()).execute(
+    result = await CreateDevice(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
         identity=identity,
         name=" worker-01 ",
         device_type=DeviceType.VPS,
@@ -114,11 +114,11 @@ async def test_create_device_binds_owner_and_normalizes_fields() -> None:
 async def test_create_device_rejects_invalid_values() -> None:
     repository = FakeDeviceRepository()
     with pytest.raises(InvalidInput):
-        await CreateDevice(repository, NoOpRecordChange()).execute(
+        await CreateDevice(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             identity=make_identity(), name="  ", device_type=DeviceType.VPS
         )
     with pytest.raises(InvalidInput):
-        await CreateDevice(repository, NoOpRecordChange()).execute(
+        await CreateDevice(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             identity=make_identity(),
             name="worker",
             device_type=DeviceType.VPS,
@@ -151,7 +151,7 @@ async def test_update_preserves_identity_timestamps_and_increments_version() -> 
     repository = FakeDeviceRepository()
     repository.devices[existing.id] = existing
 
-    updated = await UpdateDevice(repository, NoOpRecordChange()).execute(
+    updated = await UpdateDevice(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
         identity=identity,
         device_id=existing.id,
         expected_version=existing.version,
@@ -169,7 +169,7 @@ async def test_update_preserves_identity_timestamps_and_increments_version() -> 
     assert updated.operating_system is None
 
     with pytest.raises(DeviceVersionConflict):
-        await UpdateDevice(repository, NoOpRecordChange()).execute(
+        await UpdateDevice(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             identity=identity,
             device_id=existing.id,
             expected_version=existing.version,
@@ -182,7 +182,7 @@ async def test_update_preserves_identity_timestamps_and_increments_version() -> 
 async def test_update_rejects_missing_or_invalid_device() -> None:
     identity = make_identity()
     repository = FakeDeviceRepository()
-    use_case = UpdateDevice(repository, NoOpRecordChange())
+    use_case = UpdateDevice(repository, NoOpRecordChange(), NoOpUnitOfWork())
     with pytest.raises(DeviceNotFound):
         await use_case.execute(
             identity=identity,
@@ -212,7 +212,7 @@ async def test_delete_hides_device_and_rejects_other_owners() -> None:
     device = make_device(identity.user_id)
     repository = FakeDeviceRepository()
     repository.devices[device.id] = device
-    use_case = DeleteDevice(repository, NoOpRecordChange())
+    use_case = DeleteDevice(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     await use_case.execute(identity, device.id)
     assert await GetUserDevices(repository).execute(identity) == []

@@ -2,6 +2,8 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from app.application.common.exceptions import InvalidInput
+from app.application.common.transactional import transactional
+from app.application.common.unit_of_work import UnitOfWork
 from app.application.identity import VerifiedIdentity
 from app.application.infrastructure.dto import DeviceData
 from app.application.infrastructure.exceptions import DeviceNotFound, DeviceVersionConflict
@@ -18,11 +20,16 @@ from app.domain.synchronization import ChangeOperation
 
 class UpdateDevice:
     def __init__(
-        self, device_repository: DeviceRepository, recorder: ChangeRecorder
+        self,
+        device_repository: DeviceRepository,
+        recorder: ChangeRecorder,
+        unit_of_work: UnitOfWork,
     ) -> None:
         self._device_repository = device_repository
         self._recorder = recorder
+        self._unit_of_work = unit_of_work
 
+    @transactional
     async def execute(
         self,
         identity: VerifiedIdentity,

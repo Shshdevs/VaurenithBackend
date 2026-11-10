@@ -27,6 +27,7 @@ from app.infrastructure.persistence.repositories.projects import (
 from app.infrastructure.persistence.repositories.synchronization import (
     SqlAlchemyChangeLogRepository,
 )
+from app.infrastructure.persistence.sqlalchemy_unit_of_work import SqlAlchemyUnitOfWork
 
 
 def assert_test_database_is_separate(test_database_url: str) -> None:
@@ -258,6 +259,7 @@ async def test_project_and_change_log_share_transaction() -> None:
                 use_case = CreateProject(
                     SqlAlchemyProjectRepository(session),
                     RecordChange(SqlAlchemyChangeLogRepository(session)),
+                    SqlAlchemyUnitOfWork(session),
                 )
 
                 project = await use_case.execute(

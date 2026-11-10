@@ -14,12 +14,14 @@ from app.infrastructure.persistence.repositories.infrastructure import (
 from app.infrastructure.persistence.repositories.synchronization import (
     SqlAlchemyChangeLogRepository,
 )
+from app.infrastructure.persistence.sqlalchemy_unit_of_work import SqlAlchemyUnitOfWork
 
 
 def provide_create_device(session: AsyncSession) -> CreateDevice:
     return CreateDevice(
         SqlAlchemyDeviceRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
@@ -35,6 +37,7 @@ def provide_update_device(session: AsyncSession) -> UpdateDevice:
     return UpdateDevice(
         SqlAlchemyDeviceRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
@@ -42,4 +45,5 @@ def provide_delete_device(session: AsyncSession) -> DeleteDevice:
     return DeleteDevice(
         SqlAlchemyDeviceRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )

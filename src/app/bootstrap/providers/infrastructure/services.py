@@ -18,12 +18,14 @@ from app.infrastructure.persistence.repositories.infrastructure import (
 from app.infrastructure.persistence.repositories.synchronization import (
     SqlAlchemyChangeLogRepository,
 )
+from app.infrastructure.persistence.sqlalchemy_unit_of_work import SqlAlchemyUnitOfWork
 
 
 def provide_create_service(session: AsyncSession) -> CreateService:
     return CreateService(
         SqlAlchemyServiceRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
@@ -51,6 +53,7 @@ def provide_update_service(session: AsyncSession) -> UpdateService:
     return UpdateService(
         SqlAlchemyServiceRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
@@ -58,6 +61,7 @@ def provide_update_service_status(session: AsyncSession) -> UpdateServiceStatus:
     return UpdateServiceStatus(
         SqlAlchemyServiceRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
@@ -65,4 +69,5 @@ def provide_delete_service(session: AsyncSession) -> DeleteService:
     return DeleteService(
         SqlAlchemyServiceRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )

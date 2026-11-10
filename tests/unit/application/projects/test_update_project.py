@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
-from tests.support import NoOpRecordChange
+from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
@@ -72,7 +72,7 @@ async def test_update_project_persists_changes_and_returns_project_data() -> Non
     identity = make_identity()
     existing_project = make_project(identity.user_id)
     repository = FakeProjectRepository(existing_project)
-    use_case = UpdateProject(repository, NoOpRecordChange())
+    use_case = UpdateProject(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     result = await use_case.execute(
         identity=identity,
@@ -109,7 +109,7 @@ async def test_update_project_rejects_project_owned_by_another_user() -> None:
     identity = make_identity()
     existing_project = make_project(uuid4())
     repository = FakeProjectRepository(existing_project)
-    use_case = UpdateProject(repository, NoOpRecordChange())
+    use_case = UpdateProject(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(ProjectNotFound):
         await use_case.execute(
@@ -132,7 +132,7 @@ async def test_update_project_reports_conflict_if_repository_rejects_update() ->
     identity = make_identity()
     existing_project = make_project(identity.user_id)
     repository = FakeProjectRepository(existing_project, update_result=False)
-    use_case = UpdateProject(repository, NoOpRecordChange())
+    use_case = UpdateProject(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(ProjectVersionConflict):
         await use_case.execute(
@@ -154,7 +154,7 @@ async def test_update_project_rejects_invalid_name_without_persisting() -> None:
     identity = make_identity()
     existing_project = make_project(identity.user_id)
     repository = FakeProjectRepository(existing_project)
-    use_case = UpdateProject(repository, NoOpRecordChange())
+    use_case = UpdateProject(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(InvalidInput):
         await use_case.execute(
@@ -178,7 +178,7 @@ async def test_update_project_rejects_stale_expected_version_before_writing() ->
     repository = FakeProjectRepository(existing_project)
 
     with pytest.raises(ProjectVersionConflict, match="current version is 4"):
-        await UpdateProject(repository, NoOpRecordChange()).execute(
+        await UpdateProject(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             identity=identity,
             project_id=existing_project.id,
             name="Updated project",

@@ -14,12 +14,14 @@ from app.infrastructure.persistence.repositories.projects import (
 from app.infrastructure.persistence.repositories.synchronization import (
     SqlAlchemyChangeLogRepository,
 )
+from app.infrastructure.persistence.sqlalchemy_unit_of_work import SqlAlchemyUnitOfWork
 
 
 def provide_create_environment(session: AsyncSession) -> CreateEnvironment:
     return CreateEnvironment(
         SqlAlchemyEnvironmentRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
@@ -35,6 +37,7 @@ def provide_update_environment(session: AsyncSession) -> UpdateEnvironment:
     return UpdateEnvironment(
         SqlAlchemyEnvironmentRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
@@ -42,6 +45,7 @@ def provide_delete_environment(session: AsyncSession) -> DeleteEnvironment:
     return DeleteEnvironment(
         SqlAlchemyEnvironmentRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
