@@ -10,7 +10,7 @@ from app.application.infrastructure.interfaces import ServiceRepository
 from app.application.infrastructure.use_cases.service.system_identifier import (
     build_system_identifier,
 )
-from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.application.synchronization.interfaces import ChangeRecorder
 from app.domain.common.enums import EntityType
 from app.domain.infrastructure import InvalidService, Service, ServiceName
 from app.domain.infrastructure.enums import ResourceStatus, ServiceType

@@ -5,7 +5,7 @@ import pytest
 
 from app.application.identity import VerifiedIdentity
 from app.application.projects.use_cases.projects import CreateProject
-from app.application.synchronization.change_log import GetUserChangeLog, RecordChange
+from app.application.synchronization import GetUserChangeLog, RecordChange
 from app.domain.common.enums import EntityType
 from app.domain.identity import EmailAddress, TokenHash
 from app.domain.projects.enums import ProjectType

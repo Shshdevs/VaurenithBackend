@@ -3,7 +3,7 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from app.application.identity import VerifiedIdentity
-from app.application.synchronization.change_log.interfaces import ChangeLogRepository
+from app.application.synchronization.interfaces import ChangeLogRepository
 from app.domain.common.enums import EntityType
 from app.domain.synchronization import ChangeLog, ChangeOperation
 

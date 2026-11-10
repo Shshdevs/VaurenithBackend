@@ -7,7 +7,7 @@ from app.application.projects.use_cases.projects import (
     GetUserProjects,
     UpdateProject,
 )
-from app.application.synchronization.change_log import RecordChange
+from app.application.synchronization import RecordChange
 from app.infrastructure.persistence.repositories.projects import SqlAlchemyProjectRepository
 from app.infrastructure.persistence.repositories.synchronization import (
     SqlAlchemyChangeLogRepository,

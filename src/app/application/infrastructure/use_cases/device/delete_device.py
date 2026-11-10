@@ -4,7 +4,7 @@ from uuid import UUID
 from app.application.identity import VerifiedIdentity
 from app.application.infrastructure.exceptions import DeviceNotFound
 from app.application.infrastructure.interfaces import DeviceRepository
-from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.application.synchronization.interfaces import ChangeRecorder
 from app.domain.common.enums import EntityType
 from app.domain.synchronization import ChangeOperation
 

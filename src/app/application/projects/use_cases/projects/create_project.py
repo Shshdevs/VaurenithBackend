@@ -6,7 +6,7 @@ from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import ProjectData
 from app.application.projects.interfaces import ProjectRepository
-from app.application.synchronization.change_log.interfaces import ChangeRecorder
+from app.application.synchronization.interfaces import ChangeRecorder
 from app.domain.common.enums import EntityType
 from app.domain.projects import (
     InvalidProject,
