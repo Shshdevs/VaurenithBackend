@@ -50,6 +50,7 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
                 name=device_group.name,
                 description=device_group.description,
                 updated_at=device_group.updated_at,
+                version=DeviceGroup.version + 1,
             )
             .returning(DeviceGroup.id)
         )
@@ -95,6 +96,7 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
             description=model.description,
             created_at=model.created_at,
             updated_at=model.updated_at,
+            version=model.version,
         )
 
     def _to_model(self, entity: DeviceGroupEntity) -> DeviceGroup:
@@ -105,4 +107,5 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
             description=entity.description,
             created_at=entity.created_at,
             updated_at=entity.updated_at,
+            version=entity.version,
         )

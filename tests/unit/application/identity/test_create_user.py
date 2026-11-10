@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
+from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.application.identity.dto import VerifiedIdentity
 from app.application.identity.exceptions import InvalidIdentity
@@ -42,7 +43,7 @@ def make_identity(email: str = "user@example.com") -> VerifiedIdentity:
 async def test_create_user_registers_user_and_session() -> None:
     identity = make_identity()
     repository = FakeUserRepository()
-    use_case = CreateUser(repository)
+    use_case = CreateUser(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     result = await use_case.execute(
         identity=identity,
@@ -77,7 +78,7 @@ async def test_create_user_registers_user_and_session() -> None:
 @pytest.mark.anyio
 async def test_create_user_rejects_email_that_differs_from_identity() -> None:
     repository = FakeUserRepository()
-    use_case = CreateUser(repository)
+    use_case = CreateUser(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(InvalidIdentity, match="Email does not match verified identity"):
         await use_case.execute(
@@ -95,7 +96,7 @@ async def test_create_user_rejects_email_that_differs_from_identity() -> None:
 @pytest.mark.anyio
 async def test_create_user_rejects_invalid_email() -> None:
     repository = FakeUserRepository()
-    use_case = CreateUser(repository)
+    use_case = CreateUser(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(InvalidIdentity, match="Email does not match verified identity"):
         await use_case.execute(

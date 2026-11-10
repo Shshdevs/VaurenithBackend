@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
+from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
@@ -93,7 +94,7 @@ class SyncStateRepositoryStub:
 async def test_create_sync_state_persists_state_for_authenticated_user() -> None:
     identity = make_identity()
     repository = SyncStateRepositoryStub()
-    use_case = CreateSyncState(repository)
+    use_case = CreateSyncState(repository, NoOpRecordChange(), NoOpUnitOfWork())
     client_device_id = uuid4()
     entity_id = uuid4()
 
@@ -122,7 +123,7 @@ async def test_create_sync_state_persists_state_for_authenticated_user() -> None
 @pytest.mark.anyio
 async def test_create_sync_state_rejects_invalid_domain_values() -> None:
     repository = SyncStateRepositoryStub()
-    use_case = CreateSyncState(repository)
+    use_case = CreateSyncState(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(InvalidInput):
         await use_case.execute(
@@ -144,7 +145,7 @@ async def test_create_sync_state_rejects_device_not_owned_by_user() -> None:
     repository.create_result = False
 
     with pytest.raises(InvalidInput):
-        await CreateSyncState(repository).execute(
+        await CreateSyncState(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             make_identity(),
             uuid4(),
             EntityType.PROJECT,
@@ -159,7 +160,9 @@ async def test_create_sync_state_rejects_device_not_owned_by_user() -> None:
 async def test_create_sync_state_does_not_claim_unsynced_state_was_synced() -> None:
     repository = SyncStateRepositoryStub()
 
-    result = await CreateSyncState(repository).execute(
+    result = await CreateSyncState(
+        repository, NoOpRecordChange(), NoOpUnitOfWork()
+    ).execute(
         make_identity(),
         uuid4(),
         EntityType.PROJECT,
@@ -177,7 +180,9 @@ async def test_create_sync_state_supports_device_cursor_without_entity_versions(
     identity = make_identity()
     repository = SyncStateRepositoryStub()
 
-    result = await CreateSyncState(repository).execute(
+    result = await CreateSyncState(
+        repository, NoOpRecordChange(), NoOpUnitOfWork()
+    ).execute(
         identity,
         uuid4(),
         entity_type=None,
@@ -200,7 +205,7 @@ async def test_create_sync_state_rejects_only_one_entity_identifier() -> None:
     repository = SyncStateRepositoryStub()
 
     with pytest.raises(InvalidInput):
-        await CreateSyncState(repository).execute(
+        await CreateSyncState(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             make_identity(),
             uuid4(),
             entity_type=EntityType.PROJECT,
@@ -243,7 +248,9 @@ async def test_update_sync_state_increments_version_and_clears_last_error() -> N
     repository = SyncStateRepositoryStub()
     repository.states = [existing]
 
-    result = await UpdateSyncState(repository).execute(
+    result = await UpdateSyncState(
+        repository, NoOpRecordChange(), NoOpUnitOfWork()
+    ).execute(
         existing.id,
         identity,
         expected_version=3,
@@ -274,7 +281,7 @@ async def test_update_sync_state_rejects_stale_expected_version() -> None:
     repository.states = [existing]
 
     with pytest.raises(SyncStateVersionConflict):
-        await UpdateSyncState(repository).execute(
+        await UpdateSyncState(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             existing.id,
             identity,
             expected_version=3,
@@ -293,7 +300,9 @@ async def test_update_sync_state_preserves_last_synced_at_when_not_synced() -> N
     repository = SyncStateRepositoryStub()
     repository.states = [existing]
 
-    result = await UpdateSyncState(repository).execute(
+    result = await UpdateSyncState(
+        repository, NoOpRecordChange(), NoOpUnitOfWork()
+    ).execute(
         existing.id,
         identity,
         expected_version=3,
@@ -320,7 +329,7 @@ async def test_update_sync_state_detects_race_after_version_check() -> None:
     repository.update_result = False
 
     with pytest.raises(SyncStateVersionConflict) as error:
-        await UpdateSyncState(repository).execute(
+        await UpdateSyncState(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             existing.id,
             identity,
             expected_version=3,
@@ -341,7 +350,7 @@ async def test_update_sync_state_detects_deletion_during_update() -> None:
     repository.update_result = False
 
     with pytest.raises(SyncStateNotFound):
-        await UpdateSyncState(repository).execute(
+        await UpdateSyncState(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             existing.id,
             identity,
             expected_version=3,
@@ -358,7 +367,9 @@ async def test_update_sync_status_changes_status_without_changing_versions() -> 
     repository = SyncStateRepositoryStub()
     repository.states = [existing]
 
-    result = await UpdateSyncStatus(repository).execute(
+    result = await UpdateSyncStatus(
+        repository, NoOpRecordChange(), NoOpUnitOfWork()
+    ).execute(
         existing.id,
         identity,
         SyncStatus.FAILED,
@@ -389,7 +400,7 @@ async def test_update_sync_status_raises_version_conflict_after_concurrent_updat
     repository.update_result = False
 
     with pytest.raises(SyncStateUpdateConflict):
-        await UpdateSyncStatus(repository).execute(
+        await UpdateSyncStatus(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             existing.id,
             identity,
             SyncStatus.FAILED,
@@ -405,7 +416,7 @@ async def test_update_sync_status_raises_not_found_when_state_is_deleted() -> No
     repository.update_result = False
 
     with pytest.raises(SyncStateNotFound):
-        await UpdateSyncStatus(repository).execute(
+        await UpdateSyncStatus(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             existing.id,
             identity,
             SyncStatus.FAILED,
@@ -419,7 +430,9 @@ async def test_delete_sync_state_deletes_state_for_authenticated_user() -> None:
     repository = SyncStateRepositoryStub()
     repository.states = [existing]
 
-    await DeleteSyncState(repository).execute(identity, existing.id)
+    await DeleteSyncState(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
+        identity, existing.id
+    )
 
     assert repository.deleted == [(identity.user_id, existing.id)]
 
@@ -430,7 +443,9 @@ async def test_delete_sync_state_raises_when_state_is_missing() -> None:
     sync_state_id = uuid4()
 
     with pytest.raises(SyncStateNotFound):
-        await DeleteSyncState(SyncStateRepositoryStub()).execute(identity, sync_state_id)
+        await DeleteSyncState(
+            SyncStateRepositoryStub(), NoOpRecordChange(), NoOpUnitOfWork()
+        ).execute(identity, sync_state_id)
 
 
 @pytest.mark.anyio
@@ -442,4 +457,6 @@ async def test_delete_sync_state_raises_if_delete_reports_missing_state() -> Non
     repository.delete_result = False
 
     with pytest.raises(SyncStateNotFound):
-        await DeleteSyncState(repository).execute(identity, existing.id)
+        await DeleteSyncState(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
+            identity, existing.id
+        )

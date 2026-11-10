@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.api.middleware.error_handler import register_error_handlers
 from app.api.routes.v1.projects.project_device import build_project_device_route
@@ -102,13 +103,28 @@ def build_test_client(
         return identity
 
     def provide_link() -> LinkProjectDevice:
-        return LinkProjectDevice(project_device_repository, project_repository)
+        return LinkProjectDevice(
+            project_device_repository,
+            project_repository,
+            NoOpRecordChange(),
+            NoOpUnitOfWork(),
+        )
 
     def provide_update() -> UpdateProjectDevice:
-        return UpdateProjectDevice(project_device_repository, project_repository)
+        return UpdateProjectDevice(
+            project_device_repository,
+            project_repository,
+            NoOpRecordChange(),
+            NoOpUnitOfWork(),
+        )
 
     def provide_delete() -> DeleteProjectDevice:
-        return DeleteProjectDevice(project_device_repository, project_repository)
+        return DeleteProjectDevice(
+            project_device_repository,
+            project_repository,
+            NoOpRecordChange(),
+            NoOpUnitOfWork(),
+        )
 
     def provide_get_device_projects() -> GetDeviceProjects:
         return GetDeviceProjects(project_device_repository, project_repository)

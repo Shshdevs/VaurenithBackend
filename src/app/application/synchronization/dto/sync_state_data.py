@@ -14,6 +14,7 @@ class SyncStateData:
     user_id: UUID
     client_device_id: UUID
     updated_at: datetime
+    version: int
     entity_type: EntityType | None
     entity_id: UUID | None
     local_version: int | None
@@ -29,6 +30,7 @@ class SyncStateData:
             user_id=sync_state.user_id,
             client_device_id=sync_state.client_device_id,
             updated_at=sync_state.updated_at,
+            version=sync_state.version,
             entity_type=sync_state.entity_type,
             entity_id=sync_state.entity_id,
             local_version=sync_state.local_version,

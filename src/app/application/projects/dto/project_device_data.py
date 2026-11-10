@@ -14,6 +14,7 @@ class ProjectDeviceData:
     device_id: UUID
     role: str | None
     created_at: datetime
+    version: int
 
     @classmethod
     def from_project_device(cls, project_device: ProjectDevice) -> ProjectDeviceData:
@@ -23,4 +24,5 @@ class ProjectDeviceData:
             device_id=project_device.device_id,
             role=project_device.role,
             created_at=project_device.created_at,
+            version=project_device.version,
         )

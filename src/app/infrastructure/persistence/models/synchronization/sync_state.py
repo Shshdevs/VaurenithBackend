@@ -83,6 +83,9 @@ class SyncState(Base):
         nullable=False,
         server_default=text("'pending'"),
     )
+    version: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, server_default=text("1")
+    )
     last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_error: Mapped[str | None] = mapped_column(Text)
     updated_at: Mapped[datetime] = mapped_column(

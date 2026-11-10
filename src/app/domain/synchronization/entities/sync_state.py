@@ -27,6 +27,7 @@ class SyncState(Entity):
         status: SyncStatus = SyncStatus.PENDING,
         last_synced_at: datetime | None = None,
         last_error: str | None = None,
+        version: int = 1,
     ) -> None:
         for identifier, name in (
             (sync_state_id, "sync state"),
@@ -43,11 +44,13 @@ class SyncState(Entity):
             raise InvalidSyncState("Synchronized entity identifier must be a UUID")
         if not isinstance(status, SyncStatus):
             raise InvalidSyncState("Synchronization status is invalid")
-        for version, name in ((local_version, "local"), (server_version, "server")):
-            if version is not None and (
-                not isinstance(version, int)
-                or isinstance(version, bool)
-                or not 0 <= version <= self.MAX_VERSION
+        if not isinstance(version, int) or isinstance(version, bool) or version < 1:
+            raise InvalidSyncState("Sync state version must be positive")
+        for field_version, name in ((local_version, "local"), (server_version, "server")):
+            if field_version is not None and (
+                not isinstance(field_version, int)
+                or isinstance(field_version, bool)
+                or not 0 <= field_version <= self.MAX_VERSION
             ):
                 raise InvalidSyncState(
                     f"{name.capitalize()} version must be a non-negative 64-bit integer"
@@ -69,6 +72,7 @@ class SyncState(Entity):
         self._last_synced_at = last_synced_at
         self._last_error = last_error
         self._updated_at = updated_at
+        self._version = version
 
     @staticmethod
     def _validate_timestamp(value: datetime, name: str) -> None:
@@ -114,3 +118,7 @@ class SyncState(Entity):
     @property
     def updated_at(self) -> datetime:
         return self._updated_at
+
+    @property
+    def version(self) -> int:
+        return self._version

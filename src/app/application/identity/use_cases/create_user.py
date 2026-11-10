@@ -1,9 +1,13 @@
 from datetime import UTC, datetime
 from uuid import uuid4
 
+from app.application.common.transactional import transactional
+from app.application.common.unit_of_work import UnitOfWork
 from app.application.identity.dto import UserData, VerifiedIdentity
 from app.application.identity.exceptions import InvalidIdentity
 from app.application.identity.interfaces import UserRepository
+from app.application.synchronization.interfaces import ChangeRecorder
+from app.domain.common.enums import EntityType
 from app.domain.identity import (
     ClientDevice,
     EmailAddress,
@@ -12,12 +16,21 @@ from app.domain.identity import (
     Session,
     User,
 )
+from app.domain.synchronization import ChangeOperation
 
 
 class CreateUser:
-    def __init__(self, user_repository: UserRepository) -> None:
+    def __init__(
+        self,
+        user_repository: UserRepository,
+        recorder: ChangeRecorder,
+        unit_of_work: UnitOfWork,
+    ) -> None:
         self._user_repository = user_repository
+        self._recorder = recorder
+        self._unit_of_work = unit_of_work
 
+    @transactional
     async def execute(
         self,
         identity: VerifiedIdentity,
@@ -61,6 +74,18 @@ class CreateUser:
             client_device_id=client_device.id,
         )
         await self._user_repository.register(user, client_device, session)
+        await self._recorder.execute(
+            identity,
+            EntityType.USER,
+            user.id,
+            ChangeOperation.INSERT,
+            1,
+            {
+                "email": str(user.email),
+                "display_name": user.display_name,
+                "auth_provider": user.auth_provider,
+            },
+        )
 
         return UserData(
             id=user.id,

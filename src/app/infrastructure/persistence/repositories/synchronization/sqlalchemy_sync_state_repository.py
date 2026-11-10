@@ -79,6 +79,7 @@ class SqlAlchemySyncStateRepository(SyncStateRepository):
                 last_error=sync_state.last_error,
                 last_synced_at=sync_state.last_synced_at,
                 updated_at=sync_state.updated_at,
+                version=SyncState.version + 1,
             )
             .returning(SyncState.id)
         )
@@ -135,6 +136,7 @@ class SqlAlchemySyncStateRepository(SyncStateRepository):
             status=entity.status,
             last_synced_at=entity.last_synced_at,
             last_error=entity.last_error,
+            version=entity.version,
         )
 
     @staticmethod
@@ -151,4 +153,5 @@ class SqlAlchemySyncStateRepository(SyncStateRepository):
             status=model.status,
             last_synced_at=model.last_synced_at,
             last_error=model.last_error,
+            version=model.version,
         )
