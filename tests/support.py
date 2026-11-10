@@ -17,3 +17,14 @@ class NoOpRecordChange:
         payload: Any | None = None,
     ) -> None:
         return None
+
+
+class NoOpUnitOfWork:
+    async def __aenter__(self) -> None:
+        return None
+
+    async def __aexit__(self, exc_type: object, exc: object, traceback: object) -> None:
+        return None
+
+    def transaction(self) -> "NoOpUnitOfWork":
+        return self

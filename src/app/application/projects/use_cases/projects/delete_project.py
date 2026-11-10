@@ -1,5 +1,7 @@
 from uuid import UUID
 
+from app.application.common.transactional import transactional
+from app.application.common.unit_of_work import UnitOfWork
 from app.application.identity.dto import VerifiedIdentity
 from app.application.projects.exceptions import ProjectNotFound
 from app.application.projects.interfaces import ProjectRepository
@@ -10,11 +12,16 @@ from app.domain.synchronization import ChangeOperation
 
 class DeleteProject:
     def __init__(
-        self, project_repository: ProjectRepository, recorder: ChangeRecorder
+        self,
+        project_repository: ProjectRepository,
+        recorder: ChangeRecorder,
+        unit_of_work: UnitOfWork,
     ) -> None:
         self._project_repository = project_repository
         self._recorder = recorder
+        self._unit_of_work = unit_of_work
 
+    @transactional
     async def execute(self, identity: VerifiedIdentity, project_id: UUID) -> None:
         existing = await self._project_repository.get_by_id(identity.user_id, project_id)
         if existing is None:

@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
-from tests.support import NoOpRecordChange
+from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
@@ -157,7 +157,7 @@ async def test_create_service_builds_value_objects_and_binds_service_to_owned_pa
         repository, identity
     )
 
-    result = await CreateService(repository, NoOpRecordChange()).execute(
+    result = await CreateService(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
         identity=identity,
         device_id=device_id,
         project_id=project_id,
@@ -182,7 +182,7 @@ async def test_create_service_rejects_invalid_input_and_foreign_associations() -
     identity = make_identity()
     repository = FakeServiceRepository()
     device_id, project_id, _ = configure_owned_associations(repository, identity)
-    use_case = CreateService(repository, NoOpRecordChange())
+    use_case = CreateService(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(InvalidInput):
         await use_case.execute(
@@ -210,7 +210,7 @@ async def test_service_get_and_parent_lists_are_owner_scoped() -> None:
     device_id, project_id, environment_id = configure_owned_associations(
         repository, identity
     )
-    service = await CreateService(repository, NoOpRecordChange()).execute(
+    service = await CreateService(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
         identity=identity,
         device_id=device_id,
         project_id=project_id,
@@ -245,7 +245,7 @@ async def test_update_service_preserves_status_and_uses_optimistic_version() -> 
     device_id, project_id, environment_id = configure_owned_associations(
         repository, identity
     )
-    created = await CreateService(repository, NoOpRecordChange()).execute(
+    created = await CreateService(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
         identity=identity,
         device_id=device_id,
         project_id=project_id,
@@ -253,10 +253,10 @@ async def test_update_service_preserves_status_and_uses_optimistic_version() -> 
         name="api",
         service_type=ServiceType.APPLICATION,
     )
-    running = await UpdateServiceStatus(repository, NoOpRecordChange()).execute(
-        identity, created.id, expected_version=1, status=ResourceStatus.RUNNING
-    )
-    updated = await UpdateService(repository, NoOpRecordChange()).execute(
+    running = await UpdateServiceStatus(
+        repository, NoOpRecordChange(), NoOpUnitOfWork()
+    ).execute(identity, created.id, expected_version=1, status=ResourceStatus.RUNNING)
+    updated = await UpdateService(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
         identity=identity,
         service_id=created.id,
         expected_version=2,
@@ -275,7 +275,7 @@ async def test_update_service_preserves_status_and_uses_optimistic_version() -> 
     assert updated.created_at == created.created_at
 
     with pytest.raises(ServiceVersionConflict):
-        await UpdateService(repository, NoOpRecordChange()).execute(
+        await UpdateService(repository, NoOpRecordChange(), NoOpUnitOfWork()).execute(
             identity=identity,
             service_id=created.id,
             expected_version=2,
@@ -291,6 +291,6 @@ async def test_update_service_preserves_status_and_uses_optimistic_version() -> 
 async def test_update_service_status_reports_missing_and_invalid_status() -> None:
     identity = make_identity()
     repository = FakeServiceRepository()
-    use_case = UpdateServiceStatus(repository, NoOpRecordChange())
+    use_case = UpdateServiceStatus(repository, NoOpRecordChange(), NoOpUnitOfWork())
     with pytest.raises(ServiceNotFound):
         await use_case.execute(identity, uuid4(), 1, ResourceStatus.RUNNING)

@@ -3,6 +3,8 @@ from typing import Any
 from uuid import UUID
 
 from app.application.common.exceptions import InvalidInput
+from app.application.common.transactional import transactional
+from app.application.common.unit_of_work import UnitOfWork
 from app.application.identity import VerifiedIdentity
 from app.application.infrastructure.dto import ServiceData
 from app.application.infrastructure.exceptions import (
@@ -23,11 +25,16 @@ from app.domain.synchronization import ChangeOperation
 
 class UpdateService:
     def __init__(
-        self, service_repository: ServiceRepository, recorder: ChangeRecorder
+        self,
+        service_repository: ServiceRepository,
+        recorder: ChangeRecorder,
+        unit_of_work: UnitOfWork,
     ) -> None:
         self._service_repository = service_repository
         self._recorder = recorder
+        self._unit_of_work = unit_of_work
 
+    @transactional
     async def execute(
         self,
         identity: VerifiedIdentity,

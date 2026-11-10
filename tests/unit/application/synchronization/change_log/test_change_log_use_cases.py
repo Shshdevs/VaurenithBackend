@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
 import pytest
+from tests.support import NoOpUnitOfWork
 
 from app.application.identity import VerifiedIdentity
 from app.application.projects.use_cases.projects import CreateProject
@@ -107,7 +108,9 @@ async def test_get_user_change_log_returns_application_data() -> None:
 async def test_create_project_records_change_as_part_of_application_flow() -> None:
     identity = make_identity()
     change_repository = ChangeLogRepositoryStub()
-    use_case = CreateProject(ProjectRepositoryStub(), RecordChange(change_repository))
+    use_case = CreateProject(
+        ProjectRepositoryStub(), RecordChange(change_repository), NoOpUnitOfWork()
+    )
 
     project = await use_case.execute(
         identity,

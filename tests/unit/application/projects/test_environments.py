@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
-from tests.support import NoOpRecordChange
+from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
@@ -96,7 +96,7 @@ def make_environment(
 async def test_create_environment_persists_entity_and_returns_data() -> None:
     project_id = uuid4()
     repository = FakeEnvironmentRepository()
-    use_case = CreateEnvironment(repository, NoOpRecordChange())
+    use_case = CreateEnvironment(repository, NoOpRecordChange(), NoOpUnitOfWork())
     identity = make_identity()
 
     result = await use_case.execute(
@@ -121,7 +121,7 @@ async def test_create_environment_persists_entity_and_returns_data() -> None:
 @pytest.mark.anyio
 async def test_create_environment_rejects_invalid_name() -> None:
     repository = FakeEnvironmentRepository()
-    use_case = CreateEnvironment(repository, NoOpRecordChange())
+    use_case = CreateEnvironment(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(InvalidInput):
         await use_case.execute(
@@ -167,7 +167,7 @@ async def test_get_project_environments_returns_only_project_environments() -> N
 async def test_update_environment_persists_changes_and_preserves_creation_time() -> None:
     environment = make_environment()
     repository = FakeEnvironmentRepository([environment])
-    use_case = UpdateEnvironment(repository, NoOpRecordChange())
+    use_case = UpdateEnvironment(repository, NoOpRecordChange(), NoOpUnitOfWork())
     identity = make_identity()
 
     result = await use_case.execute(
@@ -194,7 +194,7 @@ async def test_update_environment_persists_changes_and_preserves_creation_time()
 @pytest.mark.anyio
 async def test_update_environment_rejects_missing_environment_or_invalid_name() -> None:
     repository = FakeEnvironmentRepository()
-    use_case = UpdateEnvironment(repository, NoOpRecordChange())
+    use_case = UpdateEnvironment(repository, NoOpRecordChange(), NoOpUnitOfWork())
     environment_id = uuid4()
     identity = make_identity()
 
@@ -234,7 +234,7 @@ async def test_update_environment_rejects_missing_environment_or_invalid_name() 
 async def test_delete_environment_deletes_existing_and_reports_missing() -> None:
     environment = make_environment()
     repository = FakeEnvironmentRepository([environment])
-    use_case = DeleteEnvironment(repository, NoOpRecordChange())
+    use_case = DeleteEnvironment(repository, NoOpRecordChange(), NoOpUnitOfWork())
     identity = make_identity()
 
     await use_case.execute(identity, environment.id)

@@ -12,12 +12,14 @@ from app.infrastructure.persistence.repositories.projects import SqlAlchemyProje
 from app.infrastructure.persistence.repositories.synchronization import (
     SqlAlchemyChangeLogRepository,
 )
+from app.infrastructure.persistence.sqlalchemy_unit_of_work import SqlAlchemyUnitOfWork
 
 
 def provide_create_project(session: AsyncSession) -> CreateProject:
     return CreateProject(
         SqlAlchemyProjectRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
@@ -33,6 +35,7 @@ def provide_update_project(session: AsyncSession) -> UpdateProject:
     return UpdateProject(
         SqlAlchemyProjectRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 
@@ -40,6 +43,7 @@ def provide_delete_project(session: AsyncSession) -> DeleteProject:
     return DeleteProject(
         SqlAlchemyProjectRepository(session),
         RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
     )
 
 

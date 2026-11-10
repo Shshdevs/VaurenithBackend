@@ -3,6 +3,8 @@ from typing import Any
 from uuid import UUID
 
 from app.application.common.exceptions import InvalidInput
+from app.application.common.transactional import transactional
+from app.application.common.unit_of_work import UnitOfWork
 from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import EnvironmentData
 from app.application.projects.exceptions import (
@@ -26,10 +28,13 @@ class UpdateEnvironment:
         self,
         environment_repository: EnvironmentRepository,
         recorder: ChangeRecorder,
+        unit_of_work: UnitOfWork,
     ) -> None:
         self._environment_repository = environment_repository
         self._recorder = recorder
+        self._unit_of_work = unit_of_work
 
+    @transactional
     async def execute(
         self,
         identity: VerifiedIdentity,

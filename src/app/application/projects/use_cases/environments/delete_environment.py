@@ -1,5 +1,7 @@
 from uuid import UUID
 
+from app.application.common.transactional import transactional
+from app.application.common.unit_of_work import UnitOfWork
 from app.application.identity import VerifiedIdentity
 from app.application.projects.exceptions import EnvironmentNotFound
 from app.application.projects.interfaces import EnvironmentRepository
@@ -13,10 +15,13 @@ class DeleteEnvironment:
         self,
         environment_repository: EnvironmentRepository,
         recorder: ChangeRecorder,
+        unit_of_work: UnitOfWork,
     ) -> None:
         self._environment_repository = environment_repository
         self._recorder = recorder
+        self._unit_of_work = unit_of_work
 
+    @transactional
     async def execute(self, identity: VerifiedIdentity, environment_id: UUID) -> None:
         existing = await self._environment_repository.get_by_id(identity, environment_id)
         if existing is None:
