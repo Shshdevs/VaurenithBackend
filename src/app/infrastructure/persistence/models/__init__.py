@@ -34,6 +34,9 @@ from app.infrastructure.persistence.models.projects.project import Project
 from app.infrastructure.persistence.models.projects.project_device import ProjectDevice
 from app.infrastructure.persistence.models.relations.relation import Relation
 from app.infrastructure.persistence.models.synchronization.change_log import ChangeLog
+from app.infrastructure.persistence.models.synchronization.change_log_retention import (
+    ChangeLogRetention,
+)
 from app.infrastructure.persistence.models.synchronization.sync_state import SyncState
 
 __all__ = [
@@ -66,4 +69,5 @@ __all__ = [
     "Setting",
     "SyncState",
     "ChangeLog",
+    "ChangeLogRetention",
 ]

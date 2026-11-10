@@ -80,11 +80,6 @@ class CreateUser:
             user.id,
             ChangeOperation.INSERT,
             1,
-            {
-                "email": str(user.email),
-                "display_name": user.display_name,
-                "auth_provider": user.auth_provider,
-            },
         )
 
         return UserData(

@@ -32,6 +32,39 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    op.execute(
+        """
+        DO $$
+        BEGIN
+            IF EXISTS (
+                SELECT 1
+                FROM (
+                    SELECT entity_type::text AS value
+                    FROM synchronization.change_log
+                    UNION ALL
+                    SELECT entity_type::text
+                    FROM synchronization.sync_state
+                    WHERE entity_type IS NOT NULL
+                    UNION ALL
+                    SELECT source_entity_type::text
+                    FROM relations.relations
+                    UNION ALL
+                    SELECT target_entity_type::text
+                    FROM relations.relations
+                    UNION ALL
+                    SELECT entity_type::text
+                    FROM monitoring.events
+                    WHERE entity_type IS NOT NULL
+                ) AS used_entity_types
+                WHERE value IN ('user', 'project_device', 'device_group', 'sync_state')
+            ) THEN
+                RAISE EXCEPTION
+                    'Cannot downgrade: new entity_type labels are in use';
+            END IF;
+        END;
+        $$;
+        """
+    )
     op.drop_column("project_devices", "version", schema="projects")
     op.drop_column("sync_state", "version", schema="synchronization")
     op.drop_column("device_groups", "version", schema="infrastructure")
