@@ -259,6 +259,25 @@ async def test_device_api_uses_postgres_change_log_and_enforces_owner_scope() ->
             assert failed_response.status_code == 500
             application.dependency_overrides.pop(get_create_device_dependency)
 
+            logout_response = await client.post(
+                "/api/v1/users/logout",
+                headers=owner_headers,
+            )
+            assert logout_response.status_code == 200
+            async with AsyncSession(engine) as session:
+                revoked_at = await session.scalar(
+                    select(Session.revoked_at).where(
+                        Session.token_hash == sha256(owner_token.encode()).hexdigest()
+                    )
+                )
+            assert revoked_at is not None
+            assert (
+                await client.get("/api/v1/devices", headers=owner_headers)
+            ).status_code == 401
+            assert (
+                await client.post("/api/v1/users/logout", headers=owner_headers)
+            ).status_code == 401
+
         async with AsyncSession(engine) as session:
             assert (
                 await session.scalar(
@@ -278,6 +297,7 @@ async def test_device_api_uses_postgres_change_log_and_enforces_owner_scope() ->
                 )
                 is None
             )
+
     finally:
         application.dependency_overrides.clear()
         async with engine.begin() as connection:

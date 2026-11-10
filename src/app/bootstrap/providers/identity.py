@@ -4,6 +4,7 @@ from app.application.identity.use_cases import (
     AuthenticateIdentity,
     CreateUser,
     GetCurrentUser,
+    RevokeSession,
     VerifyIdentityToken,
 )
 from app.application.synchronization.use_cases.change_log import RecordChange
@@ -43,4 +44,11 @@ def provide_authenticate_identity(
     return AuthenticateIdentity(
         verify_identity_token,
         SqlAlchemySessionRepository(session),
+    )
+
+
+def provide_revoke_session(session: AsyncSession) -> RevokeSession:
+    return RevokeSession(
+        SqlAlchemySessionRepository(session),
+        SqlAlchemyUnitOfWork(session),
     )

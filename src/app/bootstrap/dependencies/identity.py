@@ -8,6 +8,7 @@ from app.application.identity.use_cases import (
     AuthenticateIdentity,
     CreateUser,
     GetCurrentUser,
+    RevokeSession,
     VerifyIdentityToken,
 )
 from app.bootstrap.dependencies.database import get_database_session
@@ -15,6 +16,7 @@ from app.bootstrap.providers.identity import (
     provide_authenticate_identity,
     provide_create_user,
     provide_current_user,
+    provide_revoke_session,
     provide_verify_identity_token,
 )
 
@@ -31,6 +33,12 @@ def get_create_user(
     session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> CreateUser:
     return provide_create_user(session)
+
+
+def get_revoke_session(
+    session: AsyncSession = Depends(get_database_session, scope="function"),
+) -> RevokeSession:
+    return provide_revoke_session(session)
 
 
 def get_verify_identity_token() -> VerifyIdentityToken:

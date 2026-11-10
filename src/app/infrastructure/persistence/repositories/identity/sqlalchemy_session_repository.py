@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.application.identity.interfaces import SessionRepository
@@ -17,6 +17,20 @@ class SqlAlchemySessionRepository(SessionRepository):
             Session.token_hash == token_hash.value,
             Session.revoked_at.is_(None),
             Session.expires_at > at,
+        )
+        result = await self._session.execute(statement)
+        return result.scalar_one_or_none() is not None
+
+    async def revoke_session(self, token_hash: TokenHash, at: datetime) -> bool:
+        statement = (
+            update(Session)
+            .where(
+                Session.token_hash == token_hash.value,
+                Session.revoked_at.is_(None),
+                Session.expires_at > at,
+            )
+            .values(revoked_at=at)
+            .returning(Session.id)
         )
         result = await self._session.execute(statement)
         return result.scalar_one_or_none() is not None

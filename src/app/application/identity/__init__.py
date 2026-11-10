@@ -17,6 +17,7 @@ from app.application.identity.use_cases import (
     AuthenticateIdentity,
     CreateUser,
     GetCurrentUser,
+    RevokeSession,
     VerifyIdentityToken,
 )
 
@@ -25,6 +26,7 @@ __all__ = [
     "AuthenticateIdentity",
     "CreateUser",
     "GetCurrentUser",
+    "RevokeSession",
     "IdentityTokenClaims",
     "InvalidIdentity",
     "SessionRepository",

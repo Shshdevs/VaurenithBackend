@@ -10,3 +10,9 @@ class SessionRepository(Protocol):
         token_hash: TokenHash,
         at: datetime,
     ) -> bool: ...
+
+    async def revoke_session(
+        self,
+        token_hash: TokenHash,
+        at: datetime,
+    ) -> bool: ...
