@@ -8,6 +8,7 @@ from sqlalchemy import delete, insert, select
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
+from app.application.common.exceptions import ChangeLogCursorExpired
 from app.application.identity import VerifiedIdentity
 from app.application.projects.use_cases.projects import CreateProject
 from app.application.synchronization import RecordChange
@@ -20,6 +21,9 @@ from app.infrastructure.persistence.models.identity.user import User
 from app.infrastructure.persistence.models.projects import Project as ProjectModel
 from app.infrastructure.persistence.models.synchronization import (
     ChangeLog as ChangeLogModel,
+)
+from app.infrastructure.persistence.models.synchronization import (
+    ChangeLogRetention,
 )
 from app.infrastructure.persistence.repositories.projects import (
     SqlAlchemyProjectRepository,
@@ -57,7 +61,9 @@ def make_identity(user_id) -> VerifiedIdentity:
     )
 
 
-def make_change(user_id, entity_id, version: int = 1) -> ChangeLog:
+def make_change(
+    user_id, entity_id, version: int = 1, created_at: datetime | None = None
+) -> ChangeLog:
     return ChangeLog(
         change_log_id=uuid4(),
         user_id=user_id,
@@ -66,7 +72,7 @@ def make_change(user_id, entity_id, version: int = 1) -> ChangeLog:
         operation=ChangeOperation.INSERT,
         version=version,
         changed_by_user_id=user_id,
-        created_at=datetime.now(UTC),
+        created_at=created_at or datetime.now(UTC),
         payload={"name": "integration-device"},
     )
 
@@ -308,4 +314,69 @@ async def test_project_and_change_log_share_transaction() -> None:
                         delete(ProjectModel).where(ProjectModel.id == project_id)
                     )
                 await connection.execute(delete(User).where(User.id == user_id))
+        await engine.dispose()
+
+
+@pytest.mark.anyio
+async def test_expired_change_log_entries_are_pruned_and_require_resync() -> None:
+    test_database_url = os.environ.get("TEST_DATABASE_URL")
+    if not test_database_url:
+        pytest.skip("Set TEST_DATABASE_URL to run the PostgreSQL repository test")
+    assert_test_database_is_separate(test_database_url)
+
+    engine = create_async_engine(test_database_url)
+    user_id = uuid4()
+    old_entity_id, current_entity_id = uuid4(), uuid4()
+    now = datetime.now(UTC)
+    cutoff = now - timedelta(days=365)
+
+    try:
+        async with engine.connect() as connection:
+            transaction = await connection.begin()
+            async with AsyncSession(
+                bind=connection,
+                join_transaction_mode="create_savepoint",
+                expire_on_commit=False,
+            ) as session:
+                session.add(
+                    User(
+                        id=user_id,
+                        email=f"{user_id}@example.test",
+                        display_name="Change Log Retention Test",
+                        auth_provider="integration-test",
+                        created_at=now,
+                        updated_at=now,
+                    )
+                )
+                await session.flush()
+                repository = SqlAlchemyChangeLogRepository(session)
+                await repository.create(
+                    make_change(
+                        user_id,
+                        old_entity_id,
+                        created_at=now - timedelta(days=366),
+                    )
+                )
+                await repository.create(make_change(user_id, current_entity_id))
+
+                assert await repository.purge_expired(cutoff) == 1
+                expired_through_sequence = await session.scalar(
+                    select(ChangeLogRetention.expired_through_sequence).where(
+                        ChangeLogRetention.user_id == user_id
+                    )
+                )
+                assert expired_through_sequence is not None
+                with pytest.raises(ChangeLogCursorExpired) as error:
+                    await repository.get_by_user(user_id, after_sequence=0, limit=100)
+                assert error.value.restart_sequence > expired_through_sequence
+
+                changes = await repository.get_by_user(
+                    user_id,
+                    after_sequence=expired_through_sequence,
+                    limit=100,
+                )
+                assert [change.entity_id for change in changes] == [current_entity_id]
+
+            await transaction.rollback()
+    finally:
         await engine.dispose()

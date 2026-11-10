@@ -27,6 +27,7 @@ from app.api.schemas.v1.projects.project_device_create import ProjectDeviceCreat
 from app.api.schemas.v1.projects.project_device_update import ProjectDeviceUpdateRequest
 from app.api.schemas.v1.projects.project_update import ProjectUpdateRequest
 from app.api.schemas.v1.synchronization.change_log import ChangeLogData
+from app.api.schemas.v1.synchronization.change_log_resync import ChangeLogResyncRequired
 from app.api.schemas.v1.synchronization.sync_state import (
     SyncStateCreateRequest,
     SyncStateData,
@@ -60,6 +61,7 @@ __all__ = [
     "LivenessData",
     "ReadinessData",
     "ChangeLogData",
+    "ChangeLogResyncRequired",
     "SyncStateCreateRequest",
     "SyncStateData",
     "SyncStateStatusUpdateRequest",

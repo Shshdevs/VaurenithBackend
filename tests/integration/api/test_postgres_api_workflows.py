@@ -21,7 +21,10 @@ from app.infrastructure.persistence.models.infrastructure.device import Device
 from app.infrastructure.persistence.models.projects.environment import Environment
 from app.infrastructure.persistence.models.projects.project import Project
 from app.infrastructure.persistence.models.projects.project_device import ProjectDevice
-from app.infrastructure.persistence.models.synchronization import ChangeLog
+from app.infrastructure.persistence.models.synchronization import (
+    ChangeLog,
+    ChangeLogRetention,
+)
 from app.infrastructure.persistence.repositories.infrastructure import (
     SqlAlchemyDeviceRepository,
 )
@@ -238,6 +241,25 @@ async def test_device_api_uses_postgres_change_log_and_enforces_owner_scope() ->
                 ("device", created_device_id, "delete"),
             ]
             assert other_changes.json()["data"] == []
+
+            async with AsyncSession(engine) as session, session.begin():
+                session.add(
+                    ChangeLogRetention(
+                        user_id=owner_id,
+                        expired_through_sequence=owner_changes.json()["data"][0][
+                            "sequence"
+                        ],
+                    )
+                )
+            expired_cursor_response = await client.get(
+                "/api/v1/change-logs?after_sequence=0",
+                headers=owner_headers,
+            )
+            assert expired_cursor_response.status_code == 410
+            assert expired_cursor_response.json()["data"]["resync_required"] is True
+            assert expired_cursor_response.json()["data"]["restart_sequence"] == max(
+                change["sequence"] for change in owner_changes.json()["data"]
+            )
 
             async def provide_failing_create_device(
                 session: AsyncSession = Depends(get_database_session, scope="function"),

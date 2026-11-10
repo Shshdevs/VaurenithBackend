@@ -1,4 +1,4 @@
-.PHONY: lint lint-fix format format-check typecheck semgrep semgrep-all security test test-unit test-integration test-cov check fix setup install-hooks docker docker-up docker-build docker-down docker-logs db-upgrade db-upgrade-test db-current db-revision
+.PHONY: lint lint-fix format format-check typecheck semgrep semgrep-all security test test-unit test-integration test-cov check fix setup install-hooks docker docker-up docker-build docker-down docker-logs db-upgrade db-upgrade-test db-current db-revision db-prune-change-log
 
 PYTHON ?= python3.13
 TEST_PATH ?= tests
@@ -80,6 +80,9 @@ db-upgrade:
 
 db-upgrade-test:
 	python scripts/migrate_test_database.py
+
+db-prune-change-log:
+	PYTHONPATH=src $(PYTHON) scripts/purge_expired_change_logs.py
 
 db-current:
 	alembic current

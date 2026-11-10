@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY alembic.ini .
 COPY migrations ./migrations
+COPY scripts ./scripts
 COPY src ./src
 
 RUN chown -R app:app /app

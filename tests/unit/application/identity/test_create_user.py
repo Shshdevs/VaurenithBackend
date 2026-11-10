@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import Any
 from uuid import UUID, uuid4
 
 import pytest
@@ -7,12 +8,14 @@ from tests.support import NoOpRecordChange, NoOpUnitOfWork
 from app.application.identity.dto import VerifiedIdentity
 from app.application.identity.exceptions import InvalidIdentity
 from app.application.identity.use_cases import CreateUser
+from app.domain.common.enums import EntityType
 from app.domain.identity.entities.client_device import ClientDevice
 from app.domain.identity.entities.session import Session
 from app.domain.identity.entities.user import User
 from app.domain.identity.enums import PlatformType
 from app.domain.identity.value_objects.email import EmailAddress
 from app.domain.identity.value_objects.token_hash import TokenHash
+from app.domain.synchronization import ChangeOperation
 
 
 class FakeUserRepository:
@@ -26,6 +29,22 @@ class FakeUserRepository:
         self, user: User, client_device: ClientDevice, session: Session
     ) -> None:
         self.registered = (user, client_device, session)
+
+
+class CapturingChangeRecorder:
+    def __init__(self) -> None:
+        self.payload: Any | None = "not called"
+
+    async def execute(
+        self,
+        _identity: VerifiedIdentity,
+        _entity_type: EntityType,
+        _entity_id: UUID,
+        _operation: ChangeOperation,
+        _version: int,
+        payload: Any | None = None,
+    ) -> None:
+        self.payload = payload
 
 
 def make_identity(email: str = "user@example.com") -> VerifiedIdentity:
@@ -43,7 +62,8 @@ def make_identity(email: str = "user@example.com") -> VerifiedIdentity:
 async def test_create_user_registers_user_and_session() -> None:
     identity = make_identity()
     repository = FakeUserRepository()
-    use_case = CreateUser(repository, NoOpRecordChange(), NoOpUnitOfWork())
+    recorder = CapturingChangeRecorder()
+    use_case = CreateUser(repository, recorder, NoOpUnitOfWork())
 
     result = await use_case.execute(
         identity=identity,
@@ -73,6 +93,7 @@ async def test_create_user_registers_user_and_session() -> None:
     assert client_device.app_version == "1.0.0"
     assert session.client_device_id == client_device.id
     assert user.created_at == user.updated_at == session.created_at
+    assert recorder.payload is None
 
 
 @pytest.mark.anyio

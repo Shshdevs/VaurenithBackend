@@ -3,7 +3,7 @@ from collections.abc import Awaitable, Callable
 from fastapi import APIRouter, Depends, Query, status
 
 from app.api.schemas.response import ApiResponse, format_http_status
-from app.api.schemas.v1 import ChangeLogData
+from app.api.schemas.v1 import ChangeLogData, ChangeLogResyncRequired
 from app.application.identity import VerifiedIdentity
 from app.application.synchronization.use_cases.change_log import GetUserChangeLog
 
@@ -20,6 +20,12 @@ def build_change_log_route(
         "/change-logs",
         response_model=ApiResponse[list[ChangeLogData]],
         status_code=status.HTTP_200_OK,
+        responses={
+            status.HTTP_410_GONE: {
+                "model": ApiResponse[ChangeLogResyncRequired],
+                "description": "The client must perform a full synchronization.",
+            }
+        },
     )
     async def get_change_log(
         after_sequence: int = Query(default=0, ge=0),

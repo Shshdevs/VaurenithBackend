@@ -1,14 +1,16 @@
 import logging
 from typing import cast
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.schemas import ApiResponse, format_http_status
+from app.api.schemas.v1 import ChangeLogResyncRequired
 from app.application.common.exceptions import (
+    ChangeLogCursorExpired,
     Conflict,
     InvalidInput,
     NotFound,
@@ -91,6 +93,20 @@ async def handle_unauthorized(
     return response
 
 
+async def handle_change_log_cursor_expired(
+    _request: Request,
+    exception: Exception,
+) -> JSONResponse:
+    cursor_error = cast(ChangeLogCursorExpired, exception)
+    return _error(
+        status.HTTP_410_GONE,
+        str(cursor_error),
+        ChangeLogResyncRequired(
+            restart_sequence=cursor_error.restart_sequence
+        ).model_dump(),
+    )
+
+
 def register_error_handlers(application: FastAPI) -> None:
     application.add_exception_handler(StarletteHTTPException, handle_http_exception)
     application.add_exception_handler(
@@ -102,3 +118,7 @@ def register_error_handlers(application: FastAPI) -> None:
     application.add_exception_handler(InvalidInput, handle_invalid_input)
     application.add_exception_handler(Conflict, handle_conflict)
     application.add_exception_handler(Unauthorized, handle_unauthorized)
+    application.add_exception_handler(
+        ChangeLogCursorExpired,
+        handle_change_log_cursor_expired,
+    )
