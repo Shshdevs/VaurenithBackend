@@ -1,6 +1,6 @@
-from app.application.synchronization.use_cases.get_user_change_log import (
+from app.application.synchronization.use_cases.change_log import (
     GetUserChangeLog,
+    RecordChange,
 )
-from app.application.synchronization.use_cases.record_change import RecordChange
 
 __all__ = ["GetUserChangeLog", "RecordChange"]
