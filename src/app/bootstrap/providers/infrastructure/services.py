@@ -11,7 +11,7 @@ from app.application.infrastructure.use_cases.service import (
     UpdateService,
     UpdateServiceStatus,
 )
-from app.application.synchronization import RecordChange
+from app.application.synchronization.use_cases.change_log import RecordChange
 from app.infrastructure.persistence.repositories.infrastructure import (
     SqlAlchemyServiceRepository,
 )
