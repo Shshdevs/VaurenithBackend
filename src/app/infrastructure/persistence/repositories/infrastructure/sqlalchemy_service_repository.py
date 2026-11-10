@@ -24,7 +24,10 @@ class SqlAlchemyServiceRepository(ServiceRepository):
         result = await self._session.execute(
             select(ServiceModel)
             .join(Device, Device.id == ServiceModel.device_id)
-            .where(Device.user_id == identity.user_id)
+            .where(
+                Device.user_id == identity.user_id,
+                Device.deleted_at.is_(None),
+            )
             .order_by(ServiceModel.created_at, ServiceModel.id)
         )
         return [self._to_entity(model) for model in result.scalars().all()]
@@ -38,6 +41,7 @@ class SqlAlchemyServiceRepository(ServiceRepository):
             .where(
                 ServiceModel.id == service_id,
                 Device.user_id == identity.user_id,
+                Device.deleted_at.is_(None),
             )
         )
         model = result.scalar_one_or_none()
@@ -52,6 +56,7 @@ class SqlAlchemyServiceRepository(ServiceRepository):
             .where(
                 ServiceModel.device_id == device_id,
                 Device.user_id == identity.user_id,
+                Device.deleted_at.is_(None),
             )
             .order_by(ServiceModel.created_at, ServiceModel.id)
         )
@@ -69,6 +74,7 @@ class SqlAlchemyServiceRepository(ServiceRepository):
                 Project.user_id == identity.user_id,
                 Project.deleted_at.is_(None),
                 Device.user_id == identity.user_id,
+                Device.deleted_at.is_(None),
             )
             .order_by(ServiceModel.created_at, ServiceModel.id)
         )
@@ -88,6 +94,7 @@ class SqlAlchemyServiceRepository(ServiceRepository):
                 Project.user_id == identity.user_id,
                 Project.deleted_at.is_(None),
                 Device.user_id == identity.user_id,
+                Device.deleted_at.is_(None),
             )
             .order_by(ServiceModel.created_at, ServiceModel.id)
         )
@@ -142,6 +149,7 @@ class SqlAlchemyServiceRepository(ServiceRepository):
             select(Device.id).where(
                 Device.id == ServiceModel.device_id,
                 Device.user_id == identity.user_id,
+                Device.deleted_at.is_(None),
             )
         )
         statement = (
