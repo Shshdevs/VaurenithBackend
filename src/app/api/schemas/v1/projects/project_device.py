@@ -13,6 +13,7 @@ class ProjectDeviceData(Schema):
     device_id: UUID
     role: str | None = None
     created_at: datetime
+    version: int
 
     @field_validator("role")
     @classmethod

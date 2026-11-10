@@ -2,6 +2,7 @@ from datetime import UTC, datetime, timedelta
 from uuid import UUID, uuid4
 
 import pytest
+from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
@@ -71,7 +72,7 @@ def make_group(user_id: UUID | None = None) -> DeviceGroup:
 async def test_create_device_group_uses_identity_and_returns_data() -> None:
     identity = make_identity()
     repository = FakeDeviceGroupRepository()
-    use_case = CreateDeviceGroup(repository)
+    use_case = CreateDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     result = await use_case.execute(
         identity=identity,
@@ -90,7 +91,7 @@ async def test_create_device_group_uses_identity_and_returns_data() -> None:
 @pytest.mark.anyio
 async def test_create_device_group_rejects_invalid_name() -> None:
     repository = FakeDeviceGroupRepository()
-    use_case = CreateDeviceGroup(repository)
+    use_case = CreateDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(InvalidInput):
         await use_case.execute(identity=make_identity(), name="  ", description=None)
@@ -116,7 +117,7 @@ async def test_update_device_group_preserves_owner_and_creation_time() -> None:
     identity = make_identity()
     group = make_group(identity.user_id)
     repository = FakeDeviceGroupRepository([group])
-    use_case = UpdateDeviceGroup(repository)
+    use_case = UpdateDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     result = await use_case.execute(
         identity=identity,
@@ -138,7 +139,7 @@ async def test_update_device_group_preserves_owner_and_creation_time() -> None:
 async def test_update_device_group_rejects_missing_or_invalid_group() -> None:
     identity = make_identity()
     repository = FakeDeviceGroupRepository()
-    use_case = UpdateDeviceGroup(repository)
+    use_case = UpdateDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     with pytest.raises(DeviceGroupNotFound):
         await use_case.execute(
@@ -165,7 +166,7 @@ async def test_delete_device_group_deletes_owned_group_only() -> None:
     identity = make_identity()
     group = make_group(identity.user_id)
     repository = FakeDeviceGroupRepository([group])
-    use_case = DeleteDeviceGroup(repository)
+    use_case = DeleteDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     await use_case.execute(identity=identity, device_group_id=group.id)
     assert group.id not in repository.groups

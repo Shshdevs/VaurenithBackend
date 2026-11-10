@@ -2,6 +2,8 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from app.application.common.exceptions import InvalidInput
+from app.application.common.transactional import transactional
+from app.application.common.unit_of_work import UnitOfWork
 from app.application.identity import VerifiedIdentity
 from app.application.synchronization.dto.sync_state_data import SyncStateData
 from app.application.synchronization.exceptions import (
@@ -9,15 +11,30 @@ from app.application.synchronization.exceptions import (
     SyncStateUpdateConflict,
 )
 from app.application.synchronization.interfaces import (
+    ChangeRecorder,
     SyncStateRepository,
 )
-from app.domain.synchronization import InvalidSyncState, SyncState, SyncStatus
+from app.domain.common import EntityType
+from app.domain.synchronization import (
+    ChangeOperation,
+    InvalidSyncState,
+    SyncState,
+    SyncStatus,
+)
 
 
 class UpdateSyncStatus:
-    def __init__(self, sync_state_repository: SyncStateRepository) -> None:
+    def __init__(
+        self,
+        sync_state_repository: SyncStateRepository,
+        recorder: ChangeRecorder,
+        unit_of_work: UnitOfWork,
+    ) -> None:
         self._sync_state_repository = sync_state_repository
+        self._recorder = recorder
+        self._unit_of_work = unit_of_work
 
+    @transactional
     async def execute(
         self,
         sync_state_id: UUID,
@@ -50,6 +67,7 @@ class UpdateSyncStatus:
                     else existing_sync_state.last_synced_at
                 ),
                 last_error=existing_sync_state.last_error,
+                version=existing_sync_state.version + 1,
             )
         except (InvalidSyncState, ValueError) as error:
             raise InvalidInput(str(error)) from error
@@ -68,5 +86,14 @@ class UpdateSyncStatus:
             if latest_sync_state is None:
                 raise SyncStateNotFound(str(sync_state_id))
             raise SyncStateUpdateConflict(str(sync_state_id))
+
+        await self._recorder.execute(
+            identity,
+            EntityType.SYNC_STATE,
+            sync_state.id,
+            ChangeOperation.UPDATE,
+            sync_state.version,
+            {"status": sync_state.status.value},
+        )
 
         return SyncStateData.from_sync_state(sync_state)

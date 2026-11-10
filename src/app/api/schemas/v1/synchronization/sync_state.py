@@ -13,6 +13,7 @@ class SyncStateData(Schema):
     user_id: UUID
     client_device_id: UUID
     updated_at: datetime
+    version: int
     entity_type: EntityType | None
     entity_id: UUID | None
     local_version: int | None

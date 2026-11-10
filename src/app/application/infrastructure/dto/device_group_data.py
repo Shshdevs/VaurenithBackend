@@ -16,6 +16,7 @@ class DeviceGroupData:
     description: str | None
     created_at: datetime
     updated_at: datetime
+    version: int
 
     @classmethod
     def from_device_group(cls, device_group: DeviceGroup) -> DeviceGroupData:
@@ -27,4 +28,5 @@ class DeviceGroupData:
             description=device_group.description,
             created_at=device_group.created_at,
             updated_at=device_group.updated_at,
+            version=device_group.version,
         )

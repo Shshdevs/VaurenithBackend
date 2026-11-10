@@ -6,13 +6,22 @@ from app.application.infrastructure.use_cases.device_group import (
     GetDeviceGroup,
     UpdateDeviceGroup,
 )
+from app.application.synchronization.use_cases.change_log import RecordChange
 from app.infrastructure.persistence.repositories.infrastructure import (
     SqlAlchemyDeviceGroupRepository,
 )
+from app.infrastructure.persistence.repositories.synchronization import (
+    SqlAlchemyChangeLogRepository,
+)
+from app.infrastructure.persistence.sqlalchemy_unit_of_work import SqlAlchemyUnitOfWork
 
 
 def provide_create_device_group(session: AsyncSession) -> CreateDeviceGroup:
-    return CreateDeviceGroup(SqlAlchemyDeviceGroupRepository(session))
+    return CreateDeviceGroup(
+        SqlAlchemyDeviceGroupRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
+    )
 
 
 def provide_get_device_group(session: AsyncSession) -> GetDeviceGroup:
@@ -20,8 +29,16 @@ def provide_get_device_group(session: AsyncSession) -> GetDeviceGroup:
 
 
 def provide_update_device_group(session: AsyncSession) -> UpdateDeviceGroup:
-    return UpdateDeviceGroup(SqlAlchemyDeviceGroupRepository(session))
+    return UpdateDeviceGroup(
+        SqlAlchemyDeviceGroupRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
+    )
 
 
 def provide_delete_device_group(session: AsyncSession) -> DeleteDeviceGroup:
-    return DeleteDeviceGroup(SqlAlchemyDeviceGroupRepository(session))
+    return DeleteDeviceGroup(
+        SqlAlchemyDeviceGroupRepository(session),
+        RecordChange(SqlAlchemyChangeLogRepository(session)),
+        SqlAlchemyUnitOfWork(session),
+    )

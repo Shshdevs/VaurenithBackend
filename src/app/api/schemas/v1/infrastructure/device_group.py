@@ -12,3 +12,4 @@ class DeviceGroup(Schema):
     description: str | None
     created_at: datetime
     updated_at: datetime
+    version: int

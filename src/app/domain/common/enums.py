@@ -8,9 +8,12 @@ class RelationOrigin(str, Enum):
 
 
 class EntityType(str, Enum):
+    USER = "user"
     PROJECT = "project"
     ENVIRONMENT = "environment"
+    PROJECT_DEVICE = "project_device"
     DEVICE = "device"
+    DEVICE_GROUP = "device_group"
     CONNECTION = "connection"
     SERVICE = "service"
     CONTAINER = "container"
@@ -26,6 +29,7 @@ class EntityType(str, Enum):
     EVENT = "event"
     METRIC = "metric"
     SETTINGS = "settings"
+    SYNC_STATE = "sync_state"
     OTHER = "other"
 
 

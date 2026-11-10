@@ -17,6 +17,7 @@ class DeviceGroup(Entity):
         created_at: datetime,
         updated_at: datetime,
         description: str | None = None,
+        version: int = 1,
     ) -> None:
         if not isinstance(entity_id, UUID) or not isinstance(user_id, UUID):
             raise InvalidDeviceGroup("Device group and owner identifiers must be UUIDs")
@@ -29,6 +30,8 @@ class DeviceGroup(Entity):
         self._validate_timestamp(updated_at, "updated_at")
         if updated_at < created_at:
             raise InvalidDeviceGroup("Update time cannot precede device group creation")
+        if not isinstance(version, int) or isinstance(version, bool) or version < 1:
+            raise InvalidDeviceGroup("Device group version must be positive")
 
         normalized_description = description.strip() if description is not None else None
         if normalized_description == "":
@@ -39,6 +42,7 @@ class DeviceGroup(Entity):
         self._description = normalized_description
         self._created_at = created_at
         self._updated_at = updated_at
+        self._version = version
 
     @staticmethod
     def _validate_timestamp(value: datetime, name: str) -> None:
@@ -72,3 +76,7 @@ class DeviceGroup(Entity):
     @property
     def updated_at(self) -> datetime:
         return self._updated_at
+
+    @property
+    def version(self) -> int:
+        return self._version

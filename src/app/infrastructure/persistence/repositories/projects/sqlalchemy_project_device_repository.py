@@ -122,6 +122,7 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
                 project_id=project_device.project_id,
                 device_id=project_device.device_id,
                 role=project_device.role,
+                version=ProjectDevice.version + 1,
             )
             .returning(ProjectDevice.id)
         )
@@ -191,4 +192,5 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
             device_id=model.device_id,
             role=ProjectDeviceRole(model.role) if model.role else None,
             created_at=model.created_at,
+            version=model.version,
         )

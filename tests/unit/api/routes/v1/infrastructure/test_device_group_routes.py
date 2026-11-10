@@ -3,6 +3,7 @@ from uuid import UUID, uuid4
 
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.api.middleware.error_handler import register_error_handlers
 from app.api.routes.v1.infrastructure.device_group import build_device_group_router
@@ -66,16 +67,16 @@ def build_test_client(
         return identity
 
     def provide_create() -> CreateDeviceGroup:
-        return CreateDeviceGroup(repository)
+        return CreateDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     def provide_get() -> GetDeviceGroup:
         return GetDeviceGroup(repository)
 
     def provide_update() -> UpdateDeviceGroup:
-        return UpdateDeviceGroup(repository)
+        return UpdateDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     def provide_delete() -> DeleteDeviceGroup:
-        return DeleteDeviceGroup(repository)
+        return DeleteDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
     app = FastAPI()
     register_error_handlers(app)

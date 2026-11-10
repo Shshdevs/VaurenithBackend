@@ -17,6 +17,7 @@ class ProjectDevice(Entity):
         device_id: EntityId,
         created_at: datetime,
         role: ProjectDeviceRole | None = None,
+        version: int = 1,
     ) -> None:
         if not all(
             isinstance(identifier, UUID)
@@ -26,12 +27,15 @@ class ProjectDevice(Entity):
 
         if not isinstance(created_at, datetime) or created_at.utcoffset() is None:
             raise InvalidProjectDevice("Relation creation time must include a timezone")
+        if not isinstance(version, int) or isinstance(version, bool) or version < 1:
+            raise InvalidProjectDevice("Project device version must be positive")
 
         super().__init__(entity_id)
         self._project_id = project_id
         self._device_id = device_id
         self._created_at = created_at
         self._role = role
+        self._version = version
 
     @property
     def project_id(self) -> EntityId:
@@ -52,3 +56,7 @@ class ProjectDevice(Entity):
     @property
     def role_value(self) -> ProjectDeviceRole | None:
         return self._role
+
+    @property
+    def version(self) -> int:
+        return self._version
