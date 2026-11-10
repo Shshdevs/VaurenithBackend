@@ -86,6 +86,7 @@ async def test_service_repository_persists_and_enforces_owner_scope_and_versions
     environment_id = uuid4()
     device_id = uuid4()
     service_id = uuid4()
+    retained_service_id = uuid4()
     now = datetime.now(UTC)
     identity = make_identity(user_id)
     other_identity = make_identity(other_user_id)
@@ -214,6 +215,27 @@ async def test_service_repository_persists_and_enforces_owner_scope_and_versions
                 assert updated_model.status is ResourceStatus.RUNNING
                 assert await repository.delete(identity, service_id)
                 assert not await repository.delete(identity, service_id)
+
+                retained_service = make_service(
+                    retained_service_id,
+                    device_id,
+                    now,
+                    project_id,
+                    environment_id,
+                    name="retained-service",
+                )
+                assert await repository.create(identity, retained_service)
+                assert await SqlAlchemyDeviceRepository(session).delete(
+                    identity, device_id, now + timedelta(seconds=2)
+                )
+                assert await repository.get_by_user(identity) == []
+                assert await repository.get_by_id(identity, retained_service_id) is None
+                assert await repository.get_by_device(identity, device_id) == []
+                assert await repository.get_by_project(identity, project_id) == []
+                assert await repository.get_by_environment(identity, environment_id) == []
+                assert not await repository.update(
+                    identity, retained_service, expected_version=1
+                )
             await transaction.rollback()
     finally:
         await engine.dispose()
