@@ -1,3 +1,4 @@
 from .sqlalchemy_change_log_repository import SqlAlchemyChangeLogRepository
+from .sqlalchemy_sync_state_repository import SqlAlchemySyncStateRepository
 
-__all__ = ["SqlAlchemyChangeLogRepository"]
+__all__ = ["SqlAlchemyChangeLogRepository", "SqlAlchemySyncStateRepository"]
