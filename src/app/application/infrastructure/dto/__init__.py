@@ -6,6 +6,7 @@ from app.application.infrastructure.dto.device_group_data import DeviceGroupData
 from app.application.infrastructure.dto.service_data import ServiceData
 
 __all__ = [
+    "ConnectionData",
     "ContainerData",
     "DatabaseData",
     "DeviceData",
