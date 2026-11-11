@@ -33,6 +33,11 @@ from app.api.schemas.v1.infrastructure.service_status_update import (
     ServiceStatusUpdateRequest,
 )
 from app.api.schemas.v1.infrastructure.service_update import ServiceUpdateRequest
+from app.api.schemas.v1.preferences import (
+    SettingCreateRequest,
+    SettingData,
+    SettingUpdateRequest,
+)
 from app.api.schemas.v1.projects.environment import EnvironmentData
 from app.api.schemas.v1.projects.environment_create import EnvironmentCreateRequest
 from app.api.schemas.v1.projects.environment_update import EnvironmentUpdateRequest
@@ -53,6 +58,9 @@ from app.api.schemas.v1.synchronization.sync_state import (
 
 __all__ = [
     "UserData",
+    "SettingData",
+    "SettingCreateRequest",
+    "SettingUpdateRequest",
     "UserCreateRequest",
     "ProjectCreateRequest",
     "ProjectData",

@@ -171,6 +171,19 @@
 
 `DatabaseData`: `id`, project/environment/device/container/service IDs, `name`, `slug`, `dbms_type`, `host`, `port`, `database_name`, `status`, `last_checked_at`, `metadata`, `version`, временные метки. `dbms_type`: `postgresql`, `mysql`, `mariadb`, `mongodb`, `redis`, `sqlite`, `other`; `status` — перечисление `ResourceStatus` выше. Порт 1–65535.
 
+## Настройки
+
+| Метод и путь | Параметры/тело | Ответ |
+|---|---|---|
+| `GET /settings?scope=global` | — | глобальные настройки пользователя |
+| `GET /settings?scope=client&client_device_id={uuid}` | — | настройки принадлежащего пользователю клиентского устройства |
+| `GET /settings/{setting_id}` | — | настройка пользователя |
+| `POST /settings` | `scope`, `key`, `value`; для `client` обязателен `client_device_id` | `201 SettingData` |
+| `PUT /settings/{setting_id}` | `expected_version`, `value` | обновлённая `SettingData`, версия увеличивается на 1 |
+| `DELETE /settings/{setting_id}?expected_version={version}` | — | `200`, `data:null` |
+
+`SettingData`: `id`, `user_id`, `client_device_id`, `scope`, `key`, `value`, `version`, `created_at`, `updated_at`. `scope`: `global` или `client`. Ключ уникален в области видимости. Изменения записываются в ChangeLog; payload содержит область, ключ и ID устройства, но не значение настройки.
+
 ## Синхронизация
 
 | Метод и путь | Параметры/тело | Ответ |
