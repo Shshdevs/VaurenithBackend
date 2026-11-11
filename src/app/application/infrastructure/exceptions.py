@@ -32,6 +32,31 @@ class ServiceVersionConflict(Conflict):
         super().__init__(message)
 
 
+class ContainerDeletionConflict(Conflict):
+    def __init__(self, container_id: str) -> None:
+        super().__init__(f"Container with id {container_id} has dependent records")
+
+
+class ContainerNotFound(NotFound):
+    def __init__(self, container_id: str) -> None:
+        super().__init__(f"Container with id {container_id} not found")
+
+
+class ContainerAssociationNotFound(NotFound):
+    def __init__(self) -> None:
+        super().__init__("One or more service associations were not found")
+
+
+class ContainerVersionConflict(Conflict):
+    def __init__(self, expected_version: int, current_version: int | None = None) -> None:
+        message = (
+            f"Container version conflict: expected version {expected_version} is stale"
+        )
+        if current_version is not None:
+            message += f"; current version is {current_version}"
+        super().__init__(message)
+
+
 class ServiceDeletionConflict(Conflict):
     def __init__(self, service_id: str) -> None:
         super().__init__(f"Service with id {service_id} has dependent records")
