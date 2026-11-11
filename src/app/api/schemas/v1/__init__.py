@@ -1,3 +1,8 @@
+from app.api.schemas.v1.development import (
+    RepositoryCreateRequest,
+    RepositoryData,
+    RepositoryUpdateRequest,
+)
 from app.api.schemas.v1.health.health import (
     DependencyHealth,
     LivenessData,
@@ -66,6 +71,9 @@ from app.api.schemas.v1.synchronization.sync_state import (
 
 __all__ = [
     "UserData",
+    "RepositoryData",
+    "RepositoryCreateRequest",
+    "RepositoryUpdateRequest",
     "EventData",
     "EventCreateRequest",
     "LogMetadataData",

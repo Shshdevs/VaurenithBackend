@@ -2,6 +2,8 @@
 include = ["src", "migrations"]
 extraPaths = ["src"]
 pythonVersion = "3.13"
+venvPath = "."
+venv = ".venv"
 
 [tool.ruff]
 line-length = 92

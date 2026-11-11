@@ -65,6 +65,19 @@
 
 `ProjectData`: `id`, `user_id`, `name`, `slug`, `description`, `project_type`, `status`, `metadata`, `version`, `created_at`, `updated_at`, `deleted_at`. Типы проекта: `software`, `infrastructure`, `fullstack`, `other`; статусы: `active`, `archived`. `EnvironmentData`: `id`, `project_id`, `name`, `slug`, `environment_type`, `description`, `configuration`, `version`, временные метки и `deleted_at`. Типы: `development`, `testing`, `staging`, `production`, `local`, `other`.
 
+## Репозитории разработки
+
+| Метод и путь | Параметры/тело | Ответ |
+|---|---|---|
+| `POST /projects/{project_id}/repositories` | `name`; опциональны `repository_type`, `description`, `remote_url`, `default_branch` | `201 RepositoryData`; проект должен принадлежать пользователю |
+| `GET /projects/{project_id}/repositories` | — | активные репозитории проекта |
+| `GET /repositories` | — | активные репозитории пользователя |
+| `GET /repositories/{repository_id}` | — | репозиторий, если проект принадлежит пользователю |
+| `PUT /repositories/{repository_id}` | `version`, `name`, `repository_type`; остальные поля метаданных опциональны | обновлённый `RepositoryData`, версия увеличивается на 1 |
+| `DELETE /repositories/{repository_id}?expected_version={version}` | — | `200`, `data:null`; репозиторий мягко удаляется |
+
+`RepositoryData`: `id`, `project_id`, `name`, `slug`, `description`, `remote_url`, `default_branch`, `repository_type`, `version`, `created_at`, `updated_at`, `deleted_at`. Тип: `git` или `other`. Изменения попадают в ChangeLog без `remote_url` и `description`.
+
 ## Связи проекта и устройства
 
 | Метод и путь | Тело | Ответ |
