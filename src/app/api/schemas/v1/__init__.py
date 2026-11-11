@@ -5,6 +5,12 @@ from app.api.schemas.v1.health.health import (
 )
 from app.api.schemas.v1.identity.user import UserData
 from app.api.schemas.v1.identity.user_create import UserCreateRequest
+from app.api.schemas.v1.infrastructure.connection import ConnectionData
+from app.api.schemas.v1.infrastructure.connection_create import ConnectionCreateRequest
+from app.api.schemas.v1.infrastructure.connection_status_update import (
+    ConnectionStatusUpdateRequest,
+)
+from app.api.schemas.v1.infrastructure.connection_update import ConnectionUpdateRequest
 from app.api.schemas.v1.infrastructure.container import ContainerData
 from app.api.schemas.v1.infrastructure.container_create import ContainerCreateRequest
 from app.api.schemas.v1.infrastructure.container_update import ContainerUpdateRequest
@@ -59,6 +65,10 @@ __all__ = [
     "ContainerData",
     "ContainerCreateRequest",
     "ContainerUpdateRequest",
+    "ConnectionData",
+    "ConnectionCreateRequest",
+    "ConnectionUpdateRequest",
+    "ConnectionStatusUpdateRequest",
     "ServiceData",
     "ServiceCreateRequest",
     "ServiceUpdateRequest",

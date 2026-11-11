@@ -1,3 +1,4 @@
+from app.domain.infrastructure.entities.connection import Connection
 from app.domain.infrastructure.entities.container import Container
 from app.domain.infrastructure.entities.database import Database
 from app.domain.infrastructure.entities.device import Device
@@ -14,6 +15,7 @@ from app.domain.infrastructure.enums import (
     ServiceType,
 )
 from app.domain.infrastructure.exceptions import (
+    InvalidConnection,
     InvalidContainer,
     InvalidDatabase,
     InvalidDevice,
@@ -40,6 +42,7 @@ __all__ = [
     "AuthenticationType",
     "ConnectionEndpoint",
     "Container",
+    "Connection",
     "ContainerImage",
     "ContainerName",
     "ContainerRuntimeId",
@@ -58,6 +61,7 @@ __all__ = [
     "InvalidDeviceGroup",
     "InvalidDevice",
     "InvalidContainer",
+    "InvalidConnection",
     "InvalidDatabase",
     "OperatingSystem",
     "ResourceStatus",

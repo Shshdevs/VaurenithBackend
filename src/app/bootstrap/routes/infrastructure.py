@@ -1,10 +1,20 @@
 from fastapi import APIRouter
 
+from app.api.routes.v1.infrastructure.connection import build_connection_router
 from app.api.routes.v1.infrastructure.container import build_container_router
 from app.api.routes.v1.infrastructure.device import build_device_router
 from app.api.routes.v1.infrastructure.device_group import build_device_group_router
 from app.api.routes.v1.infrastructure.service import build_service_router
 from app.bootstrap.dependencies.identity import get_authenticated_identity
+from app.bootstrap.dependencies.infrastructure.connection import (
+    get_create_connection_dependency,
+    get_delete_connection_dependency,
+    get_get_connection_dependency,
+    get_get_device_connections_dependency,
+    get_get_user_connections_dependency,
+    get_report_connection_status_dependency,
+    get_update_connection_dependency,
+)
 from app.bootstrap.dependencies.infrastructure.container import (
     get_create_container_dependency,
     get_delete_container_dependency,
@@ -44,6 +54,18 @@ from app.bootstrap.dependencies.infrastructure.service import (
 
 def build_infrastructure_api_router() -> APIRouter:
     router = APIRouter()
+    router.include_router(
+        build_connection_router(
+            create_connection_dependency=get_create_connection_dependency,
+            get_connection_dependency=get_get_connection_dependency,
+            get_user_connections_dependency=get_get_user_connections_dependency,
+            get_device_connections_dependency=get_get_device_connections_dependency,
+            update_connection_dependency=get_update_connection_dependency,
+            report_connection_status_dependency=get_report_connection_status_dependency,
+            delete_connection_dependency=get_delete_connection_dependency,
+            authenticated_identity_dependency=get_authenticated_identity,
+        )
+    )
     router.include_router(
         build_device_router(
             create_device_dependency=get_create_device_dependency,
