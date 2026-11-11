@@ -7,14 +7,19 @@ from app.api.schemas.response import ApiResponse, format_http_status
 from app.api.schemas.v1 import (
     DeviceGroup,
     DeviceGroupCreateRequest,
+    DeviceGroupMemberCreateRequest,
+    DeviceGroupMemberData,
     DeviceGroupUpdateRequest,
 )
 from app.application.identity import VerifiedIdentity
 from app.application.infrastructure.use_cases.device_group import (
+    AddDeviceGroupMember,
     CreateDeviceGroup,
     DeleteDeviceGroup,
     GetDeviceGroup,
+    GetDeviceGroupMembers,
     GetUserDeviceGroups,
+    RemoveDeviceGroupMember,
     UpdateDeviceGroup,
 )
 
@@ -23,6 +28,9 @@ def build_device_group_router(
     create_device_group_dependency: Callable[..., CreateDeviceGroup],
     get_device_group_dependency: Callable[..., GetDeviceGroup],
     get_user_device_groups_dependency: Callable[..., GetUserDeviceGroups],
+    get_device_group_members_dependency: Callable[..., GetDeviceGroupMembers],
+    add_device_group_member_dependency: Callable[..., AddDeviceGroupMember],
+    remove_device_group_member_dependency: Callable[..., RemoveDeviceGroupMember],
     delete_device_group_dependency: Callable[..., DeleteDeviceGroup],
     update_device_group_dependency: Callable[..., UpdateDeviceGroup],
     authenticated_identity_dependency: Callable[
@@ -30,6 +38,64 @@ def build_device_group_router(
     ],
 ) -> APIRouter:
     router = APIRouter(tags=["device_groups"])
+
+    @router.get(
+        "/device-groups/{device_group_id}/members",
+        response_model=ApiResponse[list[DeviceGroupMemberData]],
+        status_code=status.HTTP_200_OK,
+    )
+    async def get_members(
+        device_group_id: UUID,
+        get_members_use_case: GetDeviceGroupMembers = Depends(
+            get_device_group_members_dependency
+        ),
+        identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
+    ) -> ApiResponse[list[DeviceGroupMemberData]]:
+        members = await get_members_use_case.list_members(identity, device_group_id)
+        return ApiResponse[list[DeviceGroupMemberData]](
+            status=format_http_status(status.HTTP_200_OK),
+            message="Device group members retrieved successfully",
+            data=[DeviceGroupMemberData.model_validate(member) for member in members],
+        )
+
+    @router.post(
+        "/device-groups/{device_group_id}/members",
+        response_model=ApiResponse[DeviceGroupMemberData],
+        status_code=status.HTTP_201_CREATED,
+    )
+    async def add_member(
+        device_group_id: UUID,
+        request: DeviceGroupMemberCreateRequest,
+        add_member_use_case: AddDeviceGroupMember = Depends(
+            add_device_group_member_dependency
+        ),
+        identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
+    ) -> ApiResponse[DeviceGroupMemberData]:
+        member = await add_member_use_case.add(identity, device_group_id, request.device_id)
+        return ApiResponse[DeviceGroupMemberData](
+            status=format_http_status(status.HTTP_201_CREATED),
+            message="Device added to group successfully",
+            data=DeviceGroupMemberData.model_validate(member),
+        )
+
+    @router.delete(
+        "/device-groups/{device_group_id}/members/{device_id}",
+        response_model=ApiResponse[None],
+        status_code=status.HTTP_200_OK,
+    )
+    async def remove_member(
+        device_group_id: UUID,
+        device_id: UUID,
+        remove_member_use_case: RemoveDeviceGroupMember = Depends(
+            remove_device_group_member_dependency
+        ),
+        identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
+    ) -> ApiResponse[None]:
+        await remove_member_use_case.remove(identity, device_group_id, device_id)
+        return ApiResponse[None](
+            status=format_http_status(status.HTTP_200_OK),
+            message="Device removed from group successfully",
+        )
 
     @router.get(
         "/device-groups",

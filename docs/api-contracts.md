@@ -97,11 +97,16 @@
 | Метод и путь | Тело | Ответ |
 |---|---|---|
 | `POST /device-groups` | `name`, опционально `description` | `201 DeviceGroup` |
+| `GET /device-groups` | — | список групп устройств пользователя |
 | `GET /device-groups/{device_group_id}` | — | группа |
+| `GET /device-groups/{device_group_id}/members` | — | участники группы (ID записей членства и устройств) |
+| `POST /device-groups/{device_group_id}/members` | `device_id` | `201 DeviceGroupMemberData`; устройство добавлено в группу |
+| `DELETE /device-groups/{device_group_id}/members/{device_id}` | — | `200`, `data:null`; устройство удалено из группы |
 | `PUT /device-groups/{device_group_id}` | `name`, опционально `description` | группа |
 | `DELETE /device-groups/{device_group_id}` | — | `200`, `data:null` |
 
 `DeviceGroup`: `id`, `user_id`, `name`, `slug`, `description`, `created_at`, `updated_at`, `version`.
+`DeviceGroupMemberData`: `id`, `group_id`, `device_id`, `created_at`. И группа, и устройство должны принадлежать текущему пользователю. Повторное добавление участника возвращает 409; удаление отсутствующего участника — 404. Добавление и удаление записываются в ChangeLog как `device_group_member`.
 
 ### Подключения
 
@@ -179,7 +184,7 @@
 
 `SyncStateData`: `id`, `user_id`, `client_device_id`, `updated_at`, `version`, `entity_type`, `entity_id`, `local_version`, `server_version`, `sync_status`, `last_synced_at`, `last_error`. Версии неотрицательные; для create/update верхняя граница — `2^63−1`, а `expected_version` — `2^63−2`. Статусы: `synced`, `pending`, `syncing`, `conflict`, `failed`, `offline`.
 
-`ChangeLogData`: `id`, `user_id`, `entity_type`, `entity_id`, `operation`, `version`, `sequence`, `changed_by_client_id`, `changed_by_user_id`, `payload`, `created_at`. Операция: `insert`, `update`, `delete`. `EntityType` включает user/project/environment/project_device/device/device_group/connection/service/container/database и доменные типы repository, branch, commit, code_component, dependency, script, script_execution, relation, event, metric, settings, sync_state, other.
+`ChangeLogData`: `id`, `user_id`, `entity_type`, `entity_id`, `operation`, `version`, `sequence`, `changed_by_client_id`, `changed_by_user_id`, `payload`, `created_at`. Операция: `insert`, `update`, `delete`. `EntityType` включает user/project/environment/project_device/device/device_group/device_group_member/connection/service/container/database и доменные типы repository, branch, commit, code_component, dependency, script, script_execution, relation, event, metric, settings, sync_state, other.
 
 ## Примечания к контракту
 

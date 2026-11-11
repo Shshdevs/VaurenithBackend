@@ -14,6 +14,7 @@ class EntityType(str, Enum):
     PROJECT_DEVICE = "project_device"
     DEVICE = "device"
     DEVICE_GROUP = "device_group"
+    DEVICE_GROUP_MEMBER = "device_group_member"
     CONNECTION = "connection"
     SERVICE = "service"
     CONTAINER = "container"

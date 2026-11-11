@@ -123,3 +123,13 @@ class DeviceGroupDeletionConflict(Conflict):
 class DeviceGroupAlreadyExists(Conflict):
     def __init__(self, name: str) -> None:
         super().__init__(f"Device group with name {name} already exists")
+
+
+class DeviceGroupMemberNotFound(NotFound):
+    def __init__(self, group_id: str, device_id: str) -> None:
+        super().__init__(f"Device {device_id} is not a member of device group {group_id}")
+
+
+class DeviceGroupMemberAlreadyExists(Conflict):
+    def __init__(self, group_id: str, device_id: str) -> None:
+        super().__init__(f"Device {device_id} is already a member of group {group_id}")

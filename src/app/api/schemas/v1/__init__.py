@@ -21,6 +21,10 @@ from app.api.schemas.v1.infrastructure.device import Device
 from app.api.schemas.v1.infrastructure.device_create import DeviceCreateRequest
 from app.api.schemas.v1.infrastructure.device_group import DeviceGroup
 from app.api.schemas.v1.infrastructure.device_group_create import DeviceGroupCreateRequest
+from app.api.schemas.v1.infrastructure.device_group_member import DeviceGroupMemberData
+from app.api.schemas.v1.infrastructure.device_group_member_create import (
+    DeviceGroupMemberCreateRequest,
+)
 from app.api.schemas.v1.infrastructure.device_group_update import DeviceGroupUpdateRequest
 from app.api.schemas.v1.infrastructure.device_update import DeviceUpdateRequest
 from app.api.schemas.v1.infrastructure.service import ServiceData
@@ -60,6 +64,8 @@ __all__ = [
     "ProjectDeviceUpdateRequest",
     "ProjectDeviceData",
     "DeviceGroup",
+    "DeviceGroupMemberData",
+    "DeviceGroupMemberCreateRequest",
     "DeviceGroupCreateRequest",
     "DeviceGroupUpdateRequest",
     "Device",
