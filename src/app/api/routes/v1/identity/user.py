@@ -6,6 +6,7 @@ from app.api.schemas import ApiResponse, format_http_status
 from app.api.schemas.v1 import UserCreateRequest, UserData
 from app.application.identity import (
     CreateUser,
+    DeleteUser,
     GetCurrentUser,
     RevokeSession,
     VerifiedIdentity,
@@ -14,6 +15,7 @@ from app.application.identity import (
 
 def build_user_router(
     get_current_user_dependency: Callable[..., GetCurrentUser],
+    delete_user_dependency: Callable[..., DeleteUser],
     create_user_dependency: Callable[..., CreateUser],
     revoke_session_dependency: Callable[..., RevokeSession],
     authenticated_identity_dependency: Callable[
@@ -24,6 +26,18 @@ def build_user_router(
     ],
 ) -> APIRouter:
     router = APIRouter(tags=["users"])
+
+    @router.delete("/users/me", response_model=ApiResponse[None])
+    async def delete_me(
+        delete_user: DeleteUser = Depends(delete_user_dependency),
+        identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
+    ) -> ApiResponse[None]:
+        await delete_user.execute(identity.user_id)
+        return ApiResponse[None](
+            message="User deleted successfully",
+            status=format_http_status(status.HTTP_200_OK),
+            data=None,
+        )
 
     @router.post("/users/logout", response_model=ApiResponse[None])
     async def logout(

@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.application.identity.use_cases import (
     AuthenticateIdentity,
     CreateUser,
+    DeleteUser,
     GetCurrentUser,
     RevokeSession,
     VerifyIdentityToken,
@@ -30,6 +31,10 @@ def provide_create_user(session: AsyncSession) -> CreateUser:
         RecordChange(SqlAlchemyChangeLogRepository(session)),
         SqlAlchemyUnitOfWork(session),
     )
+
+
+def provide_delete_user(session: AsyncSession) -> DeleteUser:
+    return DeleteUser(SqlAlchemyUserRepository(session), SqlAlchemyUnitOfWork(session))
 
 
 def provide_verify_identity_token() -> VerifyIdentityToken:

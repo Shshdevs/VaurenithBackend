@@ -93,6 +93,9 @@ async def test_register_persists_user_and_session_then_rolls_back() -> None:
                 assert await session_repository.has_active_session(token_hash, now)
                 assert session.client_device_id == client_device.id
 
+                assert await user_repository.delete(user_id)
+                assert await user_repository.get_by_id(user_id) is None
+
             await transaction.rollback()
 
         async with AsyncSession(engine) as verification_session:
