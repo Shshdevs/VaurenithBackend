@@ -9,6 +9,7 @@ def build_router(
     infrastructure_router: APIRouter,
     synchronization_router: APIRouter,
     preferences_router: APIRouter,
+    monitoring_router: APIRouter,
 ) -> APIRouter:
     router = APIRouter()
     router.include_router(health_router, prefix=prefix)
@@ -17,4 +18,5 @@ def build_router(
     router.include_router(infrastructure_router, prefix=prefix)
     router.include_router(synchronization_router, prefix=prefix)
     router.include_router(preferences_router, prefix=prefix)
+    router.include_router(monitoring_router, prefix=prefix)
     return router

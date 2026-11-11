@@ -33,6 +33,7 @@ from app.api.schemas.v1.infrastructure.service_status_update import (
     ServiceStatusUpdateRequest,
 )
 from app.api.schemas.v1.infrastructure.service_update import ServiceUpdateRequest
+from app.api.schemas.v1.monitoring import MetricCreateRequest, MetricData
 from app.api.schemas.v1.preferences import (
     SettingCreateRequest,
     SettingData,
@@ -58,6 +59,8 @@ from app.api.schemas.v1.synchronization.sync_state import (
 
 __all__ = [
     "UserData",
+    "MetricData",
+    "MetricCreateRequest",
     "SettingData",
     "SettingCreateRequest",
     "SettingUpdateRequest",
