@@ -25,6 +25,66 @@ python_files = ["test_*.py"]
 pythonpath = ["src"]
 addopts = "-ra"
 
+[tool.importlinter]
+root_package = "app"
+include_external_packages = false
+
+[[tool.importlinter.contracts]]
+name = "Domain is independent"
+type = "forbidden"
+source_modules = ["app.domain"]
+forbidden_modules = ["app.application", "app.infrastructure", "app.api", "app.bootstrap", "app.core"]
+
+[[tool.importlinter.contracts]]
+name = "Application is independent of delivery and implementation"
+type = "forbidden"
+source_modules = ["app.application"]
+forbidden_modules = ["app.infrastructure", "app.api", "app.bootstrap", "app.core"]
+
+[[tool.importlinter.contracts]]
+name = "Infrastructure does not depend on delivery or composition"
+type = "forbidden"
+source_modules = ["app.infrastructure"]
+forbidden_modules = ["app.api", "app.bootstrap"]
+
+[[tool.importlinter.contracts]]
+name = "API does not depend on implementation or composition"
+type = "forbidden"
+source_modules = ["app.api"]
+forbidden_modules = ["app.infrastructure", "app.bootstrap"]
+
+[[tool.importlinter.contracts]]
+name = "Core is independent"
+type = "forbidden"
+source_modules = ["app.core"]
+forbidden_modules = ["app.domain", "app.application", "app.infrastructure", "app.api", "app.bootstrap"]
+
+[[tool.importlinter.contracts]]
+name = "Domain features stay independent"
+type = "forbidden"
+source_modules = [
+    "app.domain.synchronization",
+    "app.domain.projects",
+    "app.domain.infrastructure",
+    "app.domain.monitoring",
+    "app.domain.preferences",
+    "app.domain.identity",
+    "app.domain.development",
+    "app.domain.automation",
+    "app.domain.relations",
+]
+forbidden_modules = [
+    "app.domain.synchronization",
+    "app.domain.projects",
+    "app.domain.infrastructure",
+    "app.domain.monitoring",
+    "app.domain.preferences",
+    "app.domain.identity",
+    "app.domain.development",
+    "app.domain.automation",
+    "app.domain.relations",
+]
+
 [tool.bandit]
 targets = ["src", "migrations"]
 exclude_dirs = [".venv", "tests"]

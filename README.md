@@ -66,9 +66,10 @@ API будет доступно на `http://localhost:8000`, интеракти
 | `make test-integration` | Запускает интеграционные тесты, загружая `TEST_DATABASE_URL` из окружения или `.env` |
 | `make test-cov` | Запускает тесты с отчётом покрытия для пакета `app` |
 | `make lint` / `make format-check` / `make typecheck` | Проверяет стиль, форматирование и типы |
+| `make architecture` | Проверяет границы пакетов и разрешённые зависимости между слоями |
 | `make fix` | Исправляет lint-ошибки и форматирует файлы |
 | `make security` | Запускает Bandit и Semgrep |
-| `make check` | Запускает проверки качества, безопасности и все тесты |
+| `make check` | Запускает проверки стиля, типов, архитектуры, безопасности и все тесты |
 | `make db-upgrade` / `make db-current` | Применяет миграции к `DATABASE_URL` / показывает текущую ревизию |
 | `make db-upgrade-test` | Применяет миграции к отдельной БД из `TEST_DATABASE_URL`; откажется, если URL указывает на основную БД |
 | `make db-revision MESSAGE="add table"` | Создаёт автогенерируемую миграцию |

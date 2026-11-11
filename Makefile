@@ -1,4 +1,4 @@
-.PHONY: lint lint-fix format format-check typecheck semgrep semgrep-all security test test-unit test-integration test-cov check fix setup install-hooks docker docker-up docker-build docker-down docker-logs db-upgrade db-upgrade-test db-current db-revision db-prune-change-log
+.PHONY: lint lint-fix format format-check typecheck architecture semgrep semgrep-all security test test-unit test-integration test-cov check fix setup install-hooks docker docker-up docker-build docker-down docker-logs db-upgrade db-upgrade-test db-current db-revision db-prune-change-log
 
 PYTHON ?= python3.13
 TEST_PATH ?= tests
@@ -24,6 +24,9 @@ fix:
 typecheck:
 	pyright
 
+architecture:
+	PYTHONPATH=src $(if $(wildcard .venv/bin/lint-imports),.venv/bin/lint-imports,lint-imports)
+
 semgrep:
 	pre-commit run semgrep
 
@@ -47,7 +50,7 @@ test-integration:
 test-cov:
 	pytest $(TEST_PATH) $(PYTEST_ARGS) --cov=app --cov-report=term-missing
 
-check: lint format-check typecheck security test
+check: lint format-check typecheck architecture security test
 
 setup:
 	$(PYTHON) -m venv .venv
