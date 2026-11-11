@@ -36,6 +36,7 @@ class CodeComponent(Entity):
         analysis_version: str | None = None,
         analyzed_at: datetime | None = None,
         source_commit_hash: str | None = None,
+        version: int = 1,
     ) -> None:
         if not isinstance(entity_id, UUID) or not isinstance(repository_id, UUID):
             raise InvalidCodeComponent("Component and repository identifiers must be UUIDs")
@@ -43,6 +44,8 @@ class CodeComponent(Entity):
             raise InvalidCodeComponent("Parent identifier must be a UUID")
         if parent_id == entity_id:
             raise InvalidCodeComponent("A code component cannot be its own parent")
+        if not isinstance(version, int) or isinstance(version, bool) or version < 1:
+            raise InvalidCodeComponent("Component version must be a positive integer")
 
         component_name = ComponentName(name)
         component_path = ComponentPath(path)
@@ -89,6 +92,7 @@ class CodeComponent(Entity):
         self._source_commit_hash = commit_hash
         self._created_at = created_at
         self._updated_at = updated_at
+        self._version = version
 
     @staticmethod
     def _normalize_optional_text(
@@ -186,3 +190,7 @@ class CodeComponent(Entity):
     @property
     def updated_at(self) -> datetime:
         return self._updated_at
+
+    @property
+    def version(self) -> int:
+        return self._version

@@ -1,3 +1,4 @@
+from .sqlalchemy_code_component_repository import SqlAlchemyCodeComponentRepository
 from .sqlalchemy_repository_repository import SqlAlchemyRepositoryRepository
 
-__all__ = ["SqlAlchemyRepositoryRepository"]
+__all__ = ["SqlAlchemyCodeComponentRepository", "SqlAlchemyRepositoryRepository"]

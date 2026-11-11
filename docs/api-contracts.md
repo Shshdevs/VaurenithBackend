@@ -254,3 +254,11 @@
 - Ошибки предметной области `NotFound`, `InvalidInput`, `Conflict`, `Unauthorized` отображаются в 404/422/409/401 соответственно. Текст зависит от конкретного use case и не фиксирован этим документом.
 - Запросы с неизвестными полями отклоняются. Для nullable полей отсутствие и `null` могут совпадать; отдельные PATCH-операции статуса перечислены выше.
 - В API сейчас подключены только перечисленные маршруты. Наличие доменных сущностей в других модулях само по себе не означает наличие HTTP endpoint.
+
+## Development code components
+
+- `POST /v1/repositories/{repository_id}/code-components` creates structural metadata for a code component.
+- `GET /v1/repositories/{repository_id}/code-components` lists components in an owned repository.
+- `GET /v1/code-components/{component_id}` returns a code component.
+- `PUT /v1/code-components/{component_id}` updates component metadata with an expected `version`.
+- `DELETE /v1/code-components/{component_id}?expected_version={version}` deletes an unreferenced code component.

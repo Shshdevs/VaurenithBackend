@@ -1,3 +1,4 @@
+from app.domain.development.entities.code_component import CodeComponent
 from app.domain.development.entities.repository import Repository
 from app.domain.development.enums import (
     ComponentType,
@@ -5,7 +6,7 @@ from app.domain.development.enums import (
     RepositoryStatus,
     RepositoryType,
 )
-from app.domain.development.exceptions import InvalidRepository
+from app.domain.development.exceptions import InvalidCodeComponent, InvalidRepository
 from app.domain.development.value_objects import (
     BranchName,
     CommitHash,
@@ -18,6 +19,7 @@ from app.domain.development.value_objects import (
 )
 
 __all__ = [
+    "CodeComponent",
     "ComponentType",
     "BranchName",
     "CommitHash",
@@ -26,6 +28,7 @@ __all__ = [
     "Confidence",
     "DefaultBranchName",
     "DependencyType",
+    "InvalidCodeComponent",
     "InvalidRepository",
     "RemoteRepositoryUrl",
     "Repository",

@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
+    BigInteger,
     DateTime,
     Enum,
     ForeignKey,
@@ -75,6 +76,9 @@ class CodeComponent(Base):
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=text("now()")
+    )
+    version: Mapped[int] = mapped_column(
+        BigInteger, nullable=False, server_default=text("1")
     )
 
     repository: Mapped["Repository"] = relationship(
