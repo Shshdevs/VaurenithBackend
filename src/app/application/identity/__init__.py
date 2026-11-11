@@ -16,6 +16,7 @@ from app.application.identity.interfaces import (
 from app.application.identity.use_cases import (
     AuthenticateIdentity,
     CreateUser,
+    DeleteUser,
     GetCurrentUser,
     RevokeSession,
     VerifyIdentityToken,
@@ -25,6 +26,7 @@ __all__ = [
     "AccessTokenVerifier",
     "AuthenticateIdentity",
     "CreateUser",
+    "DeleteUser",
     "GetCurrentUser",
     "RevokeSession",
     "IdentityTokenClaims",
