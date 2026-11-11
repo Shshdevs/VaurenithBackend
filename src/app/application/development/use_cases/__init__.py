@@ -1,4 +1,4 @@
-from app.application.development.use_cases.repositories import (
+from app.application.development.use_cases.repository import (
     CreateRepository,
     DeleteRepository,
     GetProjectRepositories,
