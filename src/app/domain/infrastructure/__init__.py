@@ -3,6 +3,7 @@ from app.domain.infrastructure.entities.container import Container
 from app.domain.infrastructure.entities.database import Database
 from app.domain.infrastructure.entities.device import Device
 from app.domain.infrastructure.entities.device_group import DeviceGroup
+from app.domain.infrastructure.entities.device_group_member import DeviceGroupMember
 from app.domain.infrastructure.entities.service import Service
 from app.domain.infrastructure.enums import (
     AuthenticationType,
@@ -20,6 +21,7 @@ from app.domain.infrastructure.exceptions import (
     InvalidDatabase,
     InvalidDevice,
     InvalidDeviceGroup,
+    InvalidDeviceGroupMember,
     InvalidService,
 )
 from app.domain.infrastructure.value_objects import (
@@ -56,9 +58,11 @@ __all__ = [
     "DeviceType",
     "DeviceName",
     "DeviceGroup",
+    "DeviceGroupMember",
     "Device",
     "DeviceGroupName",
     "InvalidDeviceGroup",
+    "InvalidDeviceGroupMember",
     "InvalidDevice",
     "InvalidContainer",
     "InvalidConnection",

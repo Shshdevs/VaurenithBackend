@@ -87,6 +87,9 @@ def build_test_client(
     def provide_delete() -> DeleteDeviceGroup:
         return DeleteDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
+    def provide_unused_dependency() -> None:
+        return None
+
     app = FastAPI()
     register_error_handlers(app)
     app.include_router(
@@ -94,6 +97,9 @@ def build_test_client(
             create_device_group_dependency=provide_create,
             get_device_group_dependency=provide_get,
             get_user_device_groups_dependency=provide_get_user_groups,
+            get_device_group_members_dependency=provide_unused_dependency,
+            add_device_group_member_dependency=provide_unused_dependency,
+            remove_device_group_member_dependency=provide_unused_dependency,
             update_device_group_dependency=provide_update,
             delete_device_group_dependency=provide_delete,
             authenticated_identity_dependency=provide_identity,

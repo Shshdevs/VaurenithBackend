@@ -8,10 +8,19 @@ from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 
 from app.application.identity import VerifiedIdentity
-from app.application.infrastructure.exceptions import DeviceGroupAlreadyExists
+from app.application.infrastructure.exceptions import (
+    DeviceGroupAlreadyExists,
+    DeviceGroupMemberAlreadyExists,
+)
 from app.core.config import get_settings
 from app.domain.identity import EmailAddress, TokenHash
-from app.domain.infrastructure import DeviceGroup, DeviceGroupName
+from app.domain.infrastructure import (
+    DeviceGroup,
+    DeviceGroupName,
+)
+from app.domain.infrastructure import (
+    DeviceGroupMember as DeviceGroupMemberEntity,
+)
 from app.domain.infrastructure.enums import DeviceType
 from app.infrastructure.persistence.models.identity.user import User
 from app.infrastructure.persistence.models.infrastructure.device import Device
@@ -22,6 +31,7 @@ from app.infrastructure.persistence.models.infrastructure.device_group_member im
     DeviceGroupMember,
 )
 from app.infrastructure.persistence.repositories.infrastructure import (
+    SqlAlchemyDeviceGroupMemberRepository,
     SqlAlchemyDeviceGroupRepository,
 )
 
@@ -157,6 +167,27 @@ async def test_device_group_repository_crud_owner_scope_and_member_cascade() -> 
                 with pytest.raises(DeviceGroupAlreadyExists):
                     async with database_session.begin_nested():
                         await repository.create(duplicate)
+
+                member_repository = SqlAlchemyDeviceGroupMemberRepository(database_session)
+                member = DeviceGroupMemberEntity(
+                    entity_id=uuid4(),
+                    group_id=group_id,
+                    device_id=device_id,
+                    created_at=now,
+                )
+                await member_repository.add(identity, member)
+                assert [
+                    stored_member.id
+                    for stored_member in await member_repository.get_by_group(
+                        identity, group_id
+                    )
+                ] == [member.id]
+                assert await member_repository.get_by_group(other_identity, group_id) == []
+                with pytest.raises(DeviceGroupMemberAlreadyExists):
+                    async with database_session.begin_nested():
+                        await member_repository.add(identity, member)
+                assert await member_repository.delete(identity, group_id, device_id)
+                assert not await member_repository.delete(identity, group_id, device_id)
 
                 database_session.add(
                     DeviceGroupMember(group_id=group_id, device_id=device_id)
