@@ -257,9 +257,49 @@ async def test_device_api_uses_postgres_change_log_and_enforces_owner_scope() ->
             )
             assert expired_cursor_response.status_code == 410
             assert expired_cursor_response.json()["data"]["resync_required"] is True
-            assert expired_cursor_response.json()["data"]["restart_sequence"] == max(
+            restart_sequence = expired_cursor_response.json()["data"]["restart_sequence"]
+            assert restart_sequence == max(
                 change["sequence"] for change in owner_changes.json()["data"]
             )
+
+            snapshot_profile = await client.get("/api/v1/users/me", headers=owner_headers)
+            snapshot_projects = await client.get("/api/v1/projects", headers=owner_headers)
+            snapshot_devices = await client.get("/api/v1/devices", headers=owner_headers)
+            snapshot_groups = await client.get(
+                "/api/v1/device-groups", headers=owner_headers
+            )
+            assert snapshot_profile.status_code == 200
+            assert snapshot_projects.status_code == 200
+            assert snapshot_devices.status_code == 200
+            assert snapshot_groups.status_code == 200
+            assert [project["id"] for project in snapshot_projects.json()["data"]] == [
+                created_project_id
+            ]
+            assert snapshot_devices.json()["data"] == []
+            assert snapshot_groups.json()["data"] == []
+
+            changed_during_snapshot = await client.post(
+                "/api/v1/devices",
+                headers=owner_headers,
+                json={"name": "created-during-resync", "device_type": "vps"},
+            )
+            assert changed_during_snapshot.status_code == 201
+            resumed_changes = await client.get(
+                f"/api/v1/change-logs?after_sequence={restart_sequence}",
+                headers=owner_headers,
+            )
+            assert resumed_changes.status_code == 200
+            assert [
+                (change["entity_type"], change["operation"])
+                for change in resumed_changes.json()["data"]
+            ] == [("device", "insert")]
+            last_sequence = resumed_changes.json()["data"][-1]["sequence"]
+            completed_resync = await client.get(
+                f"/api/v1/change-logs?after_sequence={last_sequence}",
+                headers=owner_headers,
+            )
+            assert completed_resync.status_code == 200
+            assert completed_resync.json()["data"] == []
 
             async def provide_failing_create_device(
                 session: AsyncSession = Depends(get_database_session, scope="function"),

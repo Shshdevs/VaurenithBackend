@@ -20,6 +20,14 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
 
+    async def get_by_user(self, identity: VerifiedIdentity) -> list[DeviceGroupEntity]:
+        result = await self._session.scalars(
+            select(DeviceGroup)
+            .where(DeviceGroup.user_id == identity.user_id)
+            .order_by(DeviceGroup.created_at, DeviceGroup.id)
+        )
+        return [self._to_entity(model) for model in result.all()]
+
     async def get_by_id(
         self, identity: VerifiedIdentity, device_group_id: UUID
     ) -> DeviceGroupEntity | None:

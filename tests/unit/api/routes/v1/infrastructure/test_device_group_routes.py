@@ -13,6 +13,7 @@ from app.application.infrastructure.use_cases.device_group import (
     CreateDeviceGroup,
     DeleteDeviceGroup,
     GetDeviceGroup,
+    GetUserDeviceGroups,
     UpdateDeviceGroup,
 )
 from app.domain.identity import EmailAddress, TokenHash
@@ -28,6 +29,11 @@ class FakeDeviceGroupRepository:
     ) -> DeviceGroup | None:
         group = self.groups.get(device_group_id)
         return group if group and group.user_id == identity.user_id else None
+
+    async def get_by_user(self, identity: VerifiedIdentity) -> list[DeviceGroup]:
+        return [
+            group for group in self.groups.values() if group.user_id == identity.user_id
+        ]
 
     async def create(self, device_group: DeviceGroup) -> None:
         self.groups[device_group.id] = device_group
@@ -72,6 +78,9 @@ def build_test_client(
     def provide_get() -> GetDeviceGroup:
         return GetDeviceGroup(repository)
 
+    def provide_get_user_groups() -> GetUserDeviceGroups:
+        return GetUserDeviceGroups(repository)
+
     def provide_update() -> UpdateDeviceGroup:
         return UpdateDeviceGroup(repository, NoOpRecordChange(), NoOpUnitOfWork())
 
@@ -84,6 +93,7 @@ def build_test_client(
         build_device_group_router(
             create_device_group_dependency=provide_create,
             get_device_group_dependency=provide_get,
+            get_user_device_groups_dependency=provide_get_user_groups,
             update_device_group_dependency=provide_update,
             delete_device_group_dependency=provide_delete,
             authenticated_identity_dependency=provide_identity,
@@ -111,6 +121,10 @@ def test_device_group_routes_support_create_get_update_and_delete() -> None:
     assert fetched.status_code == 200
     assert fetched.json()["data"]["id"] == str(group_id)
 
+    listed = client.get("/device-groups")
+    assert listed.status_code == 200
+    assert [group["id"] for group in listed.json()["data"]] == [str(group_id)]
+
     updated = client.put(
         f"/device-groups/{group_id}",
         json={"name": "Staging", "description": "Deployment group"},
@@ -131,6 +145,7 @@ def test_device_group_routes_enforce_authentication_and_owner_scope() -> None:
 
     unauthenticated_client, _, _ = build_test_client(reject_identity)
     assert unauthenticated_client.get(f"/device-groups/{uuid4()}").status_code == 401
+    assert unauthenticated_client.get("/device-groups").status_code == 401
 
     client, repository, identity = build_test_client()
     other_identity = make_identity()
@@ -145,6 +160,7 @@ def test_device_group_routes_enforce_authentication_and_owner_scope() -> None:
     )
 
     assert client.get(f"/device-groups/{group_id}").status_code == 404
+    assert client.get("/device-groups").json()["data"] == []
     assert identity.user_id != other_identity.user_id
 
 

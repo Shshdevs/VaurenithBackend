@@ -1,17 +1,17 @@
-# ChangeLog data and retention policy
+# Данные ChangeLog и политика хранения
 
-ChangeLog is the application's synchronization feed. It is not a permanent audit archive.
+ChangeLog — лента синхронизации приложения, а не постоянный архив аудита.
 
-New user registration events contain the entity type, entity ID, operation, version, actor IDs, and timestamp. They do not copy the user's email, display name, or authentication provider into the event payload. Clients can retrieve the current profile from `/users/me`.
+Новые события регистрации пользователя содержат тип и идентификатор сущности, операцию, версию, идентификаторы инициаторов и временную метку. Email, отображаемое имя и поставщик аутентификации пользователя в данные события не копируются. Клиент может получить текущий профиль через `/users/me`.
 
-ChangeLog entries are retained for 365 days. The `make db-prune-change-log` command deletes expired rows and records the highest expired sequence for each account. Docker Compose runs this command daily through the `change-log-pruner` service. Other deployment environments must schedule the command daily.
+Записи ChangeLog хранятся 365 дней. Команда `make db-prune-change-log` удаляет устаревшие строки и сохраняет наибольший истёкший номер последовательности для каждой учётной записи. Docker Compose запускает эту команду ежедневно через сервис `change-log-pruner`. В других средах развёртывания ежедневный запуск нужно настроить отдельно.
 
-If a client requests changes from a sequence older than the retained history, the API returns HTTP 410 with `data.resync_required` set to `true` and a `data.restart_sequence`. The client must fetch a complete current snapshot from the resource list endpoints, then resume change polling after `restart_sequence`. The client must save the restart sequence only after the snapshot succeeds.
+Если клиент запрашивает изменения начиная с номера последовательности, для которого история уже не сохранилась, API возвращает HTTP 410, `data.resync_required: true` и `data.restart_sequence`. Протокол восстановления клиента описан в документе [client-sync-requirements.md](client-sync-requirements.md). Клиент должен сохранить номер для перезапуска только после успешного сохранения полного снимка.
 
-An account deletion flow must remove the account's ChangeLog and sync state in the same transaction as the account data deletion. The current schema has required foreign keys from ChangeLog to both the account owner and the event actor, so account deletion must process ChangeLog before deleting the user.
+При удалении учётной записи её ChangeLog и состояния синхронизации должны удаляться в одной транзакции с остальными данными. В текущей схеме для ChangeLog заданы обязательные внешние ключи как на владельца учётной записи, так и на инициатора события. Поэтому записи ChangeLog нужно удалить до удаления пользователя.
 
-User IDs in ChangeLog are still linkable personal data. Any future retention period or account deletion flow must account for those identifiers as well as event payloads.
+Идентификаторы пользователей в ChangeLog остаются персональными данными, по которым можно установить связь с пользователем. При изменении срока хранения или сценария удаления учётной записи нужно учитывать эти идентификаторы наряду с данными событий.
 
-Existing user registration events may still contain email, display name, and authentication provider in their payload. They remain subject to the 365-day retention period. No backfill migration rewrites existing rows.
+В ранее созданных событиях регистрации в данных всё ещё могут находиться email, отображаемое имя и поставщик аутентификации. На них распространяется срок хранения в 365 дней. Миграция для изменения уже существующих строк не выполняется.
 
-PostgreSQL does not support removing enum labels with a simple `ALTER TYPE`. The downgrade for revision `91e2a3b4c5d6` therefore retains the added `entity_type` labels. It refuses to proceed if rows in ChangeLog, sync state, relations, or monitoring events still use those labels, so the prior application version will not encounter enum values it cannot decode.
+PostgreSQL не позволяет удалить значения перечисления простой командой `ALTER TYPE`. Поэтому при откате ревизии `91e2a3b4c5d6` добавленные значения `entity_type` сохраняются. Откат прерывается, если эти значения ещё используются в ChangeLog, состояниях синхронизации, связях или событиях мониторинга. Это не позволяет предыдущей версии приложения встретить неизвестные ей значения перечисления.

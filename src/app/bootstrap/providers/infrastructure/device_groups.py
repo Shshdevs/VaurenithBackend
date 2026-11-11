@@ -4,6 +4,7 @@ from app.application.infrastructure.use_cases.device_group import (
     CreateDeviceGroup,
     DeleteDeviceGroup,
     GetDeviceGroup,
+    GetUserDeviceGroups,
     UpdateDeviceGroup,
 )
 from app.application.synchronization.use_cases.change_log import RecordChange
@@ -26,6 +27,10 @@ def provide_create_device_group(session: AsyncSession) -> CreateDeviceGroup:
 
 def provide_get_device_group(session: AsyncSession) -> GetDeviceGroup:
     return GetDeviceGroup(SqlAlchemyDeviceGroupRepository(session))
+
+
+def provide_get_user_device_groups(session: AsyncSession) -> GetUserDeviceGroups:
+    return GetUserDeviceGroups(SqlAlchemyDeviceGroupRepository(session))
 
 
 def provide_update_device_group(session: AsyncSession) -> UpdateDeviceGroup:

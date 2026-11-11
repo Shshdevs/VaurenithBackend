@@ -11,6 +11,7 @@ from app.application.infrastructure.use_cases.device_group import (
     CreateDeviceGroup,
     DeleteDeviceGroup,
     GetDeviceGroup,
+    GetUserDeviceGroups,
     UpdateDeviceGroup,
 )
 from app.domain.identity import EmailAddress, TokenHash
@@ -28,6 +29,11 @@ class FakeDeviceGroupRepository:
     ) -> DeviceGroup | None:
         group = self.groups.get(device_group_id)
         return group if group and group.user_id == identity.user_id else None
+
+    async def get_by_user(self, identity: VerifiedIdentity) -> list[DeviceGroup]:
+        return [
+            group for group in self.groups.values() if group.user_id == identity.user_id
+        ]
 
     async def create(self, device_group: DeviceGroup) -> None:
         self.created = device_group
@@ -110,6 +116,18 @@ async def test_get_device_group_hides_groups_owned_by_other_users() -> None:
 
     with pytest.raises(DeviceGroupNotFound):
         await use_case.execute(identity=make_identity(), device_group_id=group.id)
+
+
+@pytest.mark.anyio
+async def test_get_user_device_groups_returns_only_groups_owned_by_identity() -> None:
+    identity = make_identity()
+    owned_group = make_group(identity.user_id)
+    foreign_group = make_group()
+    use_case = GetUserDeviceGroups(FakeDeviceGroupRepository([owned_group, foreign_group]))
+
+    result = await use_case.execute(identity)
+
+    assert [group.id for group in result] == [owned_group.id]
 
 
 @pytest.mark.anyio

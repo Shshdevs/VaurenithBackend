@@ -6,6 +6,8 @@ from app.domain.infrastructure import DeviceGroup
 
 
 class DeviceGroupRepository(Protocol):
+    async def get_by_user(self, identity: VerifiedIdentity) -> list[DeviceGroup]: ...
+
     async def get_by_id(
         self, identity: VerifiedIdentity, device_group_id: UUID
     ) -> DeviceGroup | None: ...
