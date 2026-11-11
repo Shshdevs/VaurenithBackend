@@ -25,7 +25,7 @@ typecheck:
 	pyright
 
 architecture:
-	PYTHONPATH=src .venv/bin/lint-imports
+	PYTHONPATH=src $(if $(wildcard .venv/bin/lint-imports),.venv/bin/lint-imports,lint-imports)
 
 semgrep:
 	pre-commit run semgrep
