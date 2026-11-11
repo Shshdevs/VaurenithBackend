@@ -1,0 +1,16 @@
+from typing import Protocol
+from uuid import UUID
+
+from app.domain.automation import Script
+
+
+class ScriptRepository(Protocol):
+    async def get_script(self, user_id: UUID, script_id: UUID) -> Script | None: ...
+    async def get_scripts(self, user_id: UUID) -> list[Script]: ...
+    async def create_script(self, user_id: UUID, script: Script) -> None: ...
+    async def update_script(
+        self, user_id: UUID, script: Script, expected_version: int
+    ) -> bool: ...
+    async def delete_script(
+        self, user_id: UUID, script_id: UUID, expected_version: int
+    ) -> bool: ...

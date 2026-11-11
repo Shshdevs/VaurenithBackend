@@ -10,6 +10,7 @@ from app.infrastructure.persistence.base import Base
 from app.infrastructure.persistence.slug_defaults import nickname_from_user
 
 if TYPE_CHECKING:
+    from app.infrastructure.persistence.models.automation.script import Script
     from app.infrastructure.persistence.models.identity.client_device import (
         ClientDevice,
     )
@@ -72,6 +73,8 @@ class User(Base):
     projects: Mapped[list["Project"]] = relationship(
         "Project", back_populates="user", foreign_keys="Project.user_id"
     )
+
+    scripts: Mapped[list["Script"]] = relationship("Script", back_populates="user")
 
     devices_by_user: Mapped[list["Device"]] = relationship(
         "Device", back_populates="user", foreign_keys="Device.user_id"
