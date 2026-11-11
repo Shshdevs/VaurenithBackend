@@ -57,6 +57,29 @@ class ContainerVersionConflict(Conflict):
         super().__init__(message)
 
 
+class DatabaseNotFound(NotFound):
+    def __init__(self, database_id: str) -> None:
+        super().__init__(f"Database with id {database_id} not found")
+
+
+class DatabaseAssociationNotFound(NotFound):
+    def __init__(self) -> None:
+        super().__init__("One or more database associations were not found")
+
+
+class DatabaseVersionConflict(Conflict):
+    def __init__(self, expected_version: int, current_version: int | None = None) -> None:
+        message = f"Database version conflict: expected version {expected_version} is stale"
+        if current_version is not None:
+            message += f"; current version is {current_version}"
+        super().__init__(message)
+
+
+class DatabaseDeletionConflict(Conflict):
+    def __init__(self, database_id: str) -> None:
+        super().__init__(f"Database with id {database_id} has dependent records")
+
+
 class ServiceDeletionConflict(Conflict):
     def __init__(self, service_id: str) -> None:
         super().__init__(f"Service with id {service_id} has dependent records")
