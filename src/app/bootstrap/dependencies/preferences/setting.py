@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.preferences.use_cases.settings import (
+from app.application.preferences.use_cases.setting import (
     CreateSetting,
     DeleteSetting,
     GetSetting,

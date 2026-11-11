@@ -10,7 +10,7 @@ from app.api.schemas.v1.preferences.setting import (
     SettingUpdateRequest,
 )
 from app.application.identity import VerifiedIdentity
-from app.application.preferences.use_cases.settings import (
+from app.application.preferences.use_cases.setting import (
     CreateSetting,
     DeleteSetting,
     GetSetting,
