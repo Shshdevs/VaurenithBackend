@@ -14,6 +14,7 @@ from app.application.infrastructure.use_cases.device_group import (
     CreateDeviceGroup,
     DeleteDeviceGroup,
     GetDeviceGroup,
+    GetUserDeviceGroups,
     UpdateDeviceGroup,
 )
 
@@ -21,6 +22,7 @@ from app.application.infrastructure.use_cases.device_group import (
 def build_device_group_router(
     create_device_group_dependency: Callable[..., CreateDeviceGroup],
     get_device_group_dependency: Callable[..., GetDeviceGroup],
+    get_user_device_groups_dependency: Callable[..., GetUserDeviceGroups],
     delete_device_group_dependency: Callable[..., DeleteDeviceGroup],
     update_device_group_dependency: Callable[..., UpdateDeviceGroup],
     authenticated_identity_dependency: Callable[
@@ -28,6 +30,24 @@ def build_device_group_router(
     ],
 ) -> APIRouter:
     router = APIRouter(tags=["device_groups"])
+
+    @router.get(
+        "/device-groups",
+        response_model=ApiResponse[list[DeviceGroup]],
+        status_code=status.HTTP_200_OK,
+    )
+    async def get_user_device_groups(
+        get_user_device_groups: GetUserDeviceGroups = Depends(
+            get_user_device_groups_dependency
+        ),
+        identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
+    ) -> ApiResponse[list[DeviceGroup]]:
+        groups = await get_user_device_groups.execute(identity)
+        return ApiResponse[list[DeviceGroup]](
+            status=format_http_status(status.HTTP_200_OK),
+            message="Device groups retrieved successfully",
+            data=[DeviceGroup.model_validate(group) for group in groups],
+        )
 
     @router.post(
         "/device-groups",

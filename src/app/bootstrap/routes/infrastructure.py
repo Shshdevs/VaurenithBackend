@@ -50,6 +50,7 @@ from app.bootstrap.dependencies.infrastructure.device_group import (
     get_create_device_group_dependency,
     get_delete_device_group_dependency,
     get_get_device_group_dependency,
+    get_get_user_device_groups_dependency,
     get_update_device_group_dependency,
 )
 from app.bootstrap.dependencies.infrastructure.service import (
@@ -93,6 +94,7 @@ def build_infrastructure_api_router() -> APIRouter:
         build_device_group_router(
             create_device_group_dependency=get_create_device_group_dependency,
             get_device_group_dependency=get_get_device_group_dependency,
+            get_user_device_groups_dependency=get_get_user_device_groups_dependency,
             update_device_group_dependency=get_update_device_group_dependency,
             delete_device_group_dependency=get_delete_device_group_dependency,
             authenticated_identity_dependency=get_authenticated_identity,

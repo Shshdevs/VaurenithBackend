@@ -6,7 +6,7 @@ New user registration events contain the entity type, entity ID, operation, vers
 
 ChangeLog entries are retained for 365 days. The `make db-prune-change-log` command deletes expired rows and records the highest expired sequence for each account. Docker Compose runs this command daily through the `change-log-pruner` service. Other deployment environments must schedule the command daily.
 
-If a client requests changes from a sequence older than the retained history, the API returns HTTP 410 with `data.resync_required` set to `true` and a `data.restart_sequence`. The client must fetch a complete current snapshot from the resource list endpoints, then resume change polling after `restart_sequence`. The client must save the restart sequence only after the snapshot succeeds.
+If a client requests changes from a sequence older than the retained history, the API returns HTTP 410 with `data.resync_required` set to `true` and a `data.restart_sequence`. The client recovery protocol is specified in [client-sync-requirements.md](client-sync-requirements.md). The client must save the restart sequence only after the complete snapshot is stored successfully.
 
 An account deletion flow must remove the account's ChangeLog and sync state in the same transaction as the account data deletion. The current schema has required foreign keys from ChangeLog to both the account owner and the event actor, so account deletion must process ChangeLog before deleting the user.
 
