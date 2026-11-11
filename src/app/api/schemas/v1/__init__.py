@@ -14,6 +14,9 @@ from app.api.schemas.v1.infrastructure.connection_update import ConnectionUpdate
 from app.api.schemas.v1.infrastructure.container import ContainerData
 from app.api.schemas.v1.infrastructure.container_create import ContainerCreateRequest
 from app.api.schemas.v1.infrastructure.container_update import ContainerUpdateRequest
+from app.api.schemas.v1.infrastructure.database import DatabaseData
+from app.api.schemas.v1.infrastructure.database_create import DatabaseCreateRequest
+from app.api.schemas.v1.infrastructure.database_update import DatabaseUpdateRequest
 from app.api.schemas.v1.infrastructure.device import Device
 from app.api.schemas.v1.infrastructure.device_create import DeviceCreateRequest
 from app.api.schemas.v1.infrastructure.device_group import DeviceGroup
@@ -69,6 +72,9 @@ __all__ = [
     "ConnectionCreateRequest",
     "ConnectionUpdateRequest",
     "ConnectionStatusUpdateRequest",
+    "DatabaseData",
+    "DatabaseCreateRequest",
+    "DatabaseUpdateRequest",
     "ServiceData",
     "ServiceCreateRequest",
     "ServiceUpdateRequest",

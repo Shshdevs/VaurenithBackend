@@ -4,6 +4,9 @@ from app.application.infrastructure.interfaces.connection_repository import (
 from app.application.infrastructure.interfaces.container_repository import (
     ContainerRepository,
 )
+from app.application.infrastructure.interfaces.database_repository import (
+    DatabaseRepository,
+)
 from app.application.infrastructure.interfaces.device_group_repository import (
     DeviceGroupRepository,
 )
@@ -16,4 +19,5 @@ __all__ = [
     "ServiceRepository",
     "ContainerRepository",
     "ConnectionRepository",
+    "DatabaseRepository",
 ]

@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.routes.v1.infrastructure.connection import build_connection_router
 from app.api.routes.v1.infrastructure.container import build_container_router
+from app.api.routes.v1.infrastructure.database import build_database_router
 from app.api.routes.v1.infrastructure.device import build_device_router
 from app.api.routes.v1.infrastructure.device_group import build_device_group_router
 from app.api.routes.v1.infrastructure.service import build_service_router
@@ -25,6 +26,18 @@ from app.bootstrap.dependencies.infrastructure.container import (
     get_get_service_containers_dependency,
     get_get_user_containers_dependency,
     get_update_container_dependency,
+)
+from app.bootstrap.dependencies.infrastructure.database import (
+    get_create_database_dependency,
+    get_delete_database_dependency,
+    get_get_container_databases_dependency,
+    get_get_database_dependency,
+    get_get_device_databases_dependency,
+    get_get_environment_databases_dependency,
+    get_get_project_databases_dependency,
+    get_get_service_databases_dependency,
+    get_get_user_databases_dependency,
+    get_update_database_dependency,
 )
 from app.bootstrap.dependencies.infrastructure.device import (
     get_create_device_dependency,
@@ -110,6 +123,21 @@ def build_infrastructure_api_router() -> APIRouter:
             get_service_containers_dependency=get_get_service_containers_dependency,
             update_container_dependency=get_update_container_dependency,
             delete_container_dependency=get_delete_container_dependency,
+            authenticated_identity_dependency=get_authenticated_identity,
+        )
+    )
+    router.include_router(
+        build_database_router(
+            create_database_dependency=get_create_database_dependency,
+            get_database_dependency=get_get_database_dependency,
+            get_user_databases_dependency=get_get_user_databases_dependency,
+            get_device_databases_dependency=get_get_device_databases_dependency,
+            get_project_databases_dependency=get_get_project_databases_dependency,
+            get_environment_databases_dependency=get_get_environment_databases_dependency,
+            get_container_databases_dependency=get_get_container_databases_dependency,
+            get_service_databases_dependency=get_get_service_databases_dependency,
+            update_database_dependency=get_update_database_dependency,
+            delete_database_dependency=get_delete_database_dependency,
             authenticated_identity_dependency=get_authenticated_identity,
         )
     )
