@@ -177,10 +177,12 @@
 |---|---|---|
 | `POST /events` | `event_type`, `result`, `created_at`; необязательны `project_id`, `device_id`, `client_device_id`, `description`, `metadata` | `201 EventData`; ссылки на проект, устройство и клиентское устройство проверяются по владельцу |
 | `GET /events` | query фильтры `project_id`, `device_id`, `event_type`, `result`, `start`, `end`; `limit` (100, 1–500), `offset` (0) | события пользователя по убыванию времени создания |
+| `POST /logs/metadata` | обязательно `source`; опциональны `project_id`, `device_id`, `service_id`, `container_id`, `reference`, `description`, `severity`, `records_count`, `collected_at` | `201 LogMetadataData`; все связанные объекты проверяются по владельцу и согласованности связей |
+| `GET /logs/metadata` | query фильтры `project_id`, `device_id`, `service_id`, `container_id`, `source`, `severity`, `start`, `end`; `limit` (100, 1–500), `offset` (0) | метаданные логов текущего пользователя по времени сбора |
 | `POST /devices/{device_id}/metrics` | `metric_type`, `value`, `unit`, `collected_at`; опционально `source` | `201 MetricData`; устройство должно принадлежать пользователю |
 | `GET /devices/{device_id}/metrics` | query `start`, `end` (интервал `[start, end)`), `limit` (100, 1–500), `offset` (0) | метрики устройства по убыванию времени сбора |
 
-`MetricData`: `id`, `device_id`, `metric_type`, `value`, `unit`, `source`, `collected_at`. Значение — неотрицательное число с точностью до 6 десятичных знаков; время должно содержать часовой пояс. Диапазон может быть открыт с любой стороны, но если указаны обе границы, `start` должен предшествовать `end`. Метрики и события не записываются в ChangeLog как отдельные события. Для metadata событий запрещены ключи, похожие на имена секретных данных (password, secret, token, credential, authorization, private key, API key).
+`MetricData`: `id`, `device_id`, `metric_type`, `value`, `unit`, `source`, `collected_at`. Значение — неотрицательное число с точностью до 6 десятичных знаков; время должно содержать часовой пояс. Диапазон может быть открыт с любой стороны, но если указаны обе границы, `start` должен предшествовать `end`. `LogMetadata` содержит только указатель и описательные поля: содержимое логов в API не передаётся и не сохраняется. `description` должна быть кратким безопасным описанием без строк лога, токенов, паролей и других секретов; `reference` — непрозрачный указатель, а не содержимое лога. Временной диапазон фильтрует `collected_at` как полуоткрытый интервал `[start, end)`. Метаданные логов, метрики и события не записываются в ChangeLog как отдельные события. В metadata событий запрещены ключи, похожие на имена секретных данных (password, secret, token, credential, authorization, private key, API key).
 
 ## Настройки
 

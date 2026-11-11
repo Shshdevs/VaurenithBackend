@@ -1,4 +1,5 @@
 from app.application.monitoring.dto.event_data import EventData
+from app.application.monitoring.dto.log_metadata_data import LogMetadataData
 from app.application.monitoring.dto.metric_data import MetricData
 
-__all__ = ["EventData", "MetricData"]
+__all__ = ["EventData", "LogMetadataData", "MetricData"]

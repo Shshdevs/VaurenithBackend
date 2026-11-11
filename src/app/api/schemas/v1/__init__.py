@@ -36,6 +36,8 @@ from app.api.schemas.v1.infrastructure.service_update import ServiceUpdateReques
 from app.api.schemas.v1.monitoring import (
     EventCreateRequest,
     EventData,
+    LogMetadataCreateRequest,
+    LogMetadataData,
     MetricCreateRequest,
     MetricData,
 )
@@ -66,6 +68,8 @@ __all__ = [
     "UserData",
     "EventData",
     "EventCreateRequest",
+    "LogMetadataData",
+    "LogMetadataCreateRequest",
     "MetricData",
     "MetricCreateRequest",
     "SettingData",
