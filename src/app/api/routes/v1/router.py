@@ -11,6 +11,7 @@ def build_router(
     preferences_router: APIRouter,
     monitoring_router: APIRouter,
     development_router: APIRouter,
+    automation_router: APIRouter,
 ) -> APIRouter:
     router = APIRouter()
     router.include_router(health_router, prefix=prefix)
@@ -21,4 +22,5 @@ def build_router(
     router.include_router(preferences_router, prefix=prefix)
     router.include_router(monitoring_router, prefix=prefix)
     router.include_router(development_router, prefix=prefix)
+    router.include_router(automation_router, prefix=prefix)
     return router

@@ -210,6 +210,29 @@
 
 `SettingData`: `id`, `user_id`, `client_device_id`, `scope`, `key`, `value`, `version`, `created_at`, `updated_at`. `scope`: `global` или `client`. Ключ уникален в области видимости. Изменения записываются в ChangeLog; payload содержит область, ключ и ID устройства, но не значение настройки.
 
+## Автоматизация
+
+Все маршруты требуют Bearer-аутентификацию. Скрипты принадлежат пользователю; привязка к проекту необязательна и проверяется по владельцу проекта. Backend хранит скрипты и очередь заданий, но исполняет код клиентский агент.
+
+| Метод и путь | Тело / параметры | Ответ и поведение |
+|---|---|---|
+| `POST /scripts` | `name`, `content`, `execution_type`; опционально `project_id`, `description`, `interpreter`, `parameters`, `risk_level`, `requires_confirmation` | `201 ScriptData` |
+| `GET /scripts` | — | список активных скриптов пользователя |
+| `GET /scripts/{script_id}` | — | скрипт владельца |
+| `PUT /scripts/{script_id}` | как создание и обязательный `version` | обновлённый скрипт, версия увеличивается; при конфликте версии — 409 |
+| `DELETE /scripts/{script_id}?expected_version={version}` | — | мягкое удаление; конфликт версии — 409 |
+| `GET /scripts/{script_id}/targets` | — | назначения скрипта на устройства |
+| `POST /scripts/{script_id}/targets` | `device_id`; опционально `environment_id` | `201 ScriptTargetData`; устройство и окружение должны принадлежать пользователю; повтор назначения — 409 |
+| `DELETE /scripts/{script_id}/targets/{target_id}` | — | удаляет назначение |
+| `POST /scripts/{script_id}/executions` | `client_device_id`; опционально `device_id`, `parameters`, `idempotency_key`, `confirmed` | `201 ScriptExecutionData`, задание `pending`; SSH-устройство должно быть назначено скрипту |
+| `GET /script-executions/pending?client_device_id={uuid}` | — | ожидающие задания с данными скрипта для клиентского агента |
+| `POST /script-executions/{execution_id}/start` | `client_device_id` | переводит принадлежащее этому клиенту задание из `pending` в `running` |
+| `PUT /script-executions/{execution_id}/result` | `client_device_id`, конечный `status`; опционально `exit_code`, `error_message`, `sanitized_output_summary` | фиксирует результат; полный вывод команды backend не хранит |
+| `GET /script-executions?script_id={uuid}` | фильтр необязателен | история выполнений пользователя |
+| `GET /script-executions/{execution_id}` | — | выполнение владельца |
+
+`ScriptData` включает содержимое скрипта. Создание, изменение и удаление скриптов попадают в ChangeLog, включая содержимое скрипта в payload. Опасные уровни требуют `requires_confirmation=true`; если это поле включено, создание выполнения дополнительно требует `confirmed=true`. Результат передаётся клиентом только в сокращённом очищенном виде. Ключ идемпотентности обеспечивает повтор запроса без создания второго выполнения.
+
 ## Синхронизация
 
 | Метод и путь | Параметры/тело | Ответ |

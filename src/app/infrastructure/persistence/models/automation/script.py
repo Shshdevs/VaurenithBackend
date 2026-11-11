@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from app.infrastructure.persistence.models.automation.script_target import (
         ScriptTarget,
     )
+    from app.infrastructure.persistence.models.identity.user import User
     from app.infrastructure.persistence.models.projects.project import Project
 
 from app.domain.automation.enums import (
@@ -42,6 +43,11 @@ class Script(Base):
         primary_key=True,
         nullable=False,
         server_default=text("gen_random_uuid()"),
+    )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("identity.users.id", deferrable=True, initially="IMMEDIATE"),
+        nullable=True,
     )
     project_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True),
@@ -84,7 +90,9 @@ class Script(Base):
     )
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
-    project: Mapped["Project"] = relationship(
+    user: Mapped["User"] = relationship("User", back_populates="scripts")
+
+    project: Mapped["Project | None"] = relationship(
         "Project", back_populates="scripts", foreign_keys=[project_id]
     )
 

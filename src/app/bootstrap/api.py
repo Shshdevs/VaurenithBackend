@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes.v1.router import build_router
+from app.bootstrap.routes.automation import build_automation_api_router
 from app.bootstrap.routes.development import build_development_api_router
 from app.bootstrap.routes.health import build_health_api_router
 from app.bootstrap.routes.identity import build_identity_api_router
@@ -22,4 +23,5 @@ def build_api_router(prefix: str) -> APIRouter:
         preferences_router=build_preferences_api_router(),
         monitoring_router=build_monitoring_api_router(),
         development_router=build_development_api_router(),
+        automation_router=build_automation_api_router(),
     )
