@@ -1,32 +1,32 @@
-# Client synchronization requirements
+# Требования к синхронизации на клиенте
 
-This document defines the client behavior for the ChangeLog API. A client stores its ChangeLog cursor with the local account and client device state.
+В документе описано, как клиент должен работать с API ChangeLog. Клиент хранит курсор ChangeLog вместе с локальным состоянием учётной записи и клиентского устройства.
 
-## Normal incremental sync
+## Обычная синхронизация изменений
 
-1. Request `GET /change-logs?after_sequence=<cursor>&limit=100`.
-2. Apply returned entries in ascending `sequence` order. Treat applying an entry as idempotent by using its entity ID and version; process `delete` as a local removal.
-3. Persist the new cursor only after all entries in the response have been applied durably. Set it to the last applied sequence. If the response is empty, retain the existing cursor.
-4. Continue requesting pages while a response contains 100 entries.
+1. Запросить `GET /change-logs?after_sequence=<cursor>&limit=100`.
+2. Применить полученные записи по возрастанию `sequence`. Повторное применение записи должно быть безопасным: ориентируйтесь на идентификаторы и версии сущностей. Операцию `delete` обработайте как удаление сущности из локального хранилища.
+3. Сохранить новый курсор только после надёжного применения всех записей ответа. Курсором становится номер последней применённой записи. Если ответ пустой, оставить текущий курсор.
+4. Запрашивать следующие страницы, пока в ответе приходит 100 записей.
 
-Do not advance the cursor when local application fails. Retry the same request after recovering local state.
+Если не удалось применить записи локально, не продвигайте курсор. После восстановления локального состояния повторите тот же запрос.
 
-## Recovery after HTTP 410
+## Восстановление после HTTP 410
 
-When the API returns `410 Gone` with `data.resync_required: true` and `data.restart_sequence`:
+Если API вернул `410 Gone`, `data.resync_required: true` и `data.restart_sequence`:
 
-1. Keep the old cursor until recovery completes. Start a replacement local snapshot rather than applying incremental events from the expired cursor.
-2. Fetch the current profile with `GET /users/me`; fetch projects with `GET /projects`; fetch devices with `GET /devices`; fetch groups with `GET /device-groups`; and fetch connections, services, containers, and databases from their user collection endpoints. For each project, fetch its environments and project-device links. Follow any additional collection endpoint needed for data the client stores.
-3. Build the replacement snapshot without exposing a partially refreshed cache. Store it atomically, or stage it and swap it into use only after every required request succeeds.
-4. After the snapshot has been stored successfully, persist `restart_sequence` as the new cursor.
-5. Resume normal incremental sync with `GET /change-logs?after_sequence=<restart_sequence>`. Changes made while the snapshot was loading have larger sequence values and will be returned for application.
+1. Не менять старый курсор до завершения восстановления. Начать сборку нового локального снимка вместо применения изменений с устаревшего курсора.
+2. Получить текущий профиль через `GET /users/me`, проекты через `GET /projects`, устройства через `GET /devices`, группы через `GET /device-groups`, а подключения, сервисы, контейнеры и базы данных — через соответствующие списковые endpoint-ы пользователя. Для каждого проекта получить его окружения и связи с устройствами. Запросить и другие коллекции, если клиент хранит соответствующие данные.
+3. Собрать новый снимок так, чтобы частично обновлённый кеш не был доступен приложению. Сохранить снимок атомарно или подготовить его отдельно и переключить приложение на него только после успешного завершения всех необходимых запросов.
+4. После успешного сохранения снимка записать `restart_sequence` как новый курсор.
+5. Возобновить обычную синхронизацию запросом `GET /change-logs?after_sequence=<restart_sequence>`. Изменения, произошедшие во время загрузки снимка, имеют большие номера последовательности и будут получены для применения.
 
-If any snapshot request or local snapshot commit fails, discard the incomplete snapshot and keep the previous cursor. Retry the recovery flow; do not store `restart_sequence` early.
+Если не удался любой запрос снимка или его локальное сохранение, отбросить неполный снимок и оставить прежний курсор. Повторить восстановление; не сохранять `restart_sequence` заранее.
 
-The currently exposed collection endpoints cover user profile, projects, devices, device groups, connections, services, containers, and databases. Project environments and project-device links are listed under their project routes. The client must include every resource collection it persists in its snapshot. New synchronizable resource types require both a user-scoped snapshot collection and an entry in this protocol before clients depend on them.
+Сейчас доступны списковые endpoint-ы профиля, проектов, устройств, групп устройств, подключений, сервисов, контейнеров и баз данных. Окружения и связи устройств с проектом доступны во вложенных маршрутах проекта. В снимок нужно включать все коллекции данных, которые хранит клиент. Для новых синхронизируемых типов сущностей до использования клиентом нужно добавить доступную только владельцу коллекцию снимка и описать её в этом протоколе.
 
-## Backend and integration guarantees
+## Гарантии backend и интеграционных проверок
 
-- ChangeLog pages are scoped to the authenticated user, ordered by sequence, and limited to 100 entries per request.
-- A 410 response provides a restart sequence at least as high as the user's latest retained sequence at the time the expired cursor is checked.
-- The integration workflow covers expired-cursor detection, fetching the current snapshot, a change occurring during that fetch, and polling after the restart sequence.
+- Страницы ChangeLog содержат только записи текущего пользователя, отсортированы по номеру последовательности и ограничены 100 записями на запрос.
+- В ответе 410 номер `restart_sequence` не меньше последнего сохранённого номера последовательности пользователя на момент проверки устаревшего курсора.
+- Интеграционный сценарий проверяет обнаружение устаревшего курсора, загрузку текущего снимка, изменение во время этой загрузки и продолжение опроса после `restart_sequence`.
