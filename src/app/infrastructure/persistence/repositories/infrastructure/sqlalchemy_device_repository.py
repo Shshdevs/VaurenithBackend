@@ -45,6 +45,7 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
         result = await self._session.execute(
             update(DeviceModel)
             .where(
+                DeviceModel.id == device.id,
                 self._owned_active_device(identity, device.id),
                 DeviceModel.version == expected_version,
             )
@@ -70,7 +71,10 @@ class SqlAlchemyDeviceRepository(DeviceRepository):
     ) -> bool:
         result = await self._session.execute(
             update(DeviceModel)
-            .where(self._owned_active_device(identity, device_id))
+            .where(
+                DeviceModel.id == device_id,
+                self._owned_active_device(identity, device_id),
+            )
             .values(
                 deleted_at=deleted_at,
                 updated_at=deleted_at,
