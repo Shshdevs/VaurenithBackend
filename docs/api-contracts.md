@@ -171,6 +171,15 @@
 
 `DatabaseData`: `id`, project/environment/device/container/service IDs, `name`, `slug`, `dbms_type`, `host`, `port`, `database_name`, `status`, `last_checked_at`, `metadata`, `version`, временные метки. `dbms_type`: `postgresql`, `mysql`, `mariadb`, `mongodb`, `redis`, `sqlite`, `other`; `status` — перечисление `ResourceStatus` выше. Порт 1–65535.
 
+## Мониторинг
+
+| Метод и путь | Параметры/тело | Ответ |
+|---|---|---|
+| `POST /devices/{device_id}/metrics` | `metric_type`, `value`, `unit`, `collected_at`; опционально `source` | `201 MetricData`; устройство должно принадлежать пользователю |
+| `GET /devices/{device_id}/metrics` | query `start`, `end` (интервал `[start, end)`), `limit` (100, 1–500), `offset` (0) | метрики устройства по убыванию времени сбора |
+
+`MetricData`: `id`, `device_id`, `metric_type`, `value`, `unit`, `source`, `collected_at`. Значение — неотрицательное число с точностью до 6 десятичных знаков; время должно содержать часовой пояс. Диапазон может быть открыт с любой стороны, но если указаны обе границы, `start` должен предшествовать `end`. Метрики не записываются в ChangeLog как отдельные события.
+
 ## Настройки
 
 | Метод и путь | Параметры/тело | Ответ |
