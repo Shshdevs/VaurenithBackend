@@ -6,7 +6,7 @@ from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.application.identity import VerifiedIdentity
 from app.application.preferences.exceptions import ClientDeviceNotFound
-from app.application.preferences.use_cases.settings import (
+from app.application.preferences.use_cases.setting import (
     CreateSetting,
     GetSettings,
     UpdateSetting,
