@@ -47,7 +47,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 "name": "automation",
                 "tags": ["scripts", "script_targets", "script_executions"],
             },
-            {"name": "development", "tags": ["repositories", "code_components"]},
+            {
+                "name": "development",
+                "tags": ["repositories", "code_components", "commits"],
+            },
             {"name": "health", "tags": ["health_checks"]},
             {"name": "identity", "tags": ["users"]},
             {
