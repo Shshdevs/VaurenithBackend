@@ -50,12 +50,16 @@ class FakeProjectDeviceRepository:
         return True
 
     async def update(
-        self, identity: VerifiedIdentity, project_device: ProjectDevice
-    ) -> bool:
-        if project_device.id not in self.project_devices:
-            return False
+        self,
+        identity: VerifiedIdentity,
+        project_device: ProjectDevice,
+        expected_version: int,
+    ) -> int | None:
+        current = self.project_devices.get(project_device.id)
+        if current is None or current.version != expected_version:
+            return None
         self.project_devices[project_device.id] = project_device
-        return True
+        return expected_version + 1
 
     async def delete(self, identity: VerifiedIdentity, project_device_id: UUID) -> bool:
         return self.project_devices.pop(project_device_id, None) is not None
@@ -187,10 +191,23 @@ def test_project_device_routes_support_link_list_get_update_and_delete() -> None
             "project_id": str(project_id),
             "device_id": str(device_id),
             "role": "operator",
+            "version": 1,
         },
     )
     assert updated.status_code == 200
     assert updated.json()["data"]["role"] == "operator"
+    assert updated.json()["data"]["version"] == 2
+
+    stale = client.put(
+        f"/project_devices/{project_device_id}",
+        json={
+            "project_id": str(project_id),
+            "device_id": str(device_id),
+            "role": "deployer",
+            "version": 1,
+        },
+    )
+    assert stale.status_code == 409
 
     deleted = client.delete(f"/project_devices/{project_device_id}")
     assert deleted.status_code == 200
@@ -217,3 +234,9 @@ def test_project_device_routes_validate_optional_role_values() -> None:
         json={"project_id": str(project_id), "device_id": str(uuid4()), "role": " "},
     )
     assert response.status_code == 422
+
+    missing_version = client.put(
+        f"/project_devices/{uuid4()}",
+        json={"project_id": str(project_id), "device_id": str(uuid4())},
+    )
+    assert missing_version.status_code == 422

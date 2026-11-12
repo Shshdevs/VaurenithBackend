@@ -10,6 +10,7 @@ from app.application.identity import VerifiedIdentity
 from app.application.projects.exceptions import (
     DeviceNotFound,
     ProjectDeviceNotFound,
+    ProjectDeviceVersionConflict,
     ProjectNotFound,
 )
 from app.application.projects.use_cases.project_devices import (
@@ -30,6 +31,7 @@ class FakeProjectDeviceRepository:
         self.device_owners: dict[UUID, UUID] = {}
         self.linked: ProjectDevice | None = None
         self.updated: ProjectDevice | None = None
+        self.change_calls = 0
 
     async def get_by_id(
         self, identity: VerifiedIdentity, project_device_id: UUID
@@ -58,15 +60,21 @@ class FakeProjectDeviceRepository:
         return True
 
     async def update(
-        self, identity: VerifiedIdentity, project_device: ProjectDevice
-    ) -> bool:
+        self,
+        identity: VerifiedIdentity,
+        project_device: ProjectDevice,
+        expected_version: int,
+    ) -> int | None:
         if project_device.id not in self.project_devices:
-            return False
+            return None
         if self.device_owners.get(project_device.device_id) != identity.user_id:
-            return False
+            return None
+        current = self.project_devices[project_device.id]
+        if current.version != expected_version:
+            return None
         self.updated = project_device
         self.project_devices[project_device.id] = project_device
-        return True
+        return expected_version + 1
 
     async def delete(self, identity: VerifiedIdentity, project_device_id: UUID) -> bool:
         return self.project_devices.pop(project_device_id, None) is not None
@@ -277,9 +285,11 @@ async def test_update_project_device_checks_both_projects_and_preserves_link_id(
         project_id=target_project_id,
         device_id=target_device_id,
         role="operator",
+        expected_version=project_device.version,
     )
 
     assert repository.updated is not None
+    assert result.version == project_device.version + 1
     assert result.id == project_device.id
     assert result.project_id == target_project_id
     assert result.created_at == project_device.created_at
@@ -294,19 +304,41 @@ async def test_update_project_device_checks_both_projects_and_preserves_link_id(
             project_id=target_project_id,
             device_id=foreign_device_id,
             role="operator",
+            expected_version=project_device.version + 1,
         )
 
-    unauthorized = UpdateProjectDevice(
-        repository, FakeProjectRepository(), NoOpRecordChange(), NoOpUnitOfWork()
+
+@pytest.mark.anyio
+async def test_update_project_device_rejects_stale_version_without_change_log() -> None:
+    identity = make_identity()
+    existing = make_project_device()
+    repository = FakeProjectDeviceRepository([existing])
+    repository.device_owners[existing.device_id] = identity.user_id
+    project_repository = FakeProjectRepository({existing.project_id: identity.user_id})
+
+    class Recorder:
+        calls = 0
+
+        async def execute(self, *args, **kwargs) -> None:
+            self.calls += 1
+
+    recorder = Recorder()
+    use_case = UpdateProjectDevice(
+        repository, project_repository, recorder, NoOpUnitOfWork()
     )
-    with pytest.raises(ProjectNotFound):
-        await unauthorized.execute(
+
+    with pytest.raises(ProjectDeviceVersionConflict):
+        await use_case.execute(
             identity=identity,
-            project_device_id=project_device.id,
-            project_id=target_project_id,
-            device_id=uuid4(),
+            project_device_id=existing.id,
+            project_id=existing.project_id,
+            device_id=existing.device_id,
             role=None,
+            expected_version=existing.version - 1,
         )
+
+    assert repository.project_devices[existing.id] == existing
+    assert recorder.calls == 0
 
 
 @pytest.mark.anyio

@@ -148,14 +148,21 @@ async def test_device_group_repository_crud_owner_scope_and_member_cascade() -> 
                     created_at=now,
                     updated_at=datetime.now(UTC) + timedelta(seconds=1),
                 )
-                assert await repository.update(identity, updated)
-                assert not await repository.update(other_identity, updated)
+                assert await repository.update(identity, updated, expected_version=1) == 2
+                assert (
+                    await repository.update(identity, updated, expected_version=1) is None
+                )
+                assert (
+                    await repository.update(other_identity, updated, expected_version=2)
+                    is None
+                )
                 stored_model = await database_session.scalar(
                     select(DeviceGroupModel).where(DeviceGroupModel.id == group_id)
                 )
                 assert stored_model is not None
                 assert stored_model.name == "Staging"
                 assert stored_model.description == "Staging fleet"
+                assert stored_model.version == 2
 
                 duplicate = DeviceGroup(
                     entity_id=uuid4(),

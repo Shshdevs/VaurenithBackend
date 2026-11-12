@@ -115,6 +115,16 @@ class DeviceGroupNotFound(NotFound):
         super().__init__(f"DeviceGroup with id {device_group_id} not found")
 
 
+class DeviceGroupVersionConflict(Conflict):
+    def __init__(self, expected_version: int, current_version: int | None = None) -> None:
+        message = (
+            f"DeviceGroup version conflict: expected version {expected_version} is stale"
+        )
+        if current_version is not None:
+            message += f"; current version is {current_version}"
+        super().__init__(message)
+
+
 class DeviceGroupDeletionConflict(Conflict):
     def __init__(self, device_group_id: str) -> None:
         super().__init__(f"DeviceGroup with id {device_group_id} has dependent records")

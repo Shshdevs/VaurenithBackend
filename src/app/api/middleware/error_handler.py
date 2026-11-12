@@ -48,6 +48,7 @@ async def handle_http_exception(
         403: ResponseCode.FORBIDDEN,
         404: ResponseCode.NOT_FOUND,
         409: ResponseCode.CONFLICT,
+        413: ResponseCode.HTTP_ERROR,
         422: ResponseCode.VALIDATION_ERROR,
     }.get(http_exception.status_code, ResponseCode.HTTP_ERROR)
     return _error(http_exception.status_code, code, http_exception.detail)
@@ -58,8 +59,9 @@ async def handle_validation_exception(
     exception: Exception,
 ) -> JSONResponse:
     validation_error = cast(RequestValidationError, exception)
+    error_fields = {"loc", "type", "msg"}
     errors = [
-        {key: value for key, value in error.items() if key != "ctx"}
+        {key: value for key, value in error.items() if key in error_fields}
         for error in validation_error.errors()
     ]
     return _error(422, ResponseCode.VALIDATION_ERROR, data=errors)

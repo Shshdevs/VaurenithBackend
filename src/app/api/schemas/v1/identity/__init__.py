@@ -1,9 +1,19 @@
-from .user import (
+from app.api.schemas.v1.identity.user import (
+    ClientDeviceData,
+    ClientDeviceRegisterRequest,
+    ClientDeviceStatusRequest,
+    ClientDeviceUpdateRequest,
+    SessionData,
     UserCreateRequest,
     UserData,
 )
 
 __all__ = [
-    "UserData",
+    "ClientDeviceData",
+    "ClientDeviceRegisterRequest",
+    "ClientDeviceStatusRequest",
+    "ClientDeviceUpdateRequest",
+    "SessionData",
     "UserCreateRequest",
+    "UserData",
 ]

@@ -2,7 +2,15 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, String, text
+from sqlalchemy import (
+    CheckConstraint,
+    DateTime,
+    ForeignKey,
+    Index,
+    String,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy import Enum as SQLAlchemyEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -36,7 +44,16 @@ if TYPE_CHECKING:
 
 class ClientDevice(Base):
     __tablename__ = "client_devices"
-    __table_args__ = {"schema": "identity"}
+    __table_args__ = (
+        UniqueConstraint("user_id", "id", name="uq_client_devices_user_id_id"),
+        CheckConstraint(
+            "(status = 'revoked' AND revoked_at IS NOT NULL) OR "
+            "(status <> 'revoked' AND revoked_at IS NULL)",
+            name="ck_client_devices_revoked_at_status",
+        ),
+        Index("ix_client_devices_user_id_status", "user_id", "status"),
+        {"schema": "identity"},
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
@@ -87,7 +104,13 @@ class ClientDevice(Base):
     user: Mapped["User"] = relationship("User", back_populates="devices")
 
     sessions: Mapped[list["Session"]] = relationship(
-        "Session", back_populates="client_device"
+        "Session",
+        back_populates="client_device",
+        primaryjoin=(
+            "and_(ClientDevice.id == Session.client_device_id, "
+            "ClientDevice.user_id == Session.user_id)"
+        ),
+        foreign_keys="Session.client_device_id",
     )
 
     script_executions: Mapped[list["ScriptExecution"]] = relationship(

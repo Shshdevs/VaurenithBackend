@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     cors_origins: str
     api_prefix: str
     log_level: str
+    max_request_body_size: int = Field(default=10 * 1024 * 1024, gt=0)
 
     model_config = SettingsConfigDict(
         env_file=".env",

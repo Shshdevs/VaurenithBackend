@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 
 from app.api.schemas.common import Schema
 from app.domain.projects import InvalidProjectDevice, ProjectDeviceRole
@@ -43,6 +43,7 @@ class ProjectDeviceCreateRequest(Schema):
 
 
 class ProjectDeviceUpdateRequest(Schema):
+    version: int = Field(ge=1, le=2**63 - 2)
     project_id: UUID
     device_id: UUID
     role: str | None = None

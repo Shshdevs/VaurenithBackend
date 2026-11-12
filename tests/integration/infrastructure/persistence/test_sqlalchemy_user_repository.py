@@ -90,7 +90,11 @@ async def test_register_persists_user_and_session_then_rolls_back() -> None:
                 assert stored_user is not None
                 assert stored_user.email == user.email
                 assert stored_user.display_name == user.display_name
-                assert await session_repository.has_active_session(token_hash, now)
+                assert await session_repository.has_active_session(user_id, token_hash, now)
+                assert await session_repository.revoke_session(token_hash, now)
+                assert not await session_repository.has_active_session(
+                    user_id, token_hash, now
+                )
                 assert session.client_device_id == client_device.id
 
                 assert await user_repository.delete(user_id)

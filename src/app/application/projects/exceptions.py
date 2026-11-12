@@ -44,6 +44,16 @@ class ProjectDeviceNotFound(NotFound):
         super().__init__(f"ProjectDevice with id {project_device_id} not found")
 
 
+class ProjectDeviceVersionConflict(Conflict):
+    def __init__(self, expected_version: int, current_version: int | None = None) -> None:
+        message = (
+            f"ProjectDevice version conflict: expected version {expected_version} is stale"
+        )
+        if current_version is not None:
+            message += f"; current version is {current_version}"
+        super().__init__(message)
+
+
 class DeviceNotFound(NotFound):
     def __init__(self, device_id: str) -> None:
         super().__init__(f"Device with id {device_id} not found")

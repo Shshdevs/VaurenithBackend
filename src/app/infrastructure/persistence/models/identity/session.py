@@ -2,7 +2,15 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, String, text
+from sqlalchemy import (
+    DateTime,
+    ForeignKey,
+    ForeignKeyConstraint,
+    Index,
+    String,
+    UniqueConstraint,
+    text,
+)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -23,7 +31,23 @@ if TYPE_CHECKING:
 
 class Session(Base):
     __tablename__ = "sessions"
-    __table_args__ = {"schema": "identity"}
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["user_id", "client_device_id"],
+            ["identity.client_devices.user_id", "identity.client_devices.id"],
+            name="fk_sessions_user_client_device",
+            deferrable=True,
+            initially="IMMEDIATE",
+        ),
+        Index(
+            "ix_sessions_client_device_revoked_expires",
+            "client_device_id",
+            "revoked_at",
+            "expires_at",
+        ),
+        UniqueConstraint("token_hash", name="uq_sessions_token_hash"),
+        {"schema": "identity"},
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, server_default=text("gen_random_uuid()")
@@ -35,13 +59,9 @@ class Session(Base):
         nullable=False,
     )
 
-    client_device_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True),
-        ForeignKey("identity.client_devices.id", deferrable=True, initially="IMMEDIATE"),
-        nullable=True,
-    )
+    client_device_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
 
-    token_hash: Mapped[str] = mapped_column(String(512), unique=True, nullable=False)
+    token_hash: Mapped[str] = mapped_column(String(512), nullable=False)
 
     expires_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -56,8 +76,16 @@ class Session(Base):
         DateTime(timezone=True), nullable=True
     )
 
-    user: Mapped["User"] = relationship("User", back_populates="sessions")
+    user: Mapped["User"] = relationship(
+        "User", back_populates="sessions", foreign_keys=[user_id]
+    )
 
     client_device: Mapped["ClientDevice"] = relationship(
-        "ClientDevice", back_populates="sessions"
+        "ClientDevice",
+        back_populates="sessions",
+        primaryjoin=(
+            "and_(Session.client_device_id == ClientDevice.id, "
+            "Session.user_id == ClientDevice.user_id)"
+        ),
+        foreign_keys=[client_device_id],
     )

@@ -64,7 +64,9 @@ class User(Base):
         DateTime(timezone=True), nullable=False, server_default=text("now()")
     )
 
-    sessions: Mapped[list["Session"]] = relationship("Session", back_populates="user")
+    sessions: Mapped[list["Session"]] = relationship(
+        "Session", back_populates="user", foreign_keys="Session.user_id"
+    )
 
     devices: Mapped[list["ClientDevice"]] = relationship(
         "ClientDevice", back_populates="user"

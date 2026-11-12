@@ -15,6 +15,10 @@ from app.application.infrastructure.use_cases.device import CreateDevice
 from app.bootstrap.dependencies.database import get_database_session
 from app.bootstrap.dependencies.infrastructure.device import get_create_device_dependency
 from app.core.config import get_settings
+from app.domain.identity.enums import PlatformType
+from app.infrastructure.persistence.models.identity.client_device import (
+    ClientDevice as ClientDeviceModel,
+)
 from app.infrastructure.persistence.models.identity.session import Session
 from app.infrastructure.persistence.models.identity.user import User
 from app.infrastructure.persistence.models.infrastructure.device import Device
@@ -84,6 +88,8 @@ async def test_device_api_uses_postgres_change_log_and_enforces_owner_scope() ->
     owner_id, other_owner_id = uuid4(), uuid4()
     owner_token, owner_email = make_access_token(owner_id)
     other_token, other_email = make_access_token(other_owner_id)
+    owner_client_device_id = uuid4()
+    other_client_device_id = uuid4()
     now = datetime.now(UTC)
     created_device_id = None
     created_project_id = None
@@ -118,14 +124,32 @@ async def test_device_api_uses_postgres_change_log_and_enforces_owner_scope() ->
                         created_at=now,
                         updated_at=now,
                     ),
+                    ClientDeviceModel(
+                        id=owner_client_device_id,
+                        user_id=owner_id,
+                        name="API integration owner",
+                        slug="api-integration-owner",
+                        platform=PlatformType.OTHER,
+                        registered_at=now,
+                    ),
+                    ClientDeviceModel(
+                        id=other_client_device_id,
+                        user_id=other_owner_id,
+                        name="API integration other owner",
+                        slug="api-integration-other-owner",
+                        platform=PlatformType.OTHER,
+                        registered_at=now,
+                    ),
                     Session(
                         user_id=owner_id,
+                        client_device_id=owner_client_device_id,
                         token_hash=sha256(owner_token.encode()).hexdigest(),
                         expires_at=now + timedelta(hours=1),
                         created_at=now,
                     ),
                     Session(
                         user_id=other_owner_id,
+                        client_device_id=other_client_device_id,
                         token_hash=sha256(other_token.encode()).hexdigest(),
                         expires_at=now + timedelta(hours=1),
                         created_at=now,
@@ -382,6 +406,11 @@ async def test_device_api_uses_postgres_change_log_and_enforces_owner_scope() ->
                 await connection.execute(delete(Device).where(Device.user_id == owner_id))
             await connection.execute(
                 delete(Session).where(Session.user_id.in_([owner_id, other_owner_id]))
+            )
+            await connection.execute(
+                delete(ClientDeviceModel).where(
+                    ClientDeviceModel.user_id.in_([owner_id, other_owner_id])
+                )
             )
             await connection.execute(
                 delete(User).where(User.id.in_([owner_id, other_owner_id]))

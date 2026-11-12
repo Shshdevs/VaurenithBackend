@@ -38,11 +38,14 @@ class FakeDeviceGroupRepository:
     async def create(self, device_group: DeviceGroup) -> None:
         self.groups[device_group.id] = device_group
 
-    async def update(self, identity: VerifiedIdentity, device_group: DeviceGroup) -> bool:
-        if await self.get_by_id(identity, device_group.id) is None:
-            return False
+    async def update(
+        self, identity: VerifiedIdentity, device_group: DeviceGroup, expected_version: int
+    ) -> int | None:
+        current = await self.get_by_id(identity, device_group.id)
+        if current is None or current.version != expected_version:
+            return None
         self.groups[device_group.id] = device_group
-        return True
+        return expected_version + 1
 
     async def delete(self, identity: VerifiedIdentity, device_group_id: UUID) -> bool:
         if await self.get_by_id(identity, device_group_id) is None:
@@ -133,11 +136,18 @@ def test_device_group_routes_support_create_get_update_and_delete() -> None:
 
     updated = client.put(
         f"/device-groups/{group_id}",
-        json={"name": "Staging", "description": "Deployment group"},
+        json={"name": "Staging", "description": "Deployment group", "version": 1},
     )
     assert updated.status_code == 200
     assert updated.json()["data"]["name"] == "Staging"
     assert updated.json()["data"]["user_id"] == str(identity.user_id)
+    assert updated.json()["data"]["version"] == 2
+
+    stale = client.put(
+        f"/device-groups/{group_id}",
+        json={"name": "Production", "description": "Old", "version": 1},
+    )
+    assert stale.status_code == 409
 
     deleted = client.delete(f"/device-groups/{group_id}")
     assert deleted.status_code == 200

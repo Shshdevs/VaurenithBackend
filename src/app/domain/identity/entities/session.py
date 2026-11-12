@@ -16,13 +16,15 @@ class Session(Entity):
         token_hash: TokenHash,
         expires_at: datetime,
         created_at: datetime,
-        client_device_id: EntityId | None = None,
+        client_device_id: EntityId,
         revoked_at: datetime | None = None,
     ) -> None:
         self._validate_timestamp(created_at, "created_at")
         self._validate_timestamp(expires_at, "expires_at")
         if expires_at <= created_at:
             raise InvalidSession("Session expiry must be after its creation")
+        if client_device_id is None:
+            raise InvalidSession("Session must be associated with a client device")
         if revoked_at is not None:
             self._validate_timestamp(revoked_at, "revoked_at")
             if revoked_at < created_at:
@@ -45,7 +47,7 @@ class Session(Entity):
         return self._user_id
 
     @property
-    def client_device_id(self) -> EntityId | None:
+    def client_device_id(self) -> EntityId:
         return self._client_device_id
 
     @property
