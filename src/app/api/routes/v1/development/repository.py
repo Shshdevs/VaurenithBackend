@@ -31,7 +31,7 @@ def build_repository_router(
         ..., VerifiedIdentity | Awaitable[VerifiedIdentity]
     ],
 ) -> APIRouter:
-    router = APIRouter(tags=["development"])
+    router = APIRouter(tags=["repositories"])
 
     @router.post(
         "/projects/{project_id}/repositories",

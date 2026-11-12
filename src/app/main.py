@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.openapi.utils import get_openapi
 
 from app.api.middleware.error_handler import register_error_handlers
 from app.api.middleware.request_context import (
@@ -15,7 +16,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app_settings = settings or get_settings()
     configure_logging(app_settings.log_level)
 
-    application = FastAPI(title="Vaurenith API")
+    application = FastAPI(
+        title="Vaurenith API",
+        docs_url="/swagger",
+        redoc_url="/docs",
+    )
 
     application.add_middleware(RequestContextMiddleware)
     application.add_middleware(SecurityHeadersMiddleware)
@@ -29,6 +34,42 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(build_api_router(prefix=app_settings.api_prefix))
     register_error_handlers(application)
 
+    def openapi_schema():
+        if application.openapi_schema is not None:
+            return application.openapi_schema
+        schema = get_openapi(
+            title=application.title,
+            version=application.version,
+            routes=application.routes,
+        )
+        schema["x-tagGroups"] = [
+            {
+                "name": "automation",
+                "tags": ["scripts", "script_targets", "script_executions"],
+            },
+            {"name": "development", "tags": ["repositories", "code_components"]},
+            {"name": "health", "tags": ["health_checks"]},
+            {"name": "identity", "tags": ["users"]},
+            {
+                "name": "infrastructure",
+                "tags": [
+                    "connections",
+                    "devices",
+                    "device_groups",
+                    "services",
+                    "containers",
+                    "databases",
+                ],
+            },
+            {"name": "monitoring", "tags": ["events", "log_metadata", "metrics"]},
+            {"name": "preferences", "tags": ["settings"]},
+            {"name": "projects", "tags": ["projects", "environments", "project_devices"]},
+            {"name": "synchronization", "tags": ["change-log", "sync-state"]},
+        ]
+        application.openapi_schema = schema
+        return schema
+
+    application.openapi = openapi_schema
     return application
 
 

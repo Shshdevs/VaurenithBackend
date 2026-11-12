@@ -11,7 +11,7 @@ from app.application.health.use_cases import CheckDatabaseHealth
 def build_health_router(
     health_check_dependency: Callable[..., CheckDatabaseHealth],
 ) -> APIRouter:
-    router = APIRouter(tags=["health"])
+    router = APIRouter(tags=["health_checks"])
 
     @router.get("/health", response_model=ApiResponse[LivenessData])
     def liveness() -> ApiResponse[LivenessData]:

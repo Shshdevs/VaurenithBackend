@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.routes.v1.infrastructure import build_infrastructure_entity_router
 from app.api.routes.v1.infrastructure.connection import build_connection_router
 from app.api.routes.v1.infrastructure.container import build_container_router
 from app.api.routes.v1.infrastructure.database import build_database_router
@@ -70,8 +71,8 @@ from app.bootstrap.dependencies.infrastructure.service import (
 
 
 def build_infrastructure_api_router() -> APIRouter:
-    router = APIRouter()
-    router.include_router(
+    entity_routers = []
+    entity_routers.append(
         build_connection_router(
             create_connection_dependency=get_create_connection_dependency,
             get_connection_dependency=get_get_connection_dependency,
@@ -83,7 +84,7 @@ def build_infrastructure_api_router() -> APIRouter:
             authenticated_identity_dependency=get_authenticated_identity,
         )
     )
-    router.include_router(
+    entity_routers.append(
         build_device_router(
             create_device_dependency=get_create_device_dependency,
             get_device_dependency=get_get_device_dependency,
@@ -93,7 +94,7 @@ def build_infrastructure_api_router() -> APIRouter:
             authenticated_identity_dependency=get_authenticated_identity,
         )
     )
-    router.include_router(
+    entity_routers.append(
         build_device_group_router(
             create_device_group_dependency=get_create_device_group_dependency,
             get_device_group_dependency=get_get_device_group_dependency,
@@ -106,7 +107,7 @@ def build_infrastructure_api_router() -> APIRouter:
             authenticated_identity_dependency=get_authenticated_identity,
         )
     )
-    router.include_router(
+    entity_routers.append(
         build_service_router(
             create_service_dependency=get_create_service_dependency,
             get_service_dependency=get_get_service_dependency,
@@ -120,7 +121,7 @@ def build_infrastructure_api_router() -> APIRouter:
             authenticated_identity_dependency=get_authenticated_identity,
         )
     )
-    router.include_router(
+    entity_routers.append(
         build_container_router(
             create_container_dependency=get_create_container_dependency,
             get_container_dependency=get_get_container_dependency,
@@ -134,7 +135,7 @@ def build_infrastructure_api_router() -> APIRouter:
             authenticated_identity_dependency=get_authenticated_identity,
         )
     )
-    router.include_router(
+    entity_routers.append(
         build_database_router(
             create_database_dependency=get_create_database_dependency,
             get_database_dependency=get_get_database_dependency,
@@ -150,4 +151,6 @@ def build_infrastructure_api_router() -> APIRouter:
         )
     )
 
+    router = APIRouter()
+    router.include_router(build_infrastructure_entity_router(entity_routers))
     return router

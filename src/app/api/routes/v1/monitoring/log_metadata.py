@@ -20,7 +20,7 @@ def build_log_metadata_router(
         ..., VerifiedIdentity | Awaitable[VerifiedIdentity]
     ],
 ) -> APIRouter:
-    router = APIRouter(tags=["monitoring"])
+    router = APIRouter(tags=["log_metadata"])
 
     @router.post(
         "/logs/metadata",

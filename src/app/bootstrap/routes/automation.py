@@ -21,7 +21,7 @@ from app.bootstrap.dependencies.identity import get_authenticated_identity
 
 
 def build_automation_api_router() -> APIRouter:
-    return build_automation_router(
+    entity_router = build_automation_router(
         create_automation_script_dependency=create_automation_script_dependency,
         get_automation_script_dependency=get_automation_script_dependency,
         get_user_automation_scripts_dependency=get_user_automation_scripts_dependency,
@@ -38,3 +38,6 @@ def build_automation_api_router() -> APIRouter:
         report_automation_script_execution_result_dependency=report_automation_script_execution_result_dependency,
         authenticated_identity_dependency=get_authenticated_identity,
     )
+    router = APIRouter()
+    router.include_router(entity_router)
+    return router
