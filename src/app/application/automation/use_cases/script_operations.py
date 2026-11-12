@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from app.application.automation.dto import ScriptData
+from app.application.automation.dto import ScriptChangeLogData, ScriptData
 from app.application.automation.interfaces import (
     ScriptExecutionRepository,
     ScriptRepository,
@@ -168,15 +168,5 @@ class ScriptOperations:
             script.id,
             operation,
             script.version,
-            {
-                "project_id": str(script.project_id) if script.project_id else None,
-                "name": script.name,
-                "description": script.description,
-                "content": script.content,
-                "interpreter": script.interpreter,
-                "execution_type": script.execution_type.value,
-                "parameters": script.parameters,
-                "risk_level": script.risk_level.value,
-                "requires_confirmation": script.requires_confirmation,
-            },
+            ScriptChangeLogData.from_script(script).to_payload(),
         )
