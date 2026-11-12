@@ -31,6 +31,11 @@ class CommitNotFound(NotFound):
         super().__init__(f"Commit with id {commit_id} not found")
 
 
+class DependencyNotFound(NotFound):
+    def __init__(self, dependency_id: str) -> None:
+        super().__init__(f"Dependency with id {dependency_id} not found")
+
+
 class CodeComponentVersionConflict(Conflict):
     def __init__(self, expected_version: int) -> None:
         super().__init__(
