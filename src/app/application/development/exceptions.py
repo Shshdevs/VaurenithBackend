@@ -1,6 +1,11 @@
 from app.application.common.exceptions import Conflict, NotFound
 
 
+class BranchNotFound(NotFound):
+    def __init__(self, branch_id: str) -> None:
+        super().__init__(f"Branch with id {branch_id} not found")
+
+
 class RepositoryNotFound(NotFound):
     def __init__(self, repository_id: str) -> None:
         super().__init__(f"Repository with id {repository_id} not found")
