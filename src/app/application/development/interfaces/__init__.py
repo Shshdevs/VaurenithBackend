@@ -1,5 +1,8 @@
+from app.application.development.interfaces.code_component_repository import (
+    CodeComponentRepository,
+)
 from app.application.development.interfaces.repository_repository import (
     RepositoryRepository,
 )
 
-__all__ = ["RepositoryRepository"]
+__all__ = ["CodeComponentRepository", "RepositoryRepository"]
