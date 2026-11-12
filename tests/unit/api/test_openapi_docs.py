@@ -29,3 +29,12 @@ def test_redoc_lists_commit_routes_in_development_group() -> None:
     ]
     assert all("branches" in operation["tags"] for operation in branch_operations)
     assert "branches" in development_group["tags"]
+    dependency_paths = [path for path in schema["paths"] if "/dependencies" in path]
+    assert dependency_paths
+    dependency_operations = [
+        operation
+        for path in dependency_paths
+        for operation in schema["paths"][path].values()
+    ]
+    assert all("dependencies" in operation["tags"] for operation in dependency_operations)
+    assert "dependencies" in development_group["tags"]
