@@ -16,6 +16,7 @@ secrets*.yaml
 .ruff_cache/
 .pyright/
 .audit/
+.import_linter_cache/
 
 .coverage
 .coverage.*
