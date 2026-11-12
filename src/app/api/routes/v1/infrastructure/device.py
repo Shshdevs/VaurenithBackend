@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.infrastructure import (
     Device,
     DeviceCreateRequest,
@@ -17,6 +17,7 @@ from app.application.infrastructure.use_cases.device import (
     GetUserDevices,
     UpdateDevice,
 )
+from app.domain.common.enums import EntityType
 
 
 def build_device_router(
@@ -44,7 +45,8 @@ def build_device_router(
         device = await create_device.execute(identity=identity, **request.model_dump())
         return ApiResponse[Device](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Device is created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.DEVICE,
             data=Device.model_validate(device),
         )
 
@@ -61,6 +63,8 @@ def build_device_router(
         return ApiResponse[list[Device]](
             status=format_http_status(status.HTTP_200_OK),
             data=[Device.model_validate(device) for device in devices],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DEVICE,
         )
 
     @router.get(
@@ -77,6 +81,8 @@ def build_device_router(
         return ApiResponse[Device](
             status=format_http_status(status.HTTP_200_OK),
             data=Device.model_validate(device),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DEVICE,
         )
 
     @router.put(
@@ -98,7 +104,8 @@ def build_device_router(
         )
         return ApiResponse[Device](
             status=format_http_status(status.HTTP_200_OK),
-            message="Device is updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.DEVICE,
             data=Device.model_validate(device),
         )
 
@@ -113,6 +120,10 @@ def build_device_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await delete_device.execute(identity=identity, device_id=device_id)
-        return ApiResponse[None](status=format_http_status(status.HTTP_200_OK))
+        return ApiResponse[None](
+            status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.DELETED,
+            entity_type=None,
+        )
 
     return router

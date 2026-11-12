@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.development import (
     DependencyCreateRequest,
     DependencyData,
@@ -18,6 +18,7 @@ from app.application.development import (
     UpdateDependency,
 )
 from app.application.identity import VerifiedIdentity
+from app.domain.common.enums import EntityType
 
 
 def build_dependency_router(
@@ -49,7 +50,8 @@ def build_dependency_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Dependency created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.DEPENDENCY,
             data=DependencyData.model_validate(dependency),
         )
 
@@ -68,6 +70,8 @@ def build_dependency_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[DependencyData.model_validate(item) for item in dependencies],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DEPENDENCY,
         )
 
     @router.get(
@@ -83,6 +87,8 @@ def build_dependency_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[DependencyData.model_validate(item) for item in dependencies],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DEPENDENCY,
         )
 
     @router.get("/dependencies/{dependency_id}", response_model=ApiResponse[DependencyData])
@@ -95,6 +101,8 @@ def build_dependency_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=DependencyData.model_validate(dependency),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DEPENDENCY,
         )
 
     @router.put("/dependencies/{dependency_id}", response_model=ApiResponse[DependencyData])
@@ -110,6 +118,8 @@ def build_dependency_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=DependencyData.model_validate(dependency),
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.DEPENDENCY,
         )
 
     @router.delete("/dependencies/{dependency_id}", response_model=ApiResponse[None])
@@ -119,6 +129,10 @@ def build_dependency_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await use_case.delete_dependency(identity, dependency_id)
-        return ApiResponse(status=format_http_status(status.HTTP_200_OK))
+        return ApiResponse(
+            status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.DELETED,
+            entity_type=None,
+        )
 
     return router

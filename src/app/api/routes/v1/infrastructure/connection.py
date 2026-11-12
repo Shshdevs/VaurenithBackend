@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.infrastructure import (
     ConnectionCreateRequest,
     ConnectionData,
@@ -20,6 +20,7 @@ from app.application.infrastructure.use_cases.connection import (
     ReportConnectionStatus,
     UpdateConnection,
 )
+from app.domain.common.enums import EntityType
 
 
 def build_connection_router(
@@ -51,7 +52,8 @@ def build_connection_router(
         )
         return ApiResponse[ConnectionData](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Connection is created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.CONNECTION,
             data=ConnectionData.model_validate(connection),
         )
 
@@ -68,6 +70,8 @@ def build_connection_router(
         return ApiResponse[list[ConnectionData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ConnectionData.model_validate(connection) for connection in connections],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CONNECTION,
         )
 
     @router.get(
@@ -84,6 +88,8 @@ def build_connection_router(
         return ApiResponse[ConnectionData](
             status=format_http_status(status.HTTP_200_OK),
             data=ConnectionData.model_validate(connection),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CONNECTION,
         )
 
     @router.get(
@@ -102,6 +108,8 @@ def build_connection_router(
         return ApiResponse[list[ConnectionData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ConnectionData.model_validate(connection) for connection in connections],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CONNECTION,
         )
 
     @router.put(
@@ -123,7 +131,8 @@ def build_connection_router(
         )
         return ApiResponse[ConnectionData](
             status=format_http_status(status.HTTP_200_OK),
-            message="Connection is updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.CONNECTION,
             data=ConnectionData.model_validate(connection),
         )
 
@@ -150,7 +159,8 @@ def build_connection_router(
         )
         return ApiResponse[ConnectionData](
             status=format_http_status(status.HTTP_200_OK),
-            message="Connection status is updated successfully",
+            code=ResponseCode.STATUS_UPDATED,
+            entity_type=EntityType.CONNECTION,
             data=ConnectionData.model_validate(connection),
         )
 
@@ -165,6 +175,10 @@ def build_connection_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await delete_connection.execute(identity, connection_id)
-        return ApiResponse[None](status=format_http_status(status.HTTP_200_OK))
+        return ApiResponse[None](
+            status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.DELETED,
+            entity_type=None,
+        )
 
     return router

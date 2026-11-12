@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Response, status
 
-from app.api.schemas import ApiResponse, format_http_status
+from app.api.schemas import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.health import DependencyHealth, LivenessData, ReadinessData
 from app.application.health.use_cases import CheckDatabaseHealth
 
@@ -16,7 +16,8 @@ def build_health_router(
     @router.get("/health", response_model=ApiResponse[LivenessData])
     def liveness() -> ApiResponse[LivenessData]:
         return ApiResponse[LivenessData](
-            message="Service is healthy",
+            code=ResponseCode.OK,
+            entity_type=None,
             status=format_http_status(status.HTTP_200_OK),
             data=LivenessData(status="OK", timestamp=datetime.now(UTC)),
         )
@@ -34,7 +35,8 @@ def build_health_router(
                 message="Database connection failed",
             )
             return ApiResponse[ReadinessData](
-                message="Service unavailable",
+                code=ResponseCode.UNAVAILABLE,
+                entity_type=None,
                 status=format_http_status(response.status_code),
                 data=ReadinessData(
                     status="UNAVAILABLE",
@@ -44,7 +46,8 @@ def build_health_router(
             )
 
         return ApiResponse[ReadinessData](
-            message="Service is ready",
+            code=ResponseCode.OK,
+            entity_type=None,
             status=format_http_status(status.HTTP_200_OK),
             data=ReadinessData(
                 status="OK",

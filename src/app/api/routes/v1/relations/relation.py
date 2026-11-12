@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.relations import (
     RelationCreateRequest,
     RelationData,
@@ -50,7 +50,8 @@ def build_relation_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Relation created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.RELATION,
             data=RelationData.model_validate(relation),
         )
 
@@ -75,6 +76,8 @@ def build_relation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[RelationData.model_validate(item) for item in relations],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.RELATION,
         )
 
     @router.get(
@@ -92,6 +95,8 @@ def build_relation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=RelationData.model_validate(relation),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.RELATION,
         )
 
     @router.put(
@@ -114,7 +119,8 @@ def build_relation_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Relation updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.RELATION,
             data=RelationData.model_validate(relation),
         )
 
@@ -132,7 +138,8 @@ def build_relation_router(
         await use_case.execute(identity, project_id, relation_id)
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Relation deleted successfully",
+            code=ResponseCode.DELETED,
+            entity_type=EntityType.RELATION,
             data=None,
         )
 

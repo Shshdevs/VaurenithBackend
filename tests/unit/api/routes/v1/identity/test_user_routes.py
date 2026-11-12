@@ -48,5 +48,6 @@ def test_delete_me_deletes_authenticated_account() -> None:
     response = TestClient(app).delete("/users/me")
 
     assert response.status_code == 200
-    assert response.json()["message"] == "User deleted successfully"
+    assert response.json()["code"] == "DELETED"
+    assert response.json()["entity_type"] == "user"
     assert delete_user.deleted_user_id == identity.user_id

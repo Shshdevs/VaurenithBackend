@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.development import (
     BranchCreateRequest,
     BranchData,
@@ -17,6 +17,7 @@ from app.application.development import (
     UpdateBranch,
 )
 from app.application.identity import VerifiedIdentity
+from app.domain.common.enums import EntityType
 
 
 def build_branch_router(
@@ -47,7 +48,8 @@ def build_branch_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Branch created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.BRANCH,
             data=BranchData.model_validate(branch),
         )
 
@@ -64,6 +66,8 @@ def build_branch_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[BranchData.model_validate(branch) for branch in branches],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.BRANCH,
         )
 
     @router.get("/branches/{branch_id}", response_model=ApiResponse[BranchData])
@@ -76,6 +80,8 @@ def build_branch_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=BranchData.model_validate(branch),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.BRANCH,
         )
 
     @router.put("/branches/{branch_id}", response_model=ApiResponse[BranchData])
@@ -89,6 +95,8 @@ def build_branch_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=BranchData.model_validate(branch),
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.BRANCH,
         )
 
     @router.delete("/branches/{branch_id}", response_model=ApiResponse[None])
@@ -98,6 +106,10 @@ def build_branch_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await use_case.delete_branch(identity, branch_id)
-        return ApiResponse(status=format_http_status(status.HTTP_200_OK))
+        return ApiResponse(
+            status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.DELETED,
+            entity_type=None,
+        )
 
     return router

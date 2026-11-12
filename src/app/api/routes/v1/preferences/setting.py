@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.preferences.setting import (
     SettingCreateRequest,
     SettingData,
@@ -17,6 +17,7 @@ from app.application.preferences.use_cases.setting import (
     GetSettings,
     UpdateSetting,
 )
+from app.domain.common.enums import EntityType
 from app.domain.preferences import SettingScope
 
 
@@ -43,6 +44,8 @@ def build_settings_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[SettingData.model_validate(item) for item in items],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SETTINGS,
         )
 
     @router.get("/settings/{setting_id}", response_model=ApiResponse[SettingData])
@@ -55,6 +58,8 @@ def build_settings_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=SettingData.model_validate(item),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SETTINGS,
         )
 
     @router.post(
@@ -72,7 +77,8 @@ def build_settings_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Setting created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.SETTINGS,
             data=SettingData.model_validate(item),
         )
 
@@ -88,7 +94,8 @@ def build_settings_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Setting updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.SETTINGS,
             data=SettingData.model_validate(item),
         )
 
@@ -102,7 +109,8 @@ def build_settings_router(
         await use_case.execute(identity, setting_id, expected_version)
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Setting deleted successfully",
+            code=ResponseCode.DELETED,
+            entity_type=EntityType.SETTINGS,
         )
 
     return router

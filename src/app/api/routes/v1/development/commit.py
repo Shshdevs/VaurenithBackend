@@ -3,10 +3,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.development import CommitCreateRequest, CommitData
 from app.application.development import CreateCommit, GetCommit, GetRepositoryCommits
 from app.application.identity import VerifiedIdentity
+from app.domain.common.enums import EntityType
 
 
 def build_commit_router(
@@ -36,13 +37,13 @@ def build_commit_router(
             request.hash,
             author_name=request.author_name,
             author_email=request.author_email,
-            message=request.message,
             committed_at=request.committed_at,
             changed_files=request.changed_files,
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Commit cached successfully",
+            code=ResponseCode.CACHED,
+            entity_type=EntityType.COMMIT,
             data=CommitData.model_validate(commit),
         )
 
@@ -59,6 +60,8 @@ def build_commit_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[CommitData.model_validate(commit) for commit in commits],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.COMMIT,
         )
 
     @router.get("/commits/{commit_id}", response_model=ApiResponse[CommitData])
@@ -71,6 +74,8 @@ def build_commit_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=CommitData.model_validate(commit),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.COMMIT,
         )
 
     return router

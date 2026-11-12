@@ -173,7 +173,8 @@ def test_environment_routes_support_create_list_get_update_and_delete() -> None:
 
     deleted = client.delete(detail_url)
     assert deleted.status_code == 200
-    assert deleted.json()["message"] == "Environment deleted successfully"
+    assert deleted.json()["code"] == "DELETED"
+    assert deleted.json()["entity_type"] == "environment"
     assert environment_id not in repository.environments
     assert client.get(detail_url).status_code == 404
 
