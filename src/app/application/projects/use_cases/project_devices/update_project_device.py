@@ -5,7 +5,11 @@ from app.application.common.transactional import transactional
 from app.application.common.unit_of_work import UnitOfWork
 from app.application.identity import VerifiedIdentity
 from app.application.projects.dto import ProjectDeviceData
-from app.application.projects.exceptions import DeviceNotFound, ProjectDeviceNotFound
+from app.application.projects.exceptions import (
+    DeviceNotFound,
+    ProjectDeviceNotFound,
+    ProjectDeviceVersionConflict,
+)
 from app.application.projects.interfaces import ProjectDeviceRepository, ProjectRepository
 from app.application.projects.use_cases.project_devices.project_access import ProjectAccess
 from app.application.synchronization.interfaces import ChangeRecorder
@@ -39,6 +43,7 @@ class UpdateProjectDevice:
         project_id: UUID,
         device_id: UUID,
         role: str | None,
+        expected_version: int,
     ) -> ProjectDeviceData:
         try:
             existing_project_device = await self._project_device_repository.get_by_id(
@@ -62,9 +67,26 @@ class UpdateProjectDevice:
         except (InvalidProjectDevice, ValueError) as error:
             raise InvalidInput(str(error)) from error
 
-        result = await self._project_device_repository.update(identity, project_device)
-        if not result:
-            raise DeviceNotFound(str(device_id))
+        updated_version = await self._project_device_repository.update(
+            identity, project_device, expected_version
+        )
+        if updated_version is None:
+            current = await self._project_device_repository.get_by_id(
+                identity, project_device_id
+            )
+            if current is None:
+                raise DeviceNotFound(str(device_id))
+            if current.version == expected_version:
+                raise DeviceNotFound(str(device_id))
+            raise ProjectDeviceVersionConflict(expected_version, current.version)
+        project_device = ProjectDevice(
+            entity_id=project_device.id,
+            project_id=project_device.project_id,
+            device_id=project_device.device_id,
+            role=project_device.role_value,
+            created_at=project_device.created_at,
+            version=updated_version,
+        )
         await self._recorder.execute(
             identity,
             EntityType.PROJECT_DEVICE,

@@ -135,6 +135,7 @@ def build_project_device_route(
             project_id=request.project_id,
             device_id=request.device_id,
             role=request.role,
+            expected_version=request.version,
         )
 
         return ApiResponse[ProjectDeviceData](

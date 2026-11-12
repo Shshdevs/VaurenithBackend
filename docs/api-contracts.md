@@ -89,7 +89,7 @@
 | `GET /project_devices/{project_device_id}` | — | связь |
 | `GET /projects/{project_id}/devices` | — | связи устройств с проектом |
 | `GET /devices/{device_id}/projects` | — | связи проекта с устройством |
-| `PUT /project_devices/{project_device_id}` | `project_id`, `device_id`, опционально `role` | обновлённая связь |
+| `PUT /project_devices/{project_device_id}` | `version`, `project_id`, `device_id`, опционально `role` | обновлённая связь; `version` — ожидаемая версия, при конфликте возвращается 409 |
 | `DELETE /project_devices/{project_device_id}` | — | `200`, `data:null` |
 
 `ProjectDeviceData`: `id`, `project_id`, `device_id`, `role`, `created_at`, `version`. Роль должна соответствовать доменному `ProjectDeviceRole`.
@@ -130,7 +130,7 @@
 | `GET /device-groups/{device_group_id}/members` | — | участники группы (ID записей членства и устройств) |
 | `POST /device-groups/{device_group_id}/members` | `device_id` | `201 DeviceGroupMemberData`; устройство добавлено в группу |
 | `DELETE /device-groups/{device_group_id}/members/{device_id}` | — | `200`, `data:null`; устройство удалено из группы |
-| `PUT /device-groups/{device_group_id}` | `name`, опционально `description` | группа |
+| `PUT /device-groups/{device_group_id}` | `version`, `name`, опционально `description` | группа; `version` — ожидаемая версия, при конфликте возвращается 409 |
 | `DELETE /device-groups/{device_group_id}` | — | `200`, `data:null` |
 
 `DeviceGroup`: `id`, `user_id`, `name`, `slug`, `description`, `created_at`, `updated_at`, `version`.

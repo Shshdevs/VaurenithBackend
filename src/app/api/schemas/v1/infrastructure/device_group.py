@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 
 from app.api.schemas.common import Schema
 from app.domain.infrastructure import DeviceGroupName, InvalidDeviceGroup
@@ -32,6 +32,7 @@ class DeviceGroupCreateRequest(Schema):
 
 
 class DeviceGroupUpdateRequest(Schema):
+    version: int = Field(ge=1, le=2**63 - 2)
     name: str
     description: str | None = None
 

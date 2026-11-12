@@ -176,6 +176,7 @@ def build_device_group_router(
             device_group_id=device_group_id,
             name=request.name,
             description=request.description,
+            expected_version=request.version,
         )
 
         return ApiResponse[DeviceGroup](

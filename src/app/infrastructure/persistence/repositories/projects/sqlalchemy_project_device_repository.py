@@ -104,12 +104,16 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
         return result.scalar_one_or_none() is not None
 
     async def update(
-        self, identity: VerifiedIdentity, project_device: ProjectDeviceEntity
-    ) -> bool:
+        self,
+        identity: VerifiedIdentity,
+        project_device: ProjectDeviceEntity,
+        expected_version: int,
+    ) -> int | None:
         statement = (
             update(ProjectDevice)
             .where(
                 ProjectDevice.id == project_device.id,
+                ProjectDevice.version == expected_version,
                 self._owned_project(identity, ProjectDevice.project_id),
                 *self._association_conditions(
                     identity,
@@ -122,16 +126,16 @@ class SqlAlchemyProjectDeviceRepository(ProjectDeviceRepository):
                 project_id=project_device.project_id,
                 device_id=project_device.device_id,
                 role=project_device.role,
-                version=ProjectDevice.version + 1,
+                version=expected_version + 1,
             )
-            .returning(ProjectDevice.id)
+            .returning(ProjectDevice.version)
         )
 
         try:
             result = await self._session.execute(statement)
         except IntegrityError:
             raise
-        return result.scalar_one_or_none() is not None
+        return result.scalar_one_or_none()
 
     async def delete(self, identity: VerifiedIdentity, project_device_id: UUID) -> bool:
         statement = (

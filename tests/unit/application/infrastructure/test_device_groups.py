@@ -6,7 +6,10 @@ from tests.support import NoOpRecordChange, NoOpUnitOfWork
 
 from app.application.common.exceptions import InvalidInput
 from app.application.identity import VerifiedIdentity
-from app.application.infrastructure.exceptions import DeviceGroupNotFound
+from app.application.infrastructure.exceptions import (
+    DeviceGroupNotFound,
+    DeviceGroupVersionConflict,
+)
 from app.application.infrastructure.use_cases.device_group import (
     CreateDeviceGroup,
     DeleteDeviceGroup,
@@ -39,12 +42,17 @@ class FakeDeviceGroupRepository:
         self.created = device_group
         self.groups[device_group.id] = device_group
 
-    async def update(self, identity: VerifiedIdentity, device_group: DeviceGroup) -> bool:
+    async def update(
+        self, identity: VerifiedIdentity, device_group: DeviceGroup, expected_version: int
+    ) -> int | None:
         if await self.get_by_id(identity, device_group.id) is None:
-            return False
+            return None
+        current = self.groups[device_group.id]
+        if current.version != expected_version:
+            return None
         self.updated = device_group
         self.groups[device_group.id] = device_group
-        return True
+        return expected_version + 1
 
     async def delete(self, identity: VerifiedIdentity, device_group_id: UUID) -> bool:
         if await self.get_by_id(identity, device_group_id) is None:
@@ -142,6 +150,7 @@ async def test_update_device_group_preserves_owner_and_creation_time() -> None:
         device_group_id=group.id,
         name="Staging",
         description="  Deployment group  ",
+        expected_version=group.version,
     )
 
     assert repository.updated is not None
@@ -151,6 +160,35 @@ async def test_update_device_group_preserves_owner_and_creation_time() -> None:
     assert result.updated_at > group.updated_at
     assert result.name == "Staging"
     assert result.description == "Deployment group"
+    assert result.version == group.version + 1
+
+
+@pytest.mark.anyio
+async def test_update_device_group_rejects_stale_version_without_change_log() -> None:
+    identity = make_identity()
+    group = make_group(identity.user_id)
+    repository = FakeDeviceGroupRepository([group])
+
+    class Recorder:
+        calls = 0
+
+        async def execute(self, *args, **kwargs) -> None:
+            self.calls += 1
+
+    recorder = Recorder()
+    use_case = UpdateDeviceGroup(repository, recorder, NoOpUnitOfWork())
+
+    with pytest.raises(DeviceGroupVersionConflict):
+        await use_case.execute(
+            identity=identity,
+            device_group_id=group.id,
+            name="Staging",
+            description="Changed",
+            expected_version=group.version - 1,
+        )
+
+    assert repository.groups[group.id] == group
+    assert recorder.calls == 0
 
 
 @pytest.mark.anyio
@@ -165,6 +203,7 @@ async def test_update_device_group_rejects_missing_or_invalid_group() -> None:
             device_group_id=uuid4(),
             name="Staging",
             description=None,
+            expected_version=1,
         )
 
     group = make_group(identity.user_id)
@@ -175,6 +214,7 @@ async def test_update_device_group_rejects_missing_or_invalid_group() -> None:
             device_group_id=group.id,
             name="  ",
             description=None,
+            expected_version=1,
         )
     assert repository.updated is None
 

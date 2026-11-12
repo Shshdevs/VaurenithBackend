@@ -48,19 +48,25 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
             raise
 
     async def update(
-        self, identity: VerifiedIdentity, device_group: DeviceGroupEntity
-    ) -> bool:
+        self,
+        identity: VerifiedIdentity,
+        device_group: DeviceGroupEntity,
+        expected_version: int,
+    ) -> int | None:
         statement = (
             update(DeviceGroup)
-            .where(self._owned_group(identity, device_group.id))
+            .where(
+                self._owned_group(identity, device_group.id),
+                DeviceGroup.version == expected_version,
+            )
             .values(
                 user_id=device_group.user_id,
                 name=device_group.name,
                 description=device_group.description,
                 updated_at=device_group.updated_at,
-                version=DeviceGroup.version + 1,
+                version=expected_version + 1,
             )
-            .returning(DeviceGroup.id)
+            .returning(DeviceGroup.version)
         )
 
         try:
@@ -70,7 +76,7 @@ class SqlAlchemyDeviceGroupRepository(DeviceGroupRepository):
                 raise DeviceGroupAlreadyExists(device_group.name) from error
             raise
 
-        return result.scalar_one_or_none() is not None
+        return result.scalar_one_or_none()
 
     async def delete(self, identity: VerifiedIdentity, device_group_id: UUID) -> bool:
         statement = (
