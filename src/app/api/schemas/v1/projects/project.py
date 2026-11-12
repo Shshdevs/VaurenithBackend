@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import field_validator
+from pydantic import Field, field_validator
 
 from app.api.schemas.common import Schema
 from app.domain.projects.enums import ProjectStatus, ProjectType
@@ -32,5 +32,38 @@ class ProjectData(Schema):
             raise ValueError("Project name is invalid")
         try:
             return ProjectName(name).value
+        except InvalidProject as error:
+            raise ValueError(str(error)) from error
+
+
+class ProjectCreateRequest(Schema):
+    name: str
+    project_type: ProjectType = ProjectType.OTHER
+    version: int = Field(default=1, ge=1)
+    description: str | None = None
+    metadata: dict[str, Any] | None = None
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        try:
+            return ProjectName(value).value
+        except InvalidProject as error:
+            raise ValueError(str(error)) from error
+
+
+class ProjectUpdateRequest(Schema):
+    name: str
+    project_type: ProjectType
+    status: ProjectStatus
+    version: int = Field(ge=1)
+    description: str | None = None
+    metadata: dict[str, Any] | None = None
+
+    @field_validator("name")
+    @classmethod
+    def validate_name(cls, value: str) -> str:
+        try:
+            return ProjectName(value).value
         except InvalidProject as error:
             raise ValueError(str(error)) from error

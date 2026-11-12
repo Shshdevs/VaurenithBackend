@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.schemas import ApiResponse, format_http_status
-from app.api.schemas.v1 import ChangeLogResyncRequired
+from app.api.schemas.v1.synchronization import ChangeLogResyncRequired
 from app.application.common.exceptions import (
     ChangeLogCursorExpired,
     Conflict,

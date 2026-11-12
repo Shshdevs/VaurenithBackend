@@ -9,3 +9,7 @@ class DeviceGroupMemberData(Schema):
     group_id: UUID
     device_id: UUID
     created_at: datetime
+
+
+class DeviceGroupMemberCreateRequest(Schema):
+    device_id: UUID

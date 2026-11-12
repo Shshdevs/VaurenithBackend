@@ -4,7 +4,11 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 
 from app.api.schemas.response import ApiResponse, format_http_status
-from app.api.schemas.v1 import Device, DeviceCreateRequest, DeviceUpdateRequest
+from app.api.schemas.v1.infrastructure import (
+    Device,
+    DeviceCreateRequest,
+    DeviceUpdateRequest,
+)
 from app.application.identity import VerifiedIdentity
 from app.application.infrastructure.use_cases.device import (
     CreateDevice,
