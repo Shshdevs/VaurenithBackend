@@ -3,6 +3,7 @@ from .code_component import (
     CodeComponentData,
     CodeComponentUpdateRequest,
 )
+from .commit import CommitCreateRequest, CommitData
 from .repository import (
     RepositoryCreateRequest,
     RepositoryData,
@@ -13,7 +14,9 @@ __all__ = [
     "CodeComponentData",
     "CodeComponentCreateRequest",
     "CodeComponentUpdateRequest",
-    "RepositoryData",
+    "CommitCreateRequest",
+    "CommitData",
     "RepositoryCreateRequest",
+    "RepositoryData",
     "RepositoryUpdateRequest",
 ]
