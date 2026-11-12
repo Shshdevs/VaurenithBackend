@@ -28,7 +28,7 @@
 | 404 Not Found | сущность не найдена/недоступна | `NOT_FOUND`, тип сущности выводится для предметных исключений, исходное сообщение в `details` |
 | 409 Conflict | конфликт, включая конфликт версии | `CONFLICT`, тип сущности выводится для предметных исключений, подробность в `details` |
 | 410 Gone | курсор change log уже истёк | `RESYNC_REQUIRED`, `entity_type: "change_log"`, `data: {"resync_required":true,"restart_sequence":N}` |
-| 422 Unprocessable Entity | ошибка схемы или InvalidInput | `VALIDATION_ERROR` или `INVALID_INPUT`; ошибки Pydantic без `ctx` в `data`, текст предметной ошибки в `details` |
+| 422 Unprocessable Entity | ошибка схемы или InvalidInput | `VALIDATION_ERROR` или `INVALID_INPUT`; ошибки Pydantic в `data` содержат только `loc`, `type` и `msg`. Поля `input`, `ctx` и остальные внутренние данные валидации не возвращаются. Текст предметной ошибки в `details` |
 | 500 Internal Server Error | необработанная ошибка | `INTERNAL_ERROR`, детали не раскрываются |
 
 Валидация пути/query/body автоматически может возвращать 422. Каждому ответу middleware добавляет `X-Request-ID`, `X-Process-Time-Ms`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`. Время обработки — миллисекунды в виде строки. CORS задаётся конфигурацией.
@@ -223,7 +223,7 @@
 | `PUT /settings/{setting_id}` | `expected_version`, `value` | обновлённая `SettingData`, версия увеличивается на 1 |
 | `DELETE /settings/{setting_id}?expected_version={version}` | — | `200`, `data:null` |
 
-`SettingData`: `id`, `user_id`, `client_device_id`, `scope`, `key`, `value`, `version`, `created_at`, `updated_at`. `scope`: `global` или `client`. Ключ уникален в области видимости. Изменения записываются в ChangeLog; payload содержит область, ключ и ID устройства, но не значение настройки.
+`SettingData`: `id`, `user_id`, `client_device_id`, `scope`, `key`, `value`, `version`, `created_at`, `updated_at`. `scope`: `global` или `client`. Ключ уникален в области видимости. Изменения записываются в ChangeLog; payload содержит область, ключ и ID устройства, но не значение настройки. Для snapshot global scope читается через `GET /settings?scope=global`, client scope — через запрос с известным `client_device_id`. Отдельного API для перечисления всех ClientDevice ID нет, поэтому полный обход client-scoped настроек всех устройств аккаунта существующими маршрутами не гарантирован.
 
 ## Автоматизация
 
@@ -261,7 +261,9 @@
 
 `SyncStateData`: `id`, `user_id`, `client_device_id`, `updated_at`, `version`, `entity_type`, `entity_id`, `local_version`, `server_version`, `sync_status`, `last_synced_at`, `last_error`. Версии неотрицательные; для create/update верхняя граница — `2^63−1`, а `expected_version` — `2^63−2`. Статусы: `synced`, `pending`, `syncing`, `conflict`, `failed`, `offline`.
 
-`ChangeLogData`: `id`, `user_id`, `entity_type`, `entity_id`, `operation`, `version`, `sequence`, `changed_by_client_id`, `changed_by_user_id`, `payload`, `created_at`. Операция: `insert`, `update`, `delete`. `EntityType` включает user/project/environment/project_device/device/device_group/device_group_member/connection/service/container/database и доменные типы repository, branch, commit, code_component, dependency, script, script_execution, relation, event, metric, settings, sync_state, other.
+`ChangeLogData`: `id`, `user_id`, `entity_type`, `entity_id`, `operation`, `version`, `sequence`, `changed_by_client_id`, `changed_by_user_id`, `payload`, `created_at`. Операция: `insert`, `update`, `delete`. `EntityType` включает `user`, `project`, `environment`, `project_device`, `device`, `device_group`, `device_group_member`, `connection`, `service`, `container`, `database`, `repository`, `branch`, `commit`, `code_component`, `dependency`, `script`, `script_execution`, `script_target`, `relation`, `event`, `log_metadata`, `change_log`, `metric`, `settings`, `sync_state`, `other`.
+
+Перечень `EntityType` шире типов с активными ChangeLog producers и не является sync registry. Registry типов с producer, полями payload и owner-scoped API для загрузки полного текущего состояния, а также протокол snapshot после 410 описаны в [client-sync-requirements.md](client-sync-requirements.md). Snapshot собирается клиентом из перечисленных GET API; отдельного серверного snapshot endpoint нет. `sync_state` в текущем backend записывает CRUD/status события в ChangeLog, но list endpoint для полного snapshot отсутствует. Его участие в пользовательской ленте синхронизации остаётся отдельным архитектурным решением, а восстановление SyncState из snapshot не гарантируется.
 
 ## Примечания к контракту
 
