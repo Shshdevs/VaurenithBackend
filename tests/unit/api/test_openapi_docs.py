@@ -29,3 +29,21 @@ def test_redoc_lists_commit_routes_in_development_group() -> None:
     ]
     assert all("branches" in operation["tags"] for operation in branch_operations)
     assert "branches" in development_group["tags"]
+
+
+def test_redoc_lists_relation_routes_in_relations_group() -> None:
+    client = TestClient(create_app())
+    response = client.get("/openapi.json")
+
+    assert response.status_code == 200
+    schema = response.json()
+    relation_paths = [path for path in schema["paths"] if "/relations" in path]
+    assert relation_paths
+    operations = [
+        operation for path in relation_paths for operation in schema["paths"][path].values()
+    ]
+    assert all("relations" in operation["tags"] for operation in operations)
+    relation_group = next(
+        group for group in schema["x-tagGroups"] if group["name"] == "relations"
+    )
+    assert relation_group["tags"] == ["relations"]
