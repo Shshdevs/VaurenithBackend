@@ -31,7 +31,7 @@ services:
       LOG_LEVEL: ${LOG_LEVEL}
       MAX_REQUEST_BODY_SIZE: ${MAX_REQUEST_BODY_SIZE:-10485760}
     ports:
-      - "8000:8000"
+      - "${BACKEND_BIND_ADDRESS:-127.0.0.1}:8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
