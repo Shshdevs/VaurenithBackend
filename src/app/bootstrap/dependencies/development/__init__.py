@@ -57,5 +57,7 @@ __all__ = [
     "get_repository_dependency",
     "get_user_repositories_dependency",
     "update_code_component_dependency",
+    "update_branch_dependency",
+    "update_dependency_dependency",
     "update_repository_dependency",
 ]
