@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.projects import (
     EnvironmentCreateRequest,
     EnvironmentData,
@@ -19,6 +19,7 @@ from app.application.projects.use_cases.environments import (
     UpdateEnvironment,
 )
 from app.application.projects.use_cases.projects import GetProject
+from app.domain.common.enums import EntityType
 
 
 def build_environment_route(
@@ -58,7 +59,8 @@ def build_environment_route(
         )
         return ApiResponse[EnvironmentData](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Environment created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.ENVIRONMENT,
             data=EnvironmentData.model_validate(environment),
         )
 
@@ -82,6 +84,8 @@ def build_environment_route(
         return ApiResponse[list[EnvironmentData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[EnvironmentData.model_validate(item) for item in environments],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.ENVIRONMENT,
         )
 
     @router.get(
@@ -103,6 +107,8 @@ def build_environment_route(
         return ApiResponse[EnvironmentData](
             status=format_http_status(status.HTTP_200_OK),
             data=EnvironmentData.model_validate(environment),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.ENVIRONMENT,
         )
 
     @router.put(
@@ -135,7 +141,8 @@ def build_environment_route(
         )
         return ApiResponse[EnvironmentData](
             status=format_http_status(status.HTTP_200_OK),
-            message="Environment updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.ENVIRONMENT,
             data=EnvironmentData.model_validate(environment),
         )
 
@@ -159,7 +166,8 @@ def build_environment_route(
         await delete_environment.execute(identity, environment_id)
         return ApiResponse[None](
             status=format_http_status(status.HTTP_200_OK),
-            message="Environment deleted successfully",
+            code=ResponseCode.DELETED,
+            entity_type=EntityType.ENVIRONMENT,
         )
 
     return router

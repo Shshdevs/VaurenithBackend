@@ -96,7 +96,8 @@ def test_put_project_route_updates_project_and_returns_incremented_version() -> 
 
     assert response.status_code == 200
     body = response.json()
-    assert body["message"] == "Project updated successfully"
+    assert body["code"] == "UPDATED"
+    assert body["entity_type"] == "project"
     assert body["data"]["id"] == str(project_id)
     assert body["data"]["name"] == "Updated project"
     assert body["data"]["slug"] == "updated-project"
@@ -122,5 +123,7 @@ def test_put_project_route_returns_conflict_for_stale_version() -> None:
     )
 
     assert response.status_code == 409
-    assert "current version is 3" in response.json()["message"]
+    assert response.json()["code"] == "CONFLICT"
+    assert response.json()["entity_type"] == "project"
+    assert "current version is 3" in response.json()["details"]
     assert repository.updated_project is None

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.projects import (
     ProjectDeviceCreateRequest,
     ProjectDeviceData,
@@ -18,6 +18,7 @@ from app.application.projects.use_cases.project_devices import (
     LinkProjectDevice,
     UpdateProjectDevice,
 )
+from app.domain.common.enums import EntityType
 
 
 def build_project_device_route(
@@ -50,6 +51,8 @@ def build_project_device_route(
         return ApiResponse[ProjectDeviceData](
             status=format_http_status(status.HTTP_200_OK),
             data=ProjectDeviceData.model_validate(result),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.PROJECT_DEVICE,
         )
 
     @router.get(
@@ -67,6 +70,8 @@ def build_project_device_route(
         return ApiResponse[list[ProjectDeviceData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ProjectDeviceData.model_validate(model) for model in result],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.PROJECT_DEVICE,
         )
 
     @router.get(
@@ -84,6 +89,8 @@ def build_project_device_route(
         return ApiResponse[list[ProjectDeviceData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ProjectDeviceData.model_validate(model) for model in result],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.PROJECT_DEVICE,
         )
 
     @router.post(
@@ -104,7 +111,8 @@ def build_project_device_route(
         )
         return ApiResponse[ProjectDeviceData](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Project device relation created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.PROJECT_DEVICE,
             data=ProjectDeviceData.model_validate(result),
         )
 
@@ -131,7 +139,8 @@ def build_project_device_route(
 
         return ApiResponse[ProjectDeviceData](
             status=format_http_status(status.HTTP_200_OK),
-            message="Project device relation is updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.PROJECT_DEVICE,
             data=ProjectDeviceData.model_validate(result),
         )
 
@@ -152,7 +161,8 @@ def build_project_device_route(
         )
         return ApiResponse[None](
             status=format_http_status(status.HTTP_200_OK),
-            message="Project device relation is deleted successfully",
+            code=ResponseCode.DELETED,
+            entity_type=EntityType.PROJECT_DEVICE,
             data=None,
         )
 

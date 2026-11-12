@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.automation import (
     ScriptCreateRequest,
     ScriptData,
@@ -33,6 +33,7 @@ from app.application.automation import (
     UpdateScript,
 )
 from app.application.identity import VerifiedIdentity
+from app.domain.common.enums import EntityType
 
 
 def build_automation_router(
@@ -76,7 +77,8 @@ def build_automation_router(
         script = await use_case.create(identity, **request.model_dump())
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Script created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.SCRIPT,
             data=ScriptData.model_validate(script),
         )
 
@@ -89,6 +91,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[ScriptData.model_validate(script) for script in scripts],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SCRIPT,
         )
 
     @script_router.get("/scripts/{script_id}", response_model=ApiResponse[ScriptData])
@@ -101,6 +105,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=ScriptData.model_validate(script),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SCRIPT,
         )
 
     @script_router.put("/scripts/{script_id}", response_model=ApiResponse[ScriptData])
@@ -116,6 +122,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=ScriptData.model_validate(script),
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.SCRIPT,
         )
 
     @script_router.delete("/scripts/{script_id}", response_model=ApiResponse[None])
@@ -128,7 +136,8 @@ def build_automation_router(
         await use_case.delete(identity, script_id, expected_version)
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Script deleted successfully",
+            code=ResponseCode.DELETED,
+            entity_type=EntityType.SCRIPT,
         )
 
     @target_router.get(
@@ -144,6 +153,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[ScriptTargetData.model_validate(target) for target in targets],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SCRIPT_TARGET,
         )
 
     @target_router.post(
@@ -163,6 +174,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
             data=ScriptTargetData.model_validate(target),
+            code=ResponseCode.ADDED,
+            entity_type=EntityType.SCRIPT_TARGET,
         )
 
     @target_router.delete(
@@ -176,7 +189,11 @@ def build_automation_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await use_case.remove_script_target(identity, script_id, target_id)
-        return ApiResponse(status=format_http_status(status.HTTP_200_OK))
+        return ApiResponse(
+            status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.REMOVED,
+            entity_type=None,
+        )
 
     @execution_router.post(
         "/scripts/{script_id}/executions",
@@ -197,6 +214,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
             data=ScriptExecutionData.model_validate(execution),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SCRIPT_EXECUTION,
         )
 
     @execution_router.get(
@@ -223,7 +242,12 @@ def build_automation_router(
             )
             for execution in executions
         ]
-        return ApiResponse(status=format_http_status(status.HTTP_200_OK), data=queue)
+        return ApiResponse(
+            status=format_http_status(status.HTTP_200_OK),
+            data=queue,
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SCRIPT_EXECUTION,
+        )
 
     @execution_router.get(
         "/script-executions",
@@ -240,6 +264,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[ScriptExecutionData.model_validate(item) for item in executions],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SCRIPT_EXECUTION,
         )
 
     @execution_router.get(
@@ -255,6 +281,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=ScriptExecutionData.model_validate(execution),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SCRIPT_EXECUTION,
         )
 
     @execution_router.post(
@@ -275,6 +303,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=ScriptExecutionData.model_validate(execution),
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.SCRIPT_EXECUTION,
         )
 
     @execution_router.put(
@@ -301,6 +331,8 @@ def build_automation_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=ScriptExecutionData.model_validate(execution),
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.SCRIPT_EXECUTION,
         )
 
     router.include_router(script_router)

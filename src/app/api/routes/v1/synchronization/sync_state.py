@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.synchronization import (
     SyncStateCreateRequest,
     SyncStateData,
@@ -18,6 +18,8 @@ from app.application.synchronization.use_cases.sync_state import (
     UpdateSyncState,
     UpdateSyncStatus,
 )
+from app.domain.common.enums import EntityType
+from app.domain.synchronization import SyncStatus
 
 
 def build_sync_state_route(
@@ -54,7 +56,8 @@ def build_sync_state_route(
         return ApiResponse[SyncStateData](
             status=format_http_status(status.HTTP_201_CREATED),
             data=SyncStateData.model_validate(sync_state),
-            message="Sync state is created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.SYNC_STATE,
         )
 
     @router.put(
@@ -79,7 +82,8 @@ def build_sync_state_route(
         return ApiResponse[SyncStateData](
             status=format_http_status(status.HTTP_200_OK),
             data=SyncStateData.model_validate(sync_state),
-            message="Sync state is updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.SYNC_STATE,
         )
 
     @router.patch(
@@ -101,7 +105,12 @@ def build_sync_state_route(
         return ApiResponse[SyncStateData](
             status=format_http_status(status.HTTP_200_OK),
             data=SyncStateData.model_validate(sync_state),
-            message="Sync state status is updated",
+            code=(
+                ResponseCode.SYNCED
+                if request.status == SyncStatus.SYNCED
+                else ResponseCode.STATUS_UPDATED
+            ),
+            entity_type=EntityType.SYNC_STATE,
         )
 
     @router.get(
@@ -120,7 +129,8 @@ def build_sync_state_route(
         return ApiResponse[SyncStateData](
             status=format_http_status(status.HTTP_200_OK),
             data=SyncStateData.model_validate(sync_state),
-            message="Success",
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SYNC_STATE,
         )
 
     @router.delete(
@@ -139,7 +149,8 @@ def build_sync_state_route(
         )
         return ApiResponse[None](
             status=format_http_status(status.HTTP_200_OK),
-            message="Sync state is deleted successfully",
+            code=ResponseCode.DELETED,
+            entity_type=EntityType.SYNC_STATE,
         )
 
     return router

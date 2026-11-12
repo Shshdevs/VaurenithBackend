@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.development import (
     CodeComponentCreateRequest,
     CodeComponentData,
@@ -17,6 +17,7 @@ from app.application.development import (
     UpdateCodeComponent,
 )
 from app.application.identity import VerifiedIdentity
+from app.domain.common.enums import EntityType
 
 
 def build_code_component_router(
@@ -47,7 +48,8 @@ def build_code_component_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Code component created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.CODE_COMPONENT,
             data=CodeComponentData.model_validate(component),
         )
 
@@ -66,6 +68,8 @@ def build_code_component_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[CodeComponentData.model_validate(component) for component in components],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CODE_COMPONENT,
         )
 
     @router.get(
@@ -81,6 +85,8 @@ def build_code_component_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=CodeComponentData.model_validate(component),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CODE_COMPONENT,
         )
 
     @router.put(
@@ -101,6 +107,8 @@ def build_code_component_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=CodeComponentData.model_validate(component),
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.CODE_COMPONENT,
         )
 
     @router.delete("/code-components/{component_id}", response_model=ApiResponse[None])
@@ -111,6 +119,10 @@ def build_code_component_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await use_case.delete_code_component(identity, component_id, expected_version)
-        return ApiResponse(status=format_http_status(status.HTTP_200_OK))
+        return ApiResponse(
+            status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.DELETED,
+            entity_type=None,
+        )
 
     return router

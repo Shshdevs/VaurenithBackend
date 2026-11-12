@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.infrastructure import (
     ServiceCreateRequest,
     ServiceData,
@@ -22,6 +22,7 @@ from app.application.infrastructure.use_cases.service import (
     UpdateService,
     UpdateServiceStatus,
 )
+from app.domain.common.enums import EntityType
 
 
 def build_service_router(
@@ -53,6 +54,8 @@ def build_service_router(
         return ApiResponse[list[ServiceData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ServiceData.model_validate(service) for service in services],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SERVICE,
         )
 
     @router.post(
@@ -68,7 +71,8 @@ def build_service_router(
         service = await create_service.execute(identity=identity, **request.model_dump())
         return ApiResponse[ServiceData](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Service is created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.SERVICE,
             data=ServiceData.model_validate(service),
         )
 
@@ -86,6 +90,8 @@ def build_service_router(
         return ApiResponse[ServiceData](
             status=format_http_status(status.HTTP_200_OK),
             data=ServiceData.model_validate(service),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SERVICE,
         )
 
     @router.get(
@@ -102,6 +108,8 @@ def build_service_router(
         return ApiResponse[list[ServiceData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ServiceData.model_validate(service) for service in services],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SERVICE,
         )
 
     @router.get(
@@ -118,6 +126,8 @@ def build_service_router(
         return ApiResponse[list[ServiceData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ServiceData.model_validate(service) for service in services],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SERVICE,
         )
 
     @router.get(
@@ -136,6 +146,8 @@ def build_service_router(
         return ApiResponse[list[ServiceData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ServiceData.model_validate(service) for service in services],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.SERVICE,
         )
 
     @router.put(
@@ -159,7 +171,8 @@ def build_service_router(
         )
         return ApiResponse[ServiceData](
             status=format_http_status(status.HTTP_200_OK),
-            message="Service is updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.SERVICE,
             data=ServiceData.model_validate(service),
         )
 
@@ -184,7 +197,8 @@ def build_service_router(
         )
         return ApiResponse[ServiceData](
             status=format_http_status(status.HTTP_200_OK),
-            message="Service status is updated successfully",
+            code=ResponseCode.STATUS_UPDATED,
+            entity_type=EntityType.SERVICE,
             data=ServiceData.model_validate(service),
         )
 
@@ -199,6 +213,10 @@ def build_service_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await delete_service.execute(identity, service_id)
-        return ApiResponse[None](status=format_http_status(status.HTTP_200_OK))
+        return ApiResponse[None](
+            status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.DELETED,
+            entity_type=None,
+        )
 
     return router

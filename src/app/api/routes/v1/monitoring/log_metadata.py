@@ -4,13 +4,14 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.monitoring import (
     LogMetadataCreateRequest,
     LogMetadataData,
 )
 from app.application.identity import VerifiedIdentity
 from app.application.monitoring import CreateLogMetadata, GetUserLogMetadata
+from app.domain.common.enums import EntityType
 
 
 def build_log_metadata_router(
@@ -47,7 +48,8 @@ def build_log_metadata_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Log metadata recorded successfully",
+            code=ResponseCode.RECORDED,
+            entity_type=EntityType.LOG_METADATA,
             data=LogMetadataData.model_validate(value),
         )
 
@@ -84,7 +86,8 @@ def build_log_metadata_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Log metadata retrieved successfully",
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.LOG_METADATA,
             data=[LogMetadataData.model_validate(value) for value in values],
         )
 

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.infrastructure import (
     DeviceGroup,
     DeviceGroupCreateRequest,
@@ -22,6 +22,7 @@ from app.application.infrastructure.use_cases.device_group import (
     RemoveDeviceGroupMember,
     UpdateDeviceGroup,
 )
+from app.domain.common.enums import EntityType
 
 
 def build_device_group_router(
@@ -54,7 +55,8 @@ def build_device_group_router(
         members = await get_members_use_case.list_members(identity, device_group_id)
         return ApiResponse[list[DeviceGroupMemberData]](
             status=format_http_status(status.HTTP_200_OK),
-            message="Device group members retrieved successfully",
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DEVICE_GROUP,
             data=[DeviceGroupMemberData.model_validate(member) for member in members],
         )
 
@@ -74,7 +76,8 @@ def build_device_group_router(
         member = await add_member_use_case.add(identity, device_group_id, request.device_id)
         return ApiResponse[DeviceGroupMemberData](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Device added to group successfully",
+            code=ResponseCode.ADDED,
+            entity_type=EntityType.DEVICE_GROUP,
             data=DeviceGroupMemberData.model_validate(member),
         )
 
@@ -94,7 +97,8 @@ def build_device_group_router(
         await remove_member_use_case.remove(identity, device_group_id, device_id)
         return ApiResponse[None](
             status=format_http_status(status.HTTP_200_OK),
-            message="Device removed from group successfully",
+            code=ResponseCode.REMOVED,
+            entity_type=EntityType.DEVICE_GROUP,
         )
 
     @router.get(
@@ -111,7 +115,8 @@ def build_device_group_router(
         groups = await get_user_device_groups.execute(identity)
         return ApiResponse[list[DeviceGroup]](
             status=format_http_status(status.HTTP_200_OK),
-            message="Device groups retrieved successfully",
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DEVICE_GROUP,
             data=[DeviceGroup.model_validate(group) for group in groups],
         )
 
@@ -130,7 +135,8 @@ def build_device_group_router(
         )
         return ApiResponse[DeviceGroup](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Device group is created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.DEVICE_GROUP,
             data=DeviceGroup.model_validate(device_group),
         )
 
@@ -150,6 +156,8 @@ def build_device_group_router(
         return ApiResponse[DeviceGroup](
             status=format_http_status(status.HTTP_200_OK),
             data=DeviceGroup.model_validate(device_group),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DEVICE,
         )
 
     @router.put(
@@ -172,7 +180,8 @@ def build_device_group_router(
 
         return ApiResponse[DeviceGroup](
             status=format_http_status(status.HTTP_200_OK),
-            message="Device group is updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.DEVICE_GROUP,
             data=DeviceGroup.model_validate(device_group),
         )
 
@@ -191,6 +200,8 @@ def build_device_group_router(
         )
         return ApiResponse[None](
             status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.DELETED,
+            entity_type=None,
         )
 
     return router

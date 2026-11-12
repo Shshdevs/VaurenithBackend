@@ -4,10 +4,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.monitoring import MetricCreateRequest, MetricData
 from app.application.identity import VerifiedIdentity
 from app.application.monitoring import CreateMetric, GetDeviceMetrics
+from app.domain.common.enums import EntityType
 
 
 def build_metric_router(
@@ -41,7 +42,8 @@ def build_metric_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Metric recorded successfully",
+            code=ResponseCode.RECORDED,
+            entity_type=EntityType.METRIC,
             data=MetricData.model_validate(metric),
         )
 
@@ -63,7 +65,8 @@ def build_metric_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Metrics retrieved successfully",
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.METRIC,
             data=[MetricData.model_validate(metric) for metric in metrics],
         )
 

@@ -2,10 +2,11 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.synchronization import ChangeLogData, ChangeLogResyncRequired
 from app.application.identity import VerifiedIdentity
 from app.application.synchronization.use_cases.change_log import GetUserChangeLog
+from app.domain.common.enums import EntityType
 
 
 def build_change_log_route(
@@ -36,7 +37,8 @@ def build_change_log_route(
         changes = await use_case.execute(identity, after_sequence, limit)
         return ApiResponse[list[ChangeLogData]](
             status=format_http_status(status.HTTP_200_OK),
-            message="Change log retrieved successfully",
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CHANGE_LOG,
             data=[ChangeLogData.model_validate(change) for change in changes],
         )
 

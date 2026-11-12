@@ -2,7 +2,7 @@ from collections.abc import Awaitable, Callable
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas import ApiResponse, format_http_status
+from app.api.schemas import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.identity import UserCreateRequest, UserData
 from app.application.identity import (
     CreateUser,
@@ -11,6 +11,7 @@ from app.application.identity import (
     RevokeSession,
     VerifiedIdentity,
 )
+from app.domain.common.enums import EntityType
 
 
 def build_user_router(
@@ -34,7 +35,8 @@ def build_user_router(
     ) -> ApiResponse[None]:
         await delete_user.execute(identity.user_id)
         return ApiResponse[None](
-            message="User deleted successfully",
+            code=ResponseCode.DELETED,
+            entity_type=EntityType.USER,
             status=format_http_status(status.HTTP_200_OK),
             data=None,
         )
@@ -46,7 +48,8 @@ def build_user_router(
     ) -> ApiResponse[None]:
         await revoke_session.execute(identity)
         return ApiResponse[None](
-            message="Logged out successfully",
+            code=ResponseCode.LOGGED_OUT,
+            entity_type=EntityType.USER,
             status=format_http_status(status.HTTP_200_OK),
             data=None,
         )
@@ -58,7 +61,8 @@ def build_user_router(
     ) -> ApiResponse[UserData]:
         user = await get_current_user.execute(identity.user_id)
         return ApiResponse[UserData](
-            message="User retrieved successfully",
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.USER,
             status=format_http_status(status.HTTP_200_OK),
             data=UserData.model_validate(user),
         )
@@ -82,7 +86,8 @@ def build_user_router(
             app_version=request.app_version,
         )
         return ApiResponse[UserData](
-            message="User created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.USER,
             status=format_http_status(status.HTTP_201_CREATED),
             data=UserData.model_validate(user),
         )

@@ -4,10 +4,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.monitoring import EventCreateRequest, EventData
 from app.application.identity import VerifiedIdentity
 from app.application.monitoring import CreateEvent, GetUserEvents
+from app.domain.common.enums import EntityType
 from app.domain.monitoring import EventResult, EventType
 
 
@@ -43,7 +44,8 @@ def build_event_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Event recorded successfully",
+            code=ResponseCode.RECORDED,
+            entity_type=EntityType.EVENT,
             data=EventData.model_validate(event),
         )
 
@@ -73,7 +75,8 @@ def build_event_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Events retrieved successfully",
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.EVENT,
             data=[EventData.model_validate(event) for event in events],
         )
 

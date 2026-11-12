@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.development import (
     RepositoryCreateRequest,
     RepositoryData,
@@ -18,6 +18,7 @@ from app.application.development import (
     UpdateRepository,
 )
 from app.application.identity import VerifiedIdentity
+from app.domain.common.enums import EntityType
 
 
 def build_repository_router(
@@ -55,7 +56,8 @@ def build_repository_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Repository created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.REPOSITORY,
             data=RepositoryData.model_validate(repository),
         )
 
@@ -68,6 +70,8 @@ def build_repository_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[RepositoryData.model_validate(repository) for repository in repositories],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.REPOSITORY,
         )
 
     @router.get(
@@ -83,6 +87,8 @@ def build_repository_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=[RepositoryData.model_validate(repository) for repository in repositories],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.REPOSITORY,
         )
 
     @router.get("/repositories/{repository_id}", response_model=ApiResponse[RepositoryData])
@@ -95,6 +101,8 @@ def build_repository_router(
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
             data=RepositoryData.model_validate(repository),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.REPOSITORY,
         )
 
     @router.put("/repositories/{repository_id}", response_model=ApiResponse[RepositoryData])
@@ -116,7 +124,8 @@ def build_repository_router(
         )
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Repository updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.REPOSITORY,
             data=RepositoryData.model_validate(repository),
         )
 
@@ -130,7 +139,8 @@ def build_repository_router(
         await use_case.delete_repository(identity, repository_id, expected_version)
         return ApiResponse(
             status=format_http_status(status.HTTP_200_OK),
-            message="Repository deleted successfully",
+            code=ResponseCode.DELETED,
+            entity_type=EntityType.REPOSITORY,
         )
 
     return router

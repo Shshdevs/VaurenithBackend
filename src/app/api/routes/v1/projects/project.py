@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.projects import (
     ProjectCreateRequest,
     ProjectData,
@@ -17,6 +17,7 @@ from app.application.projects.use_cases.projects import (
     GetUserProjects,
     UpdateProject,
 )
+from app.domain.common.enums import EntityType
 
 
 def build_project_route(
@@ -51,7 +52,8 @@ def build_project_route(
         )
         return ApiResponse[ProjectData](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Project created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.PROJECT,
             data=ProjectData.model_validate(project),
         )
 
@@ -69,6 +71,8 @@ def build_project_route(
         return ApiResponse[ProjectData](
             status=format_http_status(status.HTTP_200_OK),
             data=ProjectData.model_validate(project),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.PROJECT,
         )
 
     @router.get(
@@ -84,6 +88,8 @@ def build_project_route(
         return ApiResponse[list[ProjectData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ProjectData.model_validate(project) for project in projects],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.PROJECT,
         )
 
     @router.put(
@@ -110,7 +116,8 @@ def build_project_route(
 
         return ApiResponse[ProjectData](
             status=format_http_status(status.HTTP_200_OK),
-            message="Project updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.PROJECT,
             data=ProjectData.model_validate(result),
         )
 
@@ -130,7 +137,8 @@ def build_project_route(
         )
         return ApiResponse[None](
             status=format_http_status(status.HTTP_200_OK),
-            message="Project deleted successfully",
+            code=ResponseCode.DELETED,
+            entity_type=EntityType.PROJECT,
         )
 
     return router

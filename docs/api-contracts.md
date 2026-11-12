@@ -7,26 +7,29 @@
 Успешные ответы обёрнуты в объект:
 
 ```json
-{"status":"200 OK","message":"...","data":{}}
+{"status":"200 OK","code":"UPDATED","entity_type":"project","data":{}}
 ```
 
-`status` — строка `"<код> <фраза HTTP>"`; `message` и `data` могут быть `null`. Коллекции возвращаются в `data` как массив, в том числе пустой. Удаления обычно отвечают `200 OK` с `data: null`. Создание отвечает `201 Created`. В проекте нет общей пагинации; единственный лимитный список — журнал изменений.
+`status` — строка `"<код> <фраза HTTP>"`. `code` — стабильный enum для локализации, `entity_type` — тип сущности или `null` для общих операций. `data` и `details` могут быть `null`. Коллекции возвращаются в `data` как массив, в том числе пустой. Удаления обычно отвечают `200 OK` с `data: null`. Создание отвечает `201 Created`. В проекте нет общей пагинации; единственный лимитный список — журнал изменений.
+
+Коды успешных ответов: `CREATED`, `UPDATED`, `STATUS_UPDATED`, `DELETED`, `RETRIEVED`, `RECORDED`, `ADDED`, `REMOVED`, `CACHED`, `LOGGED_OUT`, `SYNCED`, `OK`. Для действий над сущностями используется значение `entity_type` из доменного enum `EntityType` (строчные snake_case значения). `SYNCED` обозначает завершённую синхронизацию, тогда как текущее состояние синхронизации по-прежнему находится в `SyncStatus`.
 
 Ошибки имеют тот же конверт, обычно без `data`:
 
 ```json
-{"status":"422 Unprocessable Entity","message":"Request validation failed","data":[...]}
+{"status":"422 Unprocessable Entity","code":"VALIDATION_ERROR","entity_type":null,"data":[...]}
 ```
 
 | HTTP | Условие | Тело / поведение |
 |---|---|---|
-| 400–599 от HTTP-исключения | HTTP ошибка | `message` равен текстовому `detail`, иначе `HTTP error` |
-| 401 Unauthorized | отсутствует/не прошла аутентификация или авторизация | сообщение исключения, заголовок `WWW-Authenticate: Bearer` |
-| 404 Not Found | сущность не найдена/недоступна | сообщение исключения |
-| 409 Conflict | конфликт, включая конфликт версии | сообщение исключения |
-| 410 Gone | курсор change log уже истёк | `data: {"resync_required":true,"restart_sequence":N}`; клиенту нужна полная синхронизация |
-| 422 Unprocessable Entity | ошибка схемы или InvalidInput | для ошибок схемы `message: "Request validation failed"`, `data` — список ошибок Pydantic без `ctx`; для InvalidInput — текст исключения |
-| 500 Internal Server Error | необработанная ошибка | `message: "Internal server error"`, детали не раскрываются |
+| 400–599 от HTTP-исключения | HTTP ошибка | `HTTP_ERROR` либо специализированный код; исходный `detail` в `details` |
+| 401 Unauthorized | отсутствует/не прошла аутентификация или авторизация | `UNAUTHORIZED`, `details` исключения, заголовок `WWW-Authenticate: Bearer` |
+| 403 Forbidden | доступ запрещён | `FORBIDDEN`, `details` исключения |
+| 404 Not Found | сущность не найдена/недоступна | `NOT_FOUND`, тип сущности выводится для предметных исключений, исходное сообщение в `details` |
+| 409 Conflict | конфликт, включая конфликт версии | `CONFLICT`, тип сущности выводится для предметных исключений, подробность в `details` |
+| 410 Gone | курсор change log уже истёк | `RESYNC_REQUIRED`, `entity_type: "change_log"`, `data: {"resync_required":true,"restart_sequence":N}` |
+| 422 Unprocessable Entity | ошибка схемы или InvalidInput | `VALIDATION_ERROR` или `INVALID_INPUT`; ошибки Pydantic без `ctx` в `data`, текст предметной ошибки в `details` |
+| 500 Internal Server Error | необработанная ошибка | `INTERNAL_ERROR`, детали не раскрываются |
 
 Валидация пути/query/body автоматически может возвращать 422. Каждому ответу middleware добавляет `X-Request-ID`, `X-Process-Time-Ms`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: no-referrer`. Время обработки — миллисекунды в виде строки. CORS задаётся конфигурацией.
 

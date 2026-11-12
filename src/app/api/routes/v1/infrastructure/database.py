@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.infrastructure import (
     DatabaseCreateRequest,
     DatabaseData,
@@ -22,6 +22,7 @@ from app.application.infrastructure.use_cases.database import (
     GetUserDatabases,
     UpdateDatabase,
 )
+from app.domain.common.enums import EntityType
 
 
 def build_database_router(
@@ -54,7 +55,8 @@ def build_database_router(
         database = await create_database.execute(identity=identity, **request.model_dump())
         return ApiResponse[DatabaseData](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Database is created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.DATABASE,
             data=DatabaseData.model_validate(database),
         )
 
@@ -71,6 +73,8 @@ def build_database_router(
         return ApiResponse[list[DatabaseData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[DatabaseData.model_validate(database) for database in databases],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DATABASE,
         )
 
     @router.get(
@@ -87,6 +91,8 @@ def build_database_router(
         return ApiResponse[DatabaseData](
             status=format_http_status(status.HTTP_200_OK),
             data=DatabaseData.model_validate(database),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DATABASE,
         )
 
     @router.get(
@@ -105,6 +111,8 @@ def build_database_router(
         return ApiResponse[list[DatabaseData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[DatabaseData.model_validate(database) for database in databases],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DATABASE,
         )
 
     @router.get(
@@ -123,6 +131,8 @@ def build_database_router(
         return ApiResponse[list[DatabaseData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[DatabaseData.model_validate(database) for database in databases],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DATABASE,
         )
 
     @router.get(
@@ -141,6 +151,8 @@ def build_database_router(
         return ApiResponse[list[DatabaseData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[DatabaseData.model_validate(database) for database in databases],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DATABASE,
         )
 
     @router.get(
@@ -159,6 +171,8 @@ def build_database_router(
         return ApiResponse[list[DatabaseData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[DatabaseData.model_validate(database) for database in databases],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DATABASE,
         )
 
     @router.get(
@@ -177,6 +191,8 @@ def build_database_router(
         return ApiResponse[list[DatabaseData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[DatabaseData.model_validate(database) for database in databases],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.DATABASE,
         )
 
     @router.put(
@@ -200,7 +216,8 @@ def build_database_router(
         )
         return ApiResponse[DatabaseData](
             status=format_http_status(status.HTTP_200_OK),
-            message="Database is updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.DATABASE,
             data=DatabaseData.model_validate(database),
         )
 
@@ -215,6 +232,10 @@ def build_database_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await delete_database.execute(identity, database_id)
-        return ApiResponse[None](status=format_http_status(status.HTTP_200_OK))
+        return ApiResponse[None](
+            status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.DELETED,
+            entity_type=None,
+        )
 
     return router

@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, status
 
-from app.api.schemas.response import ApiResponse, format_http_status
+from app.api.schemas.response import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.infrastructure import (
     ContainerCreateRequest,
     ContainerData,
@@ -21,6 +21,7 @@ from app.application.infrastructure.use_cases.container import (
     GetUserContainers,
     UpdateContainer,
 )
+from app.domain.common.enums import EntityType
 
 
 def build_container_router(
@@ -54,7 +55,8 @@ def build_container_router(
         )
         return ApiResponse[ContainerData](
             status=format_http_status(status.HTTP_201_CREATED),
-            message="Container is created successfully",
+            code=ResponseCode.CREATED,
+            entity_type=EntityType.CONTAINER,
             data=ContainerData.model_validate(container),
         )
 
@@ -71,6 +73,8 @@ def build_container_router(
         return ApiResponse[list[ContainerData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ContainerData.model_validate(container) for container in containers],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CONTAINER,
         )
 
     @router.get(
@@ -87,6 +91,8 @@ def build_container_router(
         return ApiResponse[ContainerData](
             status=format_http_status(status.HTTP_200_OK),
             data=ContainerData.model_validate(container),
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CONTAINER,
         )
 
     @router.get(
@@ -105,6 +111,8 @@ def build_container_router(
         return ApiResponse[list[ContainerData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ContainerData.model_validate(container) for container in containers],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CONTAINER,
         )
 
     @router.get(
@@ -123,6 +131,8 @@ def build_container_router(
         return ApiResponse[list[ContainerData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ContainerData.model_validate(container) for container in containers],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CONTAINER,
         )
 
     @router.get(
@@ -141,6 +151,8 @@ def build_container_router(
         return ApiResponse[list[ContainerData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ContainerData.model_validate(container) for container in containers],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CONTAINER,
         )
 
     @router.get(
@@ -159,6 +171,8 @@ def build_container_router(
         return ApiResponse[list[ContainerData]](
             status=format_http_status(status.HTTP_200_OK),
             data=[ContainerData.model_validate(container) for container in containers],
+            code=ResponseCode.RETRIEVED,
+            entity_type=EntityType.CONTAINER,
         )
 
     @router.put(
@@ -182,7 +196,8 @@ def build_container_router(
         )
         return ApiResponse[ContainerData](
             status=format_http_status(status.HTTP_200_OK),
-            message="Container is updated successfully",
+            code=ResponseCode.UPDATED,
+            entity_type=EntityType.CONTAINER,
             data=ContainerData.model_validate(container),
         )
 
@@ -197,6 +212,10 @@ def build_container_router(
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
     ) -> ApiResponse[None]:
         await delete_container.execute(identity, container_id)
-        return ApiResponse[None](status=format_http_status(status.HTTP_200_OK))
+        return ApiResponse[None](
+            status=format_http_status(status.HTTP_200_OK),
+            code=ResponseCode.DELETED,
+            entity_type=None,
+        )
 
     return router

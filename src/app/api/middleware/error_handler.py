@@ -7,7 +7,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.api.schemas import ApiResponse, format_http_status
+from app.api.schemas import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.synchronization import ChangeLogResyncRequired
 from app.application.common.exceptions import (
     ChangeLogCursorExpired,
@@ -16,15 +16,24 @@ from app.application.common.exceptions import (
     NotFound,
     Unauthorized,
 )
+from app.domain.common.enums import EntityType
 
 logger = logging.getLogger(__name__)
 
 
-def _error(status: int, message: str, data: object | None = None) -> JSONResponse:
+def _error(
+    status: int,
+    code: ResponseCode,
+    details: object | None = None,
+    data: object | None = None,
+    entity_type: EntityType | None = None,
+) -> JSONResponse:
     body = ApiResponse[object](
-        message=message,
+        code=code,
+        entity_type=entity_type,
         status=format_http_status(status),
         data=data,
+        details=details,
     )
     return JSONResponse(status_code=status, content=jsonable_encoder(body))
 
@@ -34,10 +43,14 @@ async def handle_http_exception(
     exception: Exception,
 ) -> JSONResponse:
     http_exception = cast(StarletteHTTPException, exception)
-    message = (
-        http_exception.detail if isinstance(http_exception.detail, str) else "HTTP error"
-    )
-    return _error(http_exception.status_code, message)
+    code = {
+        401: ResponseCode.UNAUTHORIZED,
+        403: ResponseCode.FORBIDDEN,
+        404: ResponseCode.NOT_FOUND,
+        409: ResponseCode.CONFLICT,
+        422: ResponseCode.VALIDATION_ERROR,
+    }.get(http_exception.status_code, ResponseCode.HTTP_ERROR)
+    return _error(http_exception.status_code, code, http_exception.detail)
 
 
 async def handle_validation_exception(
@@ -49,7 +62,7 @@ async def handle_validation_exception(
         {key: value for key, value in error.items() if key != "ctx"}
         for error in validation_error.errors()
     ]
-    return _error(422, "Request validation failed", errors)
+    return _error(422, ResponseCode.VALIDATION_ERROR, data=errors)
 
 
 async def handle_unexpected_exception(
@@ -60,35 +73,60 @@ async def handle_unexpected_exception(
         "Unhandled application error request_id=%s",
         getattr(request.state, "request_id", None),
     )
-    return _error(500, "Internal server error")
+    return _error(500, ResponseCode.INTERNAL_ERROR)
 
 
 async def handle_not_found(
     _request: Request,
     exception: Exception,
 ) -> JSONResponse:
-    return _error(404, str(exception))
+    return _error(
+        404,
+        ResponseCode.NOT_FOUND,
+        str(exception),
+        entity_type=_entity_type(exception),
+    )
 
 
 async def handle_invalid_input(
     _request: Request,
     exception: Exception,
 ) -> JSONResponse:
-    return _error(422, str(exception))
+    return _error(
+        422,
+        ResponseCode.INVALID_INPUT,
+        str(exception),
+        entity_type=_entity_type(exception),
+    )
 
 
 async def handle_conflict(
     _request: Request,
     exception: Exception,
 ) -> JSONResponse:
-    return _error(409, str(exception))
+    return _error(
+        409,
+        ResponseCode.CONFLICT,
+        str(exception),
+        entity_type=_entity_type(exception),
+    )
+
+
+def _entity_type(exception: Exception) -> EntityType | None:
+    exception_name = type(exception).__name__.lower()
+    matches = [
+        entity_type
+        for entity_type in EntityType
+        if entity_type.name.lower().replace("_", "") in exception_name
+    ]
+    return max(matches, key=lambda item: len(item.name), default=None)
 
 
 async def handle_unauthorized(
     _request: Request,
     exception: Exception,
 ) -> JSONResponse:
-    response = _error(401, str(exception))
+    response = _error(401, ResponseCode.UNAUTHORIZED, str(exception))
     response.headers["WWW-Authenticate"] = "Bearer"
     return response
 
@@ -100,10 +138,12 @@ async def handle_change_log_cursor_expired(
     cursor_error = cast(ChangeLogCursorExpired, exception)
     return _error(
         status.HTTP_410_GONE,
+        ResponseCode.RESYNC_REQUIRED,
         str(cursor_error),
         ChangeLogResyncRequired(
             restart_sequence=cursor_error.restart_sequence
         ).model_dump(),
+        EntityType.CHANGE_LOG,
     )
 
 
