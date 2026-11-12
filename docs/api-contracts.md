@@ -91,6 +91,18 @@
 
 `ProjectDeviceData`: `id`, `project_id`, `device_id`, `role`, `created_at`, `version`. Роль должна соответствовать доменному `ProjectDeviceRole`.
 
+## Связи сущностей
+
+| Метод и путь | Параметры/тело | Ответ |
+|---|---|---|
+| `POST /projects/{project_id}/relations` | `source_entity_type`, `source_entity_id`, `target_entity_type`, `target_entity_id`, `relation_type`; опциональны `confidence`, `metadata` | `201 RelationData`; проект и ссылки проверяются по владельцу и принадлежности проекту |
+| `GET /projects/{project_id}/relations` | опционально `entity_type` и `entity_id` вместе | связи проекта; при фильтре возвращаются совпадения по исходному или целевому объекту |
+| `GET /projects/{project_id}/relations/{relation_id}` | — | связь |
+| `PUT /projects/{project_id}/relations/{relation_id}` | те же поля, что при создании | обновлённая связь; `origin` остаётся неизменным |
+| `DELETE /projects/{project_id}/relations/{relation_id}` | — | `200`, `data:null` |
+
+`RelationData`: `id`, `project_id`, тип и UUID исходного объекта, тип и UUID целевого объекта, `relation_type`, `origin`, `confidence`, `metadata`, `created_at`, `updated_at`. Новые связи создаются с `origin=user_defined`. Доверие — число от 0 до 1 включительно с точностью до 4 десятичных знаков. `OTHER` допускает внешние UUID-ссылки без проверки внутренней таблицы; ссылки на известные типы ограничены текущим пользователем и указанным проектом.
+
 ## Инфраструктура
 
 ### Устройства

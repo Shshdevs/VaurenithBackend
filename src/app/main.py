@@ -73,6 +73,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             {"name": "monitoring", "tags": ["events", "log_metadata", "metrics"]},
             {"name": "preferences", "tags": ["settings"]},
             {"name": "projects", "tags": ["projects", "environments", "project_devices"]},
+            {"name": "relations", "tags": ["relations"]},
             {"name": "synchronization", "tags": ["change-log", "sync-state"]},
         ]
         application.openapi_schema = schema
