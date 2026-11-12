@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.routes.v1.identity import build_identity_entity_router
 from app.api.routes.v1.identity.user import build_user_router
 from app.bootstrap.dependencies.identity import (
     get_authenticated_identity,
@@ -12,7 +13,7 @@ from app.bootstrap.dependencies.identity import (
 
 
 def build_identity_api_router() -> APIRouter:
-    return build_user_router(
+    entity_router = build_user_router(
         get_current_user_dependency=get_current_user,
         delete_user_dependency=get_delete_user,
         create_user_dependency=get_create_user,
@@ -20,3 +21,6 @@ def build_identity_api_router() -> APIRouter:
         authenticated_identity_dependency=get_authenticated_identity,
         verified_identity_dependency=get_verified_identity,
     )
+    router = APIRouter()
+    router.include_router(build_identity_entity_router([entity_router]))
+    return router

@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.routes.v1.projects import build_projects_entity_router
 from app.api.routes.v1.projects.environment import build_environment_route
 from app.api.routes.v1.projects.project import build_project_route
 from app.api.routes.v1.projects.project_device import build_project_device_route
@@ -25,8 +26,8 @@ from app.bootstrap.dependencies.projects import (
 
 
 def build_projects_api_router() -> APIRouter:
-    router = APIRouter()
-    router.include_router(
+    entity_routers = []
+    entity_routers.append(
         build_project_route(
             create_project_dependency=get_create_project_dependency,
             authenticated_identity_dependency=get_authenticated_identity,
@@ -36,7 +37,7 @@ def build_projects_api_router() -> APIRouter:
             delete_project_dependency=get_delete_project_dependency,
         )
     )
-    router.include_router(
+    entity_routers.append(
         build_environment_route(
             create_environment_dependency=get_create_environment_dependency,
             get_environment_dependency=get_get_environment_dependency,
@@ -48,7 +49,7 @@ def build_projects_api_router() -> APIRouter:
         )
     )
 
-    router.include_router(
+    entity_routers.append(
         build_project_device_route(
             link_project_device_dependency=get_link_project_device_dependency,
             get_project_device_dependency=get_get_project_device_dependency,
@@ -60,4 +61,6 @@ def build_projects_api_router() -> APIRouter:
         )
     )
 
+    router = APIRouter()
+    router.include_router(build_projects_entity_router(entity_routers))
     return router

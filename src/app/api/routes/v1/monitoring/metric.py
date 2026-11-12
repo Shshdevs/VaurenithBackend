@@ -17,7 +17,7 @@ def build_metric_router(
         ..., VerifiedIdentity | Awaitable[VerifiedIdentity]
     ],
 ) -> APIRouter:
-    router = APIRouter(tags=["monitoring"])
+    router = APIRouter(tags=["metrics"])
 
     @router.post(
         "/devices/{device_id}/metrics",

@@ -58,9 +58,12 @@ def build_automation_router(
         ..., VerifiedIdentity | Awaitable[VerifiedIdentity]
     ],
 ) -> APIRouter:
-    router = APIRouter(tags=["automation"])
+    router = APIRouter()
+    script_router = APIRouter(tags=["scripts"])
+    target_router = APIRouter(tags=["script_targets"])
+    execution_router = APIRouter(tags=["script_executions"])
 
-    @router.post(
+    @script_router.post(
         "/scripts",
         response_model=ApiResponse[ScriptData],
         status_code=status.HTTP_201_CREATED,
@@ -77,7 +80,7 @@ def build_automation_router(
             data=ScriptData.model_validate(script),
         )
 
-    @router.get("/scripts", response_model=ApiResponse[list[ScriptData]])
+    @script_router.get("/scripts", response_model=ApiResponse[list[ScriptData]])
     async def list_scripts(
         use_case: GetUserScripts = Depends(get_user_automation_scripts_dependency),
         identity: VerifiedIdentity = Depends(authenticated_identity_dependency),
@@ -88,7 +91,7 @@ def build_automation_router(
             data=[ScriptData.model_validate(script) for script in scripts],
         )
 
-    @router.get("/scripts/{script_id}", response_model=ApiResponse[ScriptData])
+    @script_router.get("/scripts/{script_id}", response_model=ApiResponse[ScriptData])
     async def get_script(
         script_id: UUID,
         use_case: GetScript = Depends(get_automation_script_dependency),
@@ -100,7 +103,7 @@ def build_automation_router(
             data=ScriptData.model_validate(script),
         )
 
-    @router.put("/scripts/{script_id}", response_model=ApiResponse[ScriptData])
+    @script_router.put("/scripts/{script_id}", response_model=ApiResponse[ScriptData])
     async def update_script(
         script_id: UUID,
         request: ScriptUpdateRequest,
@@ -115,7 +118,7 @@ def build_automation_router(
             data=ScriptData.model_validate(script),
         )
 
-    @router.delete("/scripts/{script_id}", response_model=ApiResponse[None])
+    @script_router.delete("/scripts/{script_id}", response_model=ApiResponse[None])
     async def delete_script(
         script_id: UUID,
         expected_version: int = Query(ge=1, le=2**63 - 2),
@@ -128,7 +131,7 @@ def build_automation_router(
             message="Script deleted successfully",
         )
 
-    @router.get(
+    @target_router.get(
         "/scripts/{script_id}/targets",
         response_model=ApiResponse[list[ScriptTargetData]],
     )
@@ -143,7 +146,7 @@ def build_automation_router(
             data=[ScriptTargetData.model_validate(target) for target in targets],
         )
 
-    @router.post(
+    @target_router.post(
         "/scripts/{script_id}/targets",
         response_model=ApiResponse[ScriptTargetData],
         status_code=status.HTTP_201_CREATED,
@@ -162,7 +165,7 @@ def build_automation_router(
             data=ScriptTargetData.model_validate(target),
         )
 
-    @router.delete(
+    @target_router.delete(
         "/scripts/{script_id}/targets/{target_id}",
         response_model=ApiResponse[None],
     )
@@ -175,7 +178,7 @@ def build_automation_router(
         await use_case.remove_script_target(identity, script_id, target_id)
         return ApiResponse(status=format_http_status(status.HTTP_200_OK))
 
-    @router.post(
+    @execution_router.post(
         "/scripts/{script_id}/executions",
         response_model=ApiResponse[ScriptExecutionData],
         status_code=status.HTTP_201_CREATED,
@@ -196,7 +199,7 @@ def build_automation_router(
             data=ScriptExecutionData.model_validate(execution),
         )
 
-    @router.get(
+    @execution_router.get(
         "/script-executions/pending",
         response_model=ApiResponse[list[ScriptExecutionQueueItem]],
     )
@@ -222,7 +225,7 @@ def build_automation_router(
         ]
         return ApiResponse(status=format_http_status(status.HTTP_200_OK), data=queue)
 
-    @router.get(
+    @execution_router.get(
         "/script-executions",
         response_model=ApiResponse[list[ScriptExecutionData]],
     )
@@ -239,7 +242,7 @@ def build_automation_router(
             data=[ScriptExecutionData.model_validate(item) for item in executions],
         )
 
-    @router.get(
+    @execution_router.get(
         "/script-executions/{execution_id}",
         response_model=ApiResponse[ScriptExecutionData],
     )
@@ -254,7 +257,7 @@ def build_automation_router(
             data=ScriptExecutionData.model_validate(execution),
         )
 
-    @router.post(
+    @execution_router.post(
         "/script-executions/{execution_id}/start",
         response_model=ApiResponse[ScriptExecutionData],
     )
@@ -274,7 +277,7 @@ def build_automation_router(
             data=ScriptExecutionData.model_validate(execution),
         )
 
-    @router.put(
+    @execution_router.put(
         "/script-executions/{execution_id}/result",
         response_model=ApiResponse[ScriptExecutionData],
     )
@@ -300,4 +303,7 @@ def build_automation_router(
             data=ScriptExecutionData.model_validate(execution),
         )
 
+    router.include_router(script_router)
+    router.include_router(target_router)
+    router.include_router(execution_router)
     return router

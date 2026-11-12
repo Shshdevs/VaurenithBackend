@@ -18,7 +18,7 @@ def build_event_router(
         ..., VerifiedIdentity | Awaitable[VerifiedIdentity]
     ],
 ) -> APIRouter:
-    router = APIRouter(tags=["monitoring"])
+    router = APIRouter(tags=["events"])
 
     @router.post(
         "/events",

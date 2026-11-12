@@ -29,7 +29,7 @@ def build_code_component_router(
         ..., VerifiedIdentity | Awaitable[VerifiedIdentity]
     ],
 ) -> APIRouter:
-    router = APIRouter(tags=["development"])
+    router = APIRouter(tags=["code_components"])
 
     @router.post(
         "/repositories/{repository_id}/code-components",
