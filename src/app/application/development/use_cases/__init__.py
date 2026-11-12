@@ -10,6 +10,14 @@ from app.application.development.use_cases.commit import (
     GetCommit,
     GetRepositoryCommits,
 )
+from app.application.development.use_cases.dependency import (
+    CreateDependency,
+    DeleteDependency,
+    GetComponentDependencies,
+    GetDependency,
+    GetRepositoryDependencies,
+    UpdateDependency,
+)
 from app.application.development.use_cases.repository import (
     CreateRepository,
     DeleteRepository,
@@ -20,14 +28,20 @@ from app.application.development.use_cases.repository import (
 )
 
 __all__ = [
+    "CreateDependency",
     "CreateCommit",
     "CreateCodeComponent",
+    "DeleteDependency",
     "DeleteCodeComponent",
+    "GetComponentDependencies",
     "GetCodeComponent",
     "GetCommit",
+    "GetDependency",
     "GetRepositoryCommits",
+    "GetRepositoryDependencies",
     "GetRepositoryCodeComponents",
     "UpdateCodeComponent",
+    "UpdateDependency",
     "CreateRepository",
     "DeleteRepository",
     "GetProjectRepositories",
