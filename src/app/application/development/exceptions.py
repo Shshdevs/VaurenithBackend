@@ -21,6 +21,11 @@ class CodeComponentNotFound(NotFound):
         super().__init__(f"Code component with id {component_id} not found")
 
 
+class CommitNotFound(NotFound):
+    def __init__(self, commit_id: str) -> None:
+        super().__init__(f"Commit with id {commit_id} not found")
+
+
 class CodeComponentVersionConflict(Conflict):
     def __init__(self, expected_version: int) -> None:
         super().__init__(
