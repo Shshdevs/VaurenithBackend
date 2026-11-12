@@ -6,19 +6,35 @@ from app.application.identity import InvalidIdentity
 from app.application.identity.dto import VerifiedIdentity
 from app.application.identity.use_cases import (
     AuthenticateIdentity,
+    CreateDeviceSession,
     CreateUser,
     DeleteUser,
+    GetClientDevice,
     GetCurrentUser,
+    ListClientDevices,
+    ListDeviceSessions,
+    RegisterClientDevice,
+    RevokeClientDevice,
     RevokeSession,
+    SetClientDeviceStatus,
+    UpdateClientDevice,
     VerifyIdentityToken,
 )
 from app.bootstrap.dependencies.database import get_database_session
 from app.bootstrap.providers.identity import (
     provide_authenticate_identity,
+    provide_create_device_session,
     provide_create_user,
     provide_current_user,
     provide_delete_user,
+    provide_get_client_device,
+    provide_list_client_devices,
+    provide_list_device_sessions,
+    provide_register_client_device,
+    provide_revoke_client_device,
     provide_revoke_session,
+    provide_set_client_device_status,
+    provide_update_client_device,
     provide_verify_identity_token,
 )
 
@@ -47,6 +63,54 @@ def get_revoke_session(
     session: AsyncSession = Depends(get_database_session, scope="function"),
 ) -> RevokeSession:
     return provide_revoke_session(session)
+
+
+def get_register_client_device(
+    session: AsyncSession = Depends(get_database_session, scope="function"),
+) -> RegisterClientDevice:
+    return provide_register_client_device(session)
+
+
+def get_list_client_devices(
+    session: AsyncSession = Depends(get_database_session, scope="function"),
+) -> ListClientDevices:
+    return provide_list_client_devices(session)
+
+
+def get_client_device(
+    session: AsyncSession = Depends(get_database_session, scope="function"),
+) -> GetClientDevice:
+    return provide_get_client_device(session)
+
+
+def get_update_client_device(
+    session: AsyncSession = Depends(get_database_session, scope="function"),
+) -> UpdateClientDevice:
+    return provide_update_client_device(session)
+
+
+def get_create_device_session(
+    session: AsyncSession = Depends(get_database_session, scope="function"),
+) -> CreateDeviceSession:
+    return provide_create_device_session(session)
+
+
+def get_list_device_sessions(
+    session: AsyncSession = Depends(get_database_session, scope="function"),
+) -> ListDeviceSessions:
+    return provide_list_device_sessions(session)
+
+
+def get_set_client_device_status(
+    session: AsyncSession = Depends(get_database_session, scope="function"),
+) -> SetClientDeviceStatus:
+    return provide_set_client_device_status(session)
+
+
+def get_revoke_client_device(
+    session: AsyncSession = Depends(get_database_session, scope="function"),
+) -> RevokeClientDevice:
+    return provide_revoke_client_device(session)
 
 
 def get_verify_identity_token() -> VerifyIdentityToken:

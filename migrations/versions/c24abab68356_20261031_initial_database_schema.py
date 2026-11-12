@@ -494,6 +494,19 @@ def upgrade() -> None:
             ["user_id"], ["identity.users.id"], initially="IMMEDIATE", deferrable=True
         ),
         sa.PrimaryKeyConstraint("id"),
+        sa.CheckConstraint(
+            "(status = 'revoked' AND revoked_at IS NOT NULL) OR "
+            "(status <> 'revoked' AND revoked_at IS NULL)",
+            name="ck_client_devices_revoked_at_status",
+        ),
+        sa.UniqueConstraint("user_id", "id", name="uq_client_devices_user_id_id"),
+        schema="identity",
+    )
+    op.create_index(
+        "ix_client_devices_user_id_status",
+        "client_devices",
+        ["user_id", "status"],
+        unique=False,
         schema="identity",
     )
     op.create_table(
@@ -724,7 +737,7 @@ def upgrade() -> None:
             "id", sa.UUID(), server_default=sa.text("gen_random_uuid()"), nullable=False
         ),
         sa.Column("user_id", sa.UUID(), nullable=False),
-        sa.Column("client_device_id", sa.UUID(), nullable=True),
+        sa.Column("client_device_id", sa.UUID(), nullable=False),
         sa.Column("token_hash", sa.String(length=512), nullable=False),
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column(
@@ -735,8 +748,9 @@ def upgrade() -> None:
         ),
         sa.Column("revoked_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(
-            ["client_device_id"],
-            ["identity.client_devices.id"],
+            ["user_id", "client_device_id"],
+            ["identity.client_devices.user_id", "identity.client_devices.id"],
+            name="fk_sessions_user_client_device",
             initially="IMMEDIATE",
             deferrable=True,
         ),
@@ -744,7 +758,14 @@ def upgrade() -> None:
             ["user_id"], ["identity.users.id"], initially="IMMEDIATE", deferrable=True
         ),
         sa.PrimaryKeyConstraint("id"),
-        sa.UniqueConstraint("token_hash"),
+        sa.UniqueConstraint("token_hash", name="uq_sessions_token_hash"),
+        schema="identity",
+    )
+    op.create_index(
+        "ix_sessions_client_device_revoked_expires",
+        "sessions",
+        ["client_device_id", "revoked_at", "expires_at"],
+        unique=False,
         schema="identity",
     )
     op.create_table(

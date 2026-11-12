@@ -18,6 +18,7 @@ class AuthenticateIdentity:
     async def execute(self, token: str) -> VerifiedIdentity:
         identity = self._verify_identity_token.execute(token)
         if not await self._session_repository.has_active_session(
+            identity.user_id,
             identity.token_hash,
             datetime.now(UTC),
         ):

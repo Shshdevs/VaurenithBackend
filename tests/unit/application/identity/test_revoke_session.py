@@ -1,5 +1,5 @@
 from datetime import UTC, datetime, timedelta
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from tests.support import NoOpUnitOfWork
@@ -15,7 +15,9 @@ class FakeSessionRepository:
         self.revoked_token_hash: TokenHash | None = None
         self.revoked_at: datetime | None = None
 
-    async def has_active_session(self, token_hash: TokenHash, at: datetime) -> bool:
+    async def has_active_session(
+        self, user_id: UUID, token_hash: TokenHash, at: datetime
+    ) -> bool:
         return False
 
     async def revoke_session(self, token_hash: TokenHash, at: datetime) -> bool:

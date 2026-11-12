@@ -13,6 +13,7 @@ def make_session() -> Session:
     return Session(
         entity_id=uuid4(),
         user_id=uuid4(),
+        client_device_id=uuid4(),
         token_hash=TokenHash("sha256:session-verifier"),
         expires_at=created_at + timedelta(hours=1),
         created_at=created_at,
@@ -44,6 +45,7 @@ def test_session_expiration_must_follow_creation() -> None:
         Session(
             entity_id=uuid4(),
             user_id=uuid4(),
+            client_device_id=uuid4(),
             token_hash=TokenHash("sha256:session-verifier"),
             expires_at=created_at,
             created_at=created_at,
@@ -57,6 +59,21 @@ def test_session_rejects_naive_timestamps() -> None:
         Session(
             entity_id=uuid4(),
             user_id=uuid4(),
+            client_device_id=uuid4(),
+            token_hash=TokenHash("sha256:session-verifier"),
+            expires_at=created_at + timedelta(hours=1),
+            created_at=created_at,
+        )
+
+
+def test_session_requires_client_device() -> None:
+    created_at = datetime(2026, 1, 1, tzinfo=UTC)
+
+    with pytest.raises(InvalidSession, match="associated with a client device"):
+        Session(
+            entity_id=uuid4(),
+            user_id=uuid4(),
+            client_device_id=None,
             token_hash=TokenHash("sha256:session-verifier"),
             expires_at=created_at + timedelta(hours=1),
             created_at=created_at,

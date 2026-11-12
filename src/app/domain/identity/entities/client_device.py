@@ -130,6 +130,19 @@ class ClientDevice(Entity):
             raise InvalidClientDevice("A revoked device cannot be reactivated")
         self._status = ClientDeviceStatus.ACTIVE
 
+    def update_metadata(
+        self, name: str | None, app_version: str | None, app_version_provided: bool
+    ) -> None:
+        if name is not None:
+            normalized_name = name.strip()
+            if not normalized_name or len(normalized_name) > self.MAX_NAME_LENGTH:
+                raise InvalidClientDevice("Device name is invalid")
+            self._name = normalized_name
+        if app_version_provided:
+            if app_version is not None and len(app_version) > self.MAX_APP_VERSION_LENGTH:
+                raise InvalidClientDevice("App version is too long")
+            self._app_version = app_version
+
     def revoke(self, at: datetime) -> None:
         self._validate_timestamp(at, "revocation time")
         if at < self._registered_at:

@@ -36,6 +36,25 @@ def test_device_can_be_deactivated_and_activated() -> None:
     assert device.status is ClientDeviceStatus.ACTIVE
 
 
+def test_reactivation_does_not_change_terminal_revocation() -> None:
+    device = make_device()
+    device.deactivate()
+    device.revoke(device.registered_at + timedelta(minutes=1))
+
+    with pytest.raises(InvalidClientDevice):
+        device.activate()
+    assert device.status is ClientDeviceStatus.REVOKED
+
+
+def test_device_metadata_can_be_updated_and_app_version_cleared() -> None:
+    device = make_device()
+    device.update_metadata(" New name ", "1.2.3", True)
+    device.update_metadata(None, None, True)
+
+    assert device.name == "New name"
+    assert device.app_version is None
+
+
 def test_revoked_device_cannot_be_reactivated() -> None:
     device = make_device()
     revoked_at = device.registered_at + timedelta(minutes=5)

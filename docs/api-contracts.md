@@ -1,6 +1,6 @@
 # Реализованные API-контракты
 
-Документ описывает контракты, подключённые в `src/app` на момент проверки. Источник фактического префикса — настройка `API_PREFIX` (`api_prefix`); поэтому ниже пути приведены относительно него. Все тела и ответы используют JSON, UUID сериализуются строками, даты/время — ISO 8601. Pydantic-схемы запрещают дополнительные поля (`extra="forbid"`). Для изменяющих запросов `PUT` требуется полный набор полей схемы; `PATCH` применяется только для специализированных полей статуса. Большинство предметных маршрутов требует проверенную Bearer-аутентификацию. Исключения: `/health`, `/health/ready`, `/users/create` (для него нужна проверенная идентичность клиента, но не существующий пользователь).
+Документ описывает контракты, подключённые в `src/app`. Источник фактического префикса — настройка `API_PREFIX` (`api_prefix`); поэтому ниже пути приведены относительно него. Все тела и ответы используют JSON, UUID сериализуются строками, даты/время — ISO 8601. Pydantic-схемы запрещают дополнительные поля (`extra="forbid"`). Для изменяющих запросов `PUT` требуется полный набор полей схемы; `PATCH` применяется только для специализированных полей статуса. Большинство предметных маршрутов требует Bearer-аутентификацию с действующей Session. Исключения: `/health`, `/health/ready`, `/users/create`, `POST /users/me/devices` и `POST /users/me/devices/{device_id}/sessions`; последние маршруты требуют проверенный issuer JWT, но не предварительно зарегистрированную Session для этого же JWT.
 
 ## Общий формат
 
@@ -12,7 +12,7 @@
 
 `status` — строка `"<код> <фраза HTTP>"`. `code` — стабильный enum для локализации, `entity_type` — тип сущности или `null` для общих операций. `data` и `details` могут быть `null`. Коллекции возвращаются в `data` как массив, в том числе пустой. Удаления обычно отвечают `200 OK` с `data: null`. Создание отвечает `201 Created`. В проекте нет общей пагинации; единственный лимитный список — журнал изменений.
 
-Коды успешных ответов: `CREATED`, `UPDATED`, `STATUS_UPDATED`, `DELETED`, `RETRIEVED`, `RECORDED`, `ADDED`, `REMOVED`, `CACHED`, `LOGGED_OUT`, `SYNCED`, `OK`. Для действий над сущностями используется значение `entity_type` из доменного enum `EntityType` (строчные snake_case значения). `SYNCED` обозначает завершённую синхронизацию, тогда как текущее состояние синхронизации по-прежнему находится в `SyncStatus`.
+Коды успешных ответов: `CREATED`, `UPDATED`, `STATUS_UPDATED`, `DELETED`, `RETRIEVED`, `RECORDED`, `ADDED`, `REMOVED`, `CACHED`, `LOGGED_OUT`, `SYNCED`, `OK`. Для действий над сущностями используется значение `entity_type` из доменного enum `EntityType` (строчные snake_case значения), включая `client_device` и `session`. `SYNCED` обозначает завершённую синхронизацию, тогда как текущее состояние синхронизации по-прежнему находится в `SyncStatus`.
 
 Ошибки имеют тот же конверт, обычно без `data`:
 
@@ -50,6 +50,27 @@
 | `DELETE /users/me` | — | `200`, `data:null`, удаляет текущего пользователя |
 
 `UserCreateRequest`: email должен быть валидным; `device_name` после trim непустой, длина 1–255; `display_name` до 255 символов; `app_version` до 50. `platform`: `macos`, `windows`, `linux`, `ios`, `android`, `other`. `UserData`: `id`, `email`, `display_name`, `nickname`, `auth_provider`, `created_at`, `updated_at`.
+
+### ClientDevice и Session
+
+Управление устройствами owner-scoped по `VerifiedIdentity.user_id`. Новая регистрация и создание Session по новому issuer JWT проверяют подпись/claims, но не требуют уже активной Session для этого JWT. Все остальные маршруты требуют JWT с действующей Session, ACTIVE ClientDevice и согласованным владельцем. Текущая `/users/create` по-прежнему создаёт первую ClientDevice и связанную Session.
+
+| Метод и путь | Тело / параметры | Ответ и поведение |
+|---|---|---|
+| `POST /users/me/devices` | `name`, `platform`, опционально `app_version` | `201 ClientDeviceData`; сервер назначает ID, одновременно создаёт linked Session |
+| `GET /users/me/devices` | — | список устройств текущего пользователя |
+| `GET /users/me/devices/{device_id}` | — | устройство владельца; чужой/несуществующий ID даёт owner-safe `404` |
+| `PATCH /users/me/devices/{device_id}` | `name?`, `app_version?`; null `app_version` очищает версию | обновлённый `ClientDeviceData`; требуется хотя бы одно поле |
+| `POST /users/me/devices/{device_id}/sessions` | пустое тело | `201 SessionData`; создаёт новую Session по новому JWT для ранее зарегистрированного ACTIVE устройства |
+| `GET /users/me/devices/{device_id}/sessions` | — | список `SessionData` без JWT и token hash |
+| `PATCH /users/me/devices/{device_id}/status` | `status`: `active` или `inactive` | обновлённый `ClientDeviceData`; переход в INACTIVE отзывает действующие сессии |
+| `DELETE /users/me/devices/{device_id}` | — | `200`, `data:null`; терминальный REVOKED и отзыв активных сессий устройства |
+
+`ClientDeviceRegisterRequest`: `name` после trim непустой, 1–255 символов; `platform`: `macos`, `windows`, `linux`, `ios`, `android`, `other`; `app_version` до 50 символов. DTO запрещают owner ID, статус и системные поля. Валидный новый JWT issuer-а достаточен для JWT-only enrollment; после компрометации account JWT можно зарегистрировать ещё одно устройство, поэтому этот механизм не заменяет step-up/approval.
+
+`ClientDeviceData`: `id`, `name`, `platform`, `app_version`, `status`, `registered_at`, `last_seen_at`, `revoked_at`. `SessionData`: `id`, `client_device_id`, `created_at`, `expires_at`, `revoked_at`. Статусы: ACTIVE принимает запросы и новые сессии; INACTIVE запрещает их и отзывает все активные Session; ACTIVE можно восстановить, но старые JWT не оживают; REVOKED терминален, повторная регистрация выдаёт новый ID. Существующий `POST /users/logout` по-прежнему отзывает только Session текущего JWT.
+
+Отзыв действует после commit на все последующие auth checks связанных сессий и не ждёт JWT expiry. Уже выполняющиеся запросы он не отменяет. ClientDevice ID не является криптографическим доказательством физического устройства; скопированный действующий bearer JWT остаётся bearer credential до отзыва его Session/device или expiry.
 
 ## Projects и окружения
 
@@ -261,7 +282,7 @@
 
 `SyncStateData`: `id`, `user_id`, `client_device_id`, `updated_at`, `version`, `entity_type`, `entity_id`, `local_version`, `server_version`, `sync_status`, `last_synced_at`, `last_error`. Версии неотрицательные; для create/update верхняя граница — `2^63−1`, а `expected_version` — `2^63−2`. Статусы: `synced`, `pending`, `syncing`, `conflict`, `failed`, `offline`.
 
-`ChangeLogData`: `id`, `user_id`, `entity_type`, `entity_id`, `operation`, `version`, `sequence`, `changed_by_client_id`, `changed_by_user_id`, `payload`, `created_at`. Операция: `insert`, `update`, `delete`. `EntityType` включает `user`, `project`, `environment`, `project_device`, `device`, `device_group`, `device_group_member`, `connection`, `service`, `container`, `database`, `repository`, `branch`, `commit`, `code_component`, `dependency`, `script`, `script_execution`, `script_target`, `relation`, `event`, `log_metadata`, `change_log`, `metric`, `settings`, `sync_state`, `other`.
+`ChangeLogData`: `id`, `user_id`, `entity_type`, `entity_id`, `operation`, `version`, `sequence`, `changed_by_client_id`, `changed_by_user_id`, `payload`, `created_at`. Операция: `insert`, `update`, `delete`. `EntityType` включает `user`, `client_device`, `session`, `project`, `environment`, `project_device`, `device`, `device_group`, `device_group_member`, `connection`, `service`, `container`, `database`, `repository`, `branch`, `commit`, `code_component`, `dependency`, `script`, `script_execution`, `script_target`, `relation`, `event`, `log_metadata`, `change_log`, `metric`, `settings`, `sync_state`, `other`.
 
 Перечень `EntityType` шире типов с активными ChangeLog producers и не является sync registry. Registry типов с producer, полями payload и owner-scoped API для загрузки полного текущего состояния, а также протокол snapshot после 410 описаны в [client-sync-requirements.md](client-sync-requirements.md). Snapshot собирается клиентом из перечисленных GET API; отдельного серверного snapshot endpoint нет. `sync_state` в текущем backend записывает CRUD/status события в ChangeLog, но list endpoint для полного snapshot отсутствует. Его участие в пользовательской ленте синхронизации остаётся отдельным архитектурным решением, а восстановление SyncState из snapshot не гарантируется.
 
