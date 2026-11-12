@@ -63,7 +63,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 ],
             },
             {"name": "health", "tags": ["health_checks"]},
-            {"name": "identity", "tags": ["users"]},
+            {"name": "identity", "tags": ["users", "client devices"]},
             {
                 "name": "infrastructure",
                 "tags": [

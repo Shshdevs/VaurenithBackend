@@ -11,6 +11,7 @@ from app.application.identity.dto import (
     VerifiedIdentity,
 )
 from app.domain.identity import ClientDeviceStatus, EmailAddress, PlatformType, TokenHash
+from app.main import create_app
 
 
 class FakeUseCase:
@@ -124,3 +125,18 @@ def test_client_device_routes_are_registered() -> None:
     assert "/users/me/devices/{device_id}" in paths
     assert "/users/me/devices/{device_id}/sessions" in paths
     assert "/users/me/devices/{device_id}/status" in paths
+
+
+def test_redoc_identity_tag_group_includes_client_device_operations() -> None:
+    client = TestClient(create_app())
+    docs_response = client.get("/docs")
+    response = client.get("/openapi.json")
+    schema = response.json()
+    identity_group = next(
+        group for group in schema["x-tagGroups"] if group["name"] == "identity"
+    )
+
+    assert docs_response.status_code == 200
+    assert response.status_code == 200
+    assert "client devices" in identity_group["tags"]
+    assert "client devices" in schema["paths"]["/api/v1/users/me/devices"]["post"]["tags"]
