@@ -3,7 +3,7 @@ from collections.abc import Awaitable, Callable
 from fastapi import APIRouter, Depends, Query, status
 
 from app.api.schemas.response import ApiResponse, format_http_status
-from app.api.schemas.v1 import ChangeLogData, ChangeLogResyncRequired
+from app.api.schemas.v1.synchronization import ChangeLogData, ChangeLogResyncRequired
 from app.application.identity import VerifiedIdentity
 from app.application.synchronization.use_cases.change_log import GetUserChangeLog
 

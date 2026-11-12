@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from fastapi import APIRouter, Depends, Response, status
 
 from app.api.schemas import ApiResponse, format_http_status
-from app.api.schemas.v1 import DependencyHealth, LivenessData, ReadinessData
+from app.api.schemas.v1.health import DependencyHealth, LivenessData, ReadinessData
 from app.application.health.use_cases import CheckDatabaseHealth
 
 

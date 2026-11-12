@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 
 from app.api.schemas.response import ApiResponse, format_http_status
-from app.api.schemas.v1 import (
+from app.api.schemas.v1.synchronization import (
     SyncStateCreateRequest,
     SyncStateData,
     SyncStateStatusUpdateRequest,

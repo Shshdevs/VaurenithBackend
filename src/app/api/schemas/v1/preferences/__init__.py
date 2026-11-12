@@ -1,7 +1,11 @@
-from app.api.schemas.v1.preferences.setting import (
+from .setting import (
     SettingCreateRequest,
     SettingData,
     SettingUpdateRequest,
 )
 
-__all__ = ["SettingCreateRequest", "SettingData", "SettingUpdateRequest"]
+__all__ = [
+    "SettingData",
+    "SettingCreateRequest",
+    "SettingUpdateRequest",
+]

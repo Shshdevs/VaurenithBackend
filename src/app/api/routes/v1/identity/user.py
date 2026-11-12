@@ -3,7 +3,7 @@ from collections.abc import Awaitable, Callable
 from fastapi import APIRouter, Depends, status
 
 from app.api.schemas import ApiResponse, format_http_status
-from app.api.schemas.v1 import UserCreateRequest, UserData
+from app.api.schemas.v1.identity import UserCreateRequest, UserData
 from app.application.identity import (
     CreateUser,
     DeleteUser,
