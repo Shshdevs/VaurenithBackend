@@ -48,6 +48,7 @@ async def handle_http_exception(
         403: ResponseCode.FORBIDDEN,
         404: ResponseCode.NOT_FOUND,
         409: ResponseCode.CONFLICT,
+        413: ResponseCode.HTTP_ERROR,
         422: ResponseCode.VALIDATION_ERROR,
     }.get(http_exception.status_code, ResponseCode.HTTP_ERROR)
     return _error(http_exception.status_code, code, http_exception.detail)

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
 from app.api.middleware.error_handler import register_error_handlers
+from app.api.middleware.request_body_limit import RequestBodyLimitMiddleware
 from app.api.middleware.request_context import (
     RequestContextMiddleware,
     SecurityHeadersMiddleware,
@@ -23,6 +24,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
 
     application.add_middleware(RequestContextMiddleware)
+    application.add_middleware(
+        RequestBodyLimitMiddleware,
+        max_body_size=app_settings.max_request_body_size,
+    )
     application.add_middleware(SecurityHeadersMiddleware)
     application.add_middleware(
         CORSMiddleware,
