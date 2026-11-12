@@ -3,8 +3,8 @@ from .code_component import (
     CodeComponentData,
     CodeComponentUpdateRequest,
 )
-from app.api.schemas.v1.development.commit import CommitCreateRequest, CommitData
-from app.api.schemas.v1.development.repository import (
+from .commit import CommitCreateRequest, CommitData
+from .repository import (
     RepositoryCreateRequest,
     RepositoryData,
     RepositoryUpdateRequest,
@@ -18,6 +18,5 @@ __all__ = [
     "CommitData",
     "RepositoryCreateRequest",
     "RepositoryData",
-    "RepositoryCreateRequest",
     "RepositoryUpdateRequest",
 ]
