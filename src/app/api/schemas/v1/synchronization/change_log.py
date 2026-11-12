@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from app.api.schemas.common import Schema
@@ -19,3 +19,8 @@ class ChangeLogData(Schema):
     changed_by_user_id: UUID
     payload: Any | None
     created_at: datetime
+
+
+class ChangeLogResyncRequired(Schema):
+    resync_required: Literal[True] = True
+    restart_sequence: int

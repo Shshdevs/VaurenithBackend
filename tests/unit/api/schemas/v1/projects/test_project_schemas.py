@@ -1,9 +1,11 @@
 import pytest
 from pydantic import ValidationError
 
-from app.api.schemas.v1.projects.project import ProjectData
-from app.api.schemas.v1.projects.project_create import ProjectCreateRequest
-from app.api.schemas.v1.projects.project_update import ProjectUpdateRequest
+from app.api.schemas.v1.projects import (
+    ProjectCreateRequest,
+    ProjectData,
+    ProjectUpdateRequest,
+)
 from app.domain.projects import ProjectStatus, ProjectType
 
 
