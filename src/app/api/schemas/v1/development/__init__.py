@@ -1,3 +1,4 @@
+from .branch import BranchCreateRequest, BranchData, BranchUpdateRequest
 from .code_component import (
     CodeComponentCreateRequest,
     CodeComponentData,
@@ -16,6 +17,9 @@ from .repository import (
 )
 
 __all__ = [
+    "BranchCreateRequest",
+    "BranchData",
+    "BranchUpdateRequest",
     "CodeComponentData",
     "CodeComponentCreateRequest",
     "CodeComponentUpdateRequest",
