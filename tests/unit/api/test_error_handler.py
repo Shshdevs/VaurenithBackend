@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from sqlalchemy.exc import OperationalError
 
 from app.api.middleware.error_handler import register_error_handlers
 from app.api.schemas.common import Schema
@@ -79,3 +80,24 @@ def test_nested_validation_error_does_not_echo_body_values() -> None:
     assert error["type"] == "int_parsing"
     assert "valid integer" in error["msg"]
     assert set(error) == {"loc", "type", "msg"}
+
+
+def test_database_connection_error_returns_generic_service_unavailable() -> None:
+    app = FastAPI()
+    register_error_handlers(app)
+
+    @app.get("/database")
+    async def database_failure() -> None:
+        raise OperationalError("SELECT 1", {}, RuntimeError("private database detail"))
+
+    response = TestClient(app).get("/database")
+
+    assert response.status_code == 503
+    assert "private database detail" not in response.text
+    assert response.json() == {
+        "code": "UNAVAILABLE",
+        "entity_type": None,
+        "status": "503 Service Unavailable",
+        "data": None,
+        "details": None,
+    }
