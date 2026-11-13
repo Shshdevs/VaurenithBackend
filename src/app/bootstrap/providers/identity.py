@@ -47,8 +47,16 @@ def provide_delete_user(session: AsyncSession) -> DeleteUser:
 
 
 def provide_verify_identity_token() -> VerifyIdentityToken:
-    secret = get_settings().auth_jwt_secret.get_secret_value()
-    return VerifyIdentityToken(JwtAccessTokenVerifier(secret))
+    settings = get_settings()
+    return VerifyIdentityToken(
+        JwtAccessTokenVerifier(
+            public_key=settings.auth_jwt_public_key,
+            issuer=settings.auth_jwt_issuer,
+            audience=settings.auth_jwt_audience,
+            clock_skew_seconds=settings.auth_jwt_clock_skew_seconds,
+            max_lifetime_seconds=settings.auth_jwt_max_lifetime_seconds,
+        )
+    )
 
 
 def provide_authenticate_identity(

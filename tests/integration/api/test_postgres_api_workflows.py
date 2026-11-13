@@ -4,12 +4,12 @@ from hashlib import sha256
 from uuid import uuid4
 
 import httpx
-import jwt
 import pytest
 from fastapi import Depends
 from sqlalchemy import delete, select
 from sqlalchemy.engine import make_url
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from tests.support_jwt import make_access_token as generate_access_token
 
 from app.application.infrastructure.use_cases.device import CreateDevice
 from app.bootstrap.dependencies.database import get_database_session
@@ -55,15 +55,12 @@ def assert_test_database_is_separate(test_database_url: str) -> None:
 
 def make_access_token(user_id) -> tuple[str, str]:
     email = f"{user_id}@example.test"
-    token = jwt.encode(
+    token = generate_access_token(
         {
             "sub": str(user_id),
-            "exp": datetime.now(UTC) + timedelta(hours=1),
             "email": email,
             "auth_provider": "postgres-api-integration-test",
-        },
-        get_settings().auth_jwt_secret.get_secret_value(),
-        algorithm="HS256",
+        }
     )
     return token, email
 
