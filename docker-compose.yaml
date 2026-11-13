@@ -52,6 +52,8 @@ services:
       dockerfile: Dockerfile
     container_name: vaurenith-change-log-pruner
     restart: unless-stopped
+    healthcheck:
+      disable: true
     command:
       - sh
       - -c
