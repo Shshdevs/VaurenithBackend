@@ -124,3 +124,9 @@ make test-integration
 | `LOG_LEVEL` | Уровень логирования, например `INFO` |
 
 JWT для identity-маршрутов должен соответствовать contract `at+jwt` / RS256, содержать `iss`, `aud`, `sub` (неизменяемый UUID внутреннего пользователя), `exp`, `iat`, `nbf`, `jti`, `email` и `auth_provider`. `/users/me` также требует активную Backend Session, содержащую SHA-256 хеш полного токена. `POST /users/create` принимает полностью проверенный JWT без существующей Session и создаёт пользователя вместе с первой Session атомарно.
+
+## Экосистема Vaurenith
+
+- [VaurenithBackend](https://github.com/Shshdevs/VaurenithAuth) — cервис аутентификации и управления пользовательскими сессиями.
+- [VaurenithClient](https://github.com/Shshdevs/VaurenithClient) — клиентское приложение.
+
