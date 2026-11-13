@@ -47,3 +47,21 @@ def test_redoc_lists_relation_routes_in_relations_group() -> None:
         group for group in schema["x-tagGroups"] if group["name"] == "relations"
     )
     assert relation_group["tags"] == ["relations"]
+
+
+def test_redoc_lists_client_device_routes_in_identity_group() -> None:
+    client = TestClient(create_app())
+    response = client.get("/openapi.json")
+
+    assert response.status_code == 200
+    schema = response.json()
+    device_paths = [path for path in schema["paths"] if "/users/me/devices" in path]
+    assert device_paths
+    operations = [
+        operation for path in device_paths for operation in schema["paths"][path].values()
+    ]
+    assert all("client devices" in operation["tags"] for operation in operations)
+    identity_group = next(
+        group for group in schema["x-tagGroups"] if group["name"] == "identity"
+    )
+    assert "client devices" in identity_group["tags"]

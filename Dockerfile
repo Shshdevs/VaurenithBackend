@@ -7,16 +7,12 @@ WORKDIR /app
 
 ENV PYTHONPATH=/app/src
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends libgomp1 \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd --system app \
+RUN groupadd --system app \
     && useradd --system --gid app --home-dir /app app
 
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir --upgrade pip \
-    && pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --no-compile -r requirements.txt
 
 COPY alembic.ini .
 COPY migrations ./migrations
