@@ -1,3 +1,4 @@
+import os
 from unittest.mock import Mock
 
 from app.core.config import Settings
@@ -7,7 +8,11 @@ from app.infrastructure.persistence import database
 def make_settings(**overrides: object) -> Settings:
     values: dict[str, object] = {
         "database_url": "postgresql+psycopg://user:password@localhost/test",
-        "auth_jwt_secret": "x" * 32,
+        "auth_jwt_issuer": "https://identity.test.vaurenith",
+        "auth_jwt_audience": "vaurenith-backend-test",
+        "auth_jwt_public_key_path": os.environ["AUTH_JWT_PUBLIC_KEY_PATH"],
+        "auth_jwt_clock_skew_seconds": 30,
+        "auth_jwt_max_lifetime_seconds": 3600,
         "cors_origins": "http://localhost",
         "api_prefix": "/api/v1",
         "log_level": "INFO",

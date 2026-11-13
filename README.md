@@ -13,7 +13,7 @@ Backend-модуль проекта Vaurenith предоставляет HTTP AP
    cp .env.example .env
    ```
 
-2. Заполните `.env`: задайте `POSTGRES_PASSWORD` и `AUTH_JWT_SECRET` разными случайными значениями длиной не менее 32 символов. Для генерации каждого значения можно выполнить `openssl rand -hex 32`.
+2. Заполните `.env`: задайте уникальный `POSTGRES_PASSWORD` и конфигурацию JWT от Vaurenith Identity Service. Укажите согласованные `AUTH_JWT_ISSUER` и `AUTH_JWT_AUDIENCE`, положите предоставленный issuer-ом public PEM ключ в `.local/keys/jwt-public.pem`, задайте `AUTH_JWT_PUBLIC_KEY_PATH`, clock skew и максимальное время жизни токена. Backend не выпускает JWT и не использует приватные ключи.
 3. Запустите Backend и PostgreSQL:
 
    ```bash
@@ -41,7 +41,7 @@ Backend-модуль проекта Vaurenith предоставляет HTTP AP
    source .venv/bin/activate
    ```
 
-3. Заполните `.env`: задайте `DATABASE_URL`, `AUTH_JWT_SECRET` и параметры подключения к PostgreSQL. Для JWT используйте случайное значение длиной не менее 32 символов.
+3. Заполните `.env`: задайте `DATABASE_URL`, параметры подключения к PostgreSQL, JWT issuer/audience и путь `AUTH_JWT_PUBLIC_KEY_PATH` к файлу RSA public key. Значения issuer и audience должны быть выданы владельцем Identity Service.
 4. Примените миграции и запустите сервер:
 
    ```bash
@@ -75,6 +75,8 @@ API будет доступно на `http://localhost:8000`, интеракти
 | `make db-revision MESSAGE="add table"` | Создаёт автогенерируемую миграцию |
 | `make docker` / `make docker-down` | Запускает локальный Compose-стек / останавливает его без удаления данных |
 | `make docker-build` / `make docker-logs` | Собирает образы / показывает логи сервисов |
+
+Для сквозной проверки JWT и Session подготовьте отдельную PostgreSQL базу в `TEST_DATABASE_URL` и запустите `RUN_JWT_SESSION_SMOKE=1 .venv/bin/pytest tests/integration/api/test_jwt_session_smoke.py`. Smoke-тест применит миграции к тестовой БД, создаст пользователя с тестовым JWT, проверит HTTP 200 на `/users/me` и негативные JWT сценарии. Тестовый пользователь и Session останутся в указанной тестовой БД. RSA private key и JWT не записываются в репозиторий или файлы; временный public key PEM удаляется по завершении. Без флага smoke-тест будет пропущен обычным pytest запуском.
 
 `make check` запускает линтер, проверку форматирования, Pyright, Bandit, Semgrep и тесты. При первом запуске pre-commit создаёт изолированное окружение Semgrep.
 
@@ -112,9 +114,13 @@ make test-integration
 | `POSTGRES_PASSWORD` | Пароль PostgreSQL |
 | `POSTGRES_PORT` | Порт PostgreSQL на `127.0.0.1`, по умолчанию `5432` |
 | `DATABASE_URL` | SQLAlchemy URL подключения приложения к PostgreSQL при локальном запуске без Compose |
-| `AUTH_JWT_SECRET` | Общий секрет HS256 для подписи и проверки access JWT; задайте случайное значение длиной не менее 32 символов |
+| `AUTH_JWT_ISSUER` | Точный issuer собственного Vaurenith Identity Service; обязателен |
+| `AUTH_JWT_AUDIENCE` | Единственная audience для VaurenithBackend; обязателен |
+| `AUTH_JWT_PUBLIC_KEY_PATH` | Путь к доверенному RSA public PEM ключу для RS256; по умолчанию `.local/keys/jwt-public.pem` |
+| `AUTH_JWT_CLOCK_SKEW_SECONDS` | Допустимый временной skew в секундах, от 0 до 60 |
+| `AUTH_JWT_MAX_LIFETIME_SECONDS` | Максимальная длительность access token в секундах |
 | `CORS_ORIGINS` | Список разрешённых браузерных источников через запятую |
 | `API_PREFIX` | Префикс маршрутов API, по умолчанию `/api/v1` |
 | `LOG_LEVEL` | Уровень логирования, например `INFO` |
 
-JWT для identity-маршрутов должен содержать `sub` (UUID пользователя), `exp`, `email` и `auth_provider`. `/users/me` также требует активную запись сессии, содержащую SHA-256 хеш полного токена. `POST /users/create` принимает проверенный токен без существующей сессии и создаёт пользователя вместе с записью сессии атомарно.
+JWT для identity-маршрутов должен соответствовать contract `at+jwt` / RS256, содержать `iss`, `aud`, `sub` (неизменяемый UUID внутреннего пользователя), `exp`, `iat`, `nbf`, `jti`, `email` и `auth_provider`. `/users/me` также требует активную Backend Session, содержащую SHA-256 хеш полного токена. `POST /users/create` принимает полностью проверенный JWT без существующей Session и создаёт пользователя вместе с первой Session атомарно.

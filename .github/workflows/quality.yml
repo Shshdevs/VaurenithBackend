@@ -24,7 +24,11 @@ jobs:
     env:
       DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/vaurenith
       TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/vaurenith_test
-      AUTH_JWT_SECRET: test-secret-for-authentication-32chars
+      AUTH_JWT_ISSUER: https://identity.test.vaurenith
+      AUTH_JWT_AUDIENCE: vaurenith-backend-test
+      AUTH_JWT_PUBLIC_KEY_PATH: .local/keys/jwt-public.pem
+      AUTH_JWT_CLOCK_SKEW_SECONDS: "30"
+      AUTH_JWT_MAX_LIFETIME_SECONDS: "3600"
       CORS_ORIGINS: ""
       API_PREFIX: /api/v1
       LOG_LEVEL: INFO
@@ -38,5 +42,22 @@ jobs:
             requirements.txt
             requirements-dev.txt
       - run: pip install -r requirements-dev.txt
+      - name: Generate test JWT public key
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          from cryptography.hazmat.primitives import serialization
+          from cryptography.hazmat.primitives.asymmetric import rsa
+
+          key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+          public_key = key.public_key().public_bytes(
+              serialization.Encoding.PEM,
+              serialization.PublicFormat.SubjectPublicKeyInfo,
+          )
+          key_path = Path(".local/keys/jwt-public.pem")
+          key_path.parent.mkdir(parents=True, exist_ok=True)
+          key_path.write_bytes(public_key)
+          PY
       - run: make db-upgrade-test
       - run: make check

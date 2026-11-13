@@ -2,7 +2,7 @@
 
 ## Локальная разработка
 
-Скопируйте `.env.example` в `.env`, задайте уникальные `POSTGRES_PASSWORD` и `AUTH_JWT_SECRET`, затем выполните `docker compose up --build`. По умолчанию опубликованные порты PostgreSQL и Backend доступны только с хоста через loopback: `127.0.0.1:5432` и `127.0.0.1:8000`. API доступен по `http://127.0.0.1:8000`; health endpoints — `/api/v1/health` и `/api/v1/health/ready`.
+Скопируйте `.env.example` в `.env`, задайте уникальный `POSTGRES_PASSWORD` и заполните все `AUTH_JWT_*` значения данными собственного Identity Service. Положите только предоставленный им публичный RSA PEM ключ в `.local/keys/jwt-public.pem`; `AUTH_JWT_PUBLIC_KEY_PATH` в `.env` указывает на этот файл. Compose подключает файл в контейнер Backend и change-log-pruner только для чтения. В частности, issuer и audience должны быть согласованы с Identity Service; не используйте фиктивные production значения. Не помещайте приватный signing key в репозиторий, build context, Docker image или логи. Каталог `.local/` исключён из Git. Запустите `docker compose up --build`. По умолчанию опубликованные порты PostgreSQL и Backend доступны только с хоста через loopback: `127.0.0.1:5432` и `127.0.0.1:8000`. API доступен по `http://127.0.0.1:8000`; health endpoints — `/api/v1/health` и `/api/v1/health/ready`.
 
 Backend внутри Compose слушает `0.0.0.0:8000`, чтобы принимать соединения в своей Docker network. Это адрес интерфейсов контейнера, а не публичный host binding. Контейнеры в default Compose network могут обращаться к `http://backend:8000`; host port binding не ограничивает внутреннее взаимодействие.
 
