@@ -23,3 +23,14 @@
 **/secrets*.yaml
 **/docker-compose*.yml
 **/docker-compose*.yaml
+**/.agents
+**/.codex
+**/.github
+**/.audit
+**/docs
+**/tests
+**/test-results
+**/requirements-dev.txt
+**/pyproject.toml
+**/.pre-commit-config.yaml
+**/.gitignore

@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlalchemy.exc import InterfaceError, OperationalError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.api.schemas import ApiResponse, ResponseCode, format_http_status
@@ -76,6 +77,20 @@ async def handle_unexpected_exception(
         getattr(request.state, "request_id", None),
     )
     return _error(500, ResponseCode.INTERNAL_ERROR)
+
+
+async def handle_database_connection_exception(
+    request: Request,
+    _exception: Exception,
+) -> JSONResponse:
+    logger.exception(
+        "Database connection error request_id=%s",
+        getattr(request.state, "request_id", None),
+    )
+    return _error(
+        status.HTTP_503_SERVICE_UNAVAILABLE,
+        ResponseCode.UNAVAILABLE,
+    )
 
 
 async def handle_not_found(
@@ -156,6 +171,14 @@ def register_error_handlers(application: FastAPI) -> None:
         handle_validation_exception,
     )
     application.add_exception_handler(Exception, handle_unexpected_exception)
+    application.add_exception_handler(
+        OperationalError,
+        handle_database_connection_exception,
+    )
+    application.add_exception_handler(
+        InterfaceError,
+        handle_database_connection_exception,
+    )
     application.add_exception_handler(NotFound, handle_not_found)
     application.add_exception_handler(InvalidInput, handle_invalid_input)
     application.add_exception_handler(Conflict, handle_conflict)
