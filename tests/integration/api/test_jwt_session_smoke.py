@@ -189,11 +189,9 @@ def run_smoke_test() -> None:
             ("missing subject", {}, ("sub",), "RS256", "at+jwt", None),
             ("missing expiry", {}, ("exp",), "RS256", "at+jwt", None),
             ("missing issued-at", {}, ("iat",), "RS256", "at+jwt", None),
-            ("missing not-before", {}, ("nbf",), "RS256", "at+jwt", None),
             ("missing jti", {}, ("jti",), "RS256", "at+jwt", None),
             ("missing email", {}, ("email",), "RS256", "at+jwt", None),
             ("missing provider", {}, ("auth_provider",), "RS256", "at+jwt", None),
-            ("invalid jti", {"jti": "not-a-uuid"}, (), "RS256", "at+jwt", None),
             ("invalid email type", {"email": 123}, (), "RS256", "at+jwt", None),
             ("invalid provider type", {"auth_provider": []}, (), "RS256", "at+jwt", None),
         )
@@ -239,7 +237,17 @@ def run_smoke_test() -> None:
 
             user_id = uuid4()
             email = f"jwt-session-smoke-{user_id}@example.test"
-            token = encode_token(private_key, user_id=user_id, email=email)
+            token = encode_token(
+                private_key,
+                user_id=user_id,
+                email=email,
+                overrides={
+                    "jti": (
+                        f"keycloak-random-id-{int(datetime.now(UTC).timestamp() * 1000)}"
+                    )
+                },
+                remove_claims=("nbf",),
+            )
             headers = {"Authorization": f"Bearer {token}"}
             creation_response = client.post(
                 "/api/v1/users/create",

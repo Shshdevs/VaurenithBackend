@@ -1,6 +1,7 @@
+import logging
 from collections.abc import Awaitable, Callable
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 
 from app.api.schemas import ApiResponse, ResponseCode, format_http_status
 from app.api.schemas.v1.identity import UserCreateRequest, UserData
@@ -12,6 +13,8 @@ from app.application.identity import (
     VerifiedIdentity,
 )
 from app.domain.common.enums import EntityType
+
+logger = logging.getLogger(__name__)
 
 
 def build_user_router(
@@ -74,9 +77,15 @@ def build_user_router(
     )
     async def create(
         request: UserCreateRequest,
+        http_request: Request,
         create_user: CreateUser = Depends(create_user_dependency),
         identity: VerifiedIdentity = Depends(verified_identity_dependency),
     ) -> ApiResponse[UserData]:
+        logger.info(
+            "identity_user_create_email_match request_id=%s match=%s",
+            getattr(http_request.state, "request_id", "unknown"),
+            identity.email.value == request.email,
+        )
         user = await create_user.execute(
             identity=identity,
             email=request.email,
