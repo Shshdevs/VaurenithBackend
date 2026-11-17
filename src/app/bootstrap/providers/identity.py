@@ -55,6 +55,7 @@ def provide_verify_identity_token() -> VerifyIdentityToken:
             audience=settings.auth_jwt_audience,
             clock_skew_seconds=settings.auth_jwt_clock_skew_seconds,
             max_lifetime_seconds=settings.auth_jwt_max_lifetime_seconds,
+            public_key_path=str(settings.auth_jwt_public_key_path),
         )
     )
 

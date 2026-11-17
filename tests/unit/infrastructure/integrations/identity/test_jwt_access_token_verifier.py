@@ -42,6 +42,15 @@ def test_verifies_valid_access_token() -> None:
     assert claims.auth_provider == "local"
 
 
+def test_accepts_keycloak_jti_without_not_before() -> None:
+    token = make_access_token(
+        {"jti": "keycloak-random-id-1763211512123"},
+        remove_claims=("nbf",),
+    )
+
+    assert make_verifier().verify(token) is not None
+
+
 @pytest.mark.parametrize(
     "claim,value",
     [("iss", "https://wrong.test"), ("iss", None), ("aud", "other-service"), ("aud", None)],
@@ -110,7 +119,7 @@ def test_rejects_invalid_claim_types(claim: str, value: object) -> None:
 
 @pytest.mark.parametrize(
     "claim",
-    ["iss", "aud", "sub", "exp", "iat", "nbf", "jti", "email", "auth_provider"],
+    ["iss", "aud", "sub", "exp", "iat", "jti", "email", "auth_provider"],
 )
 def test_rejects_missing_required_claims(claim: str) -> None:
     assert make_verifier().verify(make_access_token(remove_claims=(claim,))) is None
@@ -136,7 +145,6 @@ def test_rejects_lifetime_over_limit_and_invalid_jti() -> None:
         is None
     )
     assert make_verifier().verify(make_access_token({"jti": ""})) is None
-    assert make_verifier().verify(make_access_token({"jti": "not-a-uuid"})) is None
 
 
 def test_startup_fails_closed_when_jwt_configuration_is_missing(
@@ -151,10 +159,10 @@ def test_startup_fails_closed_when_jwt_configuration_is_missing(
     ):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.chdir(tmp_path)
-    from app.main import create_app
-
     get_settings.cache_clear()
     with pytest.raises(ValidationError):
+        from app.main import create_app
+
         create_app()
 
 

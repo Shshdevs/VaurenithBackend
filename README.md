@@ -123,7 +123,7 @@ make test-integration
 | `API_PREFIX` | Префикс маршрутов API, по умолчанию `/api/v1` |
 | `LOG_LEVEL` | Уровень логирования, например `INFO` |
 
-JWT для identity-маршрутов должен соответствовать contract `at+jwt` / RS256, содержать `iss`, `aud`, `sub` (неизменяемый UUID внутреннего пользователя), `exp`, `iat`, `nbf`, `jti`, `email` и `auth_provider`. `/users/me` также требует активную Backend Session, содержащую SHA-256 хеш полного токена. `POST /users/create` принимает полностью проверенный JWT без существующей Session и создаёт пользователя вместе с первой Session атомарно.
+JWT для identity-маршрутов должен соответствовать contract `at+jwt` / RS256, содержать `iss`, `aud`, `sub` (неизменяемый UUID внутреннего пользователя), `exp`, `iat`, непустой строковый `jti`, `email` и `auth_provider`; `nbf` необязателен, но проверяется, если присутствует. `/users/me` также требует активную Backend Session, содержащую SHA-256 хеш полного токена. `POST /users/create` принимает полностью проверенный JWT без существующей Session и создаёт пользователя вместе с первой Session атомарно.
 
 ## Экосистема Vaurenith
 
